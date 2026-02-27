@@ -1,0 +1,772 @@
+{
+  "england": {
+    "elo": 1944,
+    "winRate": 0.45,
+    "momentum": 0.6666666666666666,
+    "batStrength": 0.864821832187494,
+    "bowlStrength": 0.7287518434084271
+  },
+  "sri_lanka": {
+    "elo": 1754,
+    "winRate": 0.25,
+    "momentum": 0.3333333333333333,
+    "batStrength": 0.7203312299639328,
+    "bowlStrength": 0.5921704916594253
+  },
+  "india": {
+    "elo": 2098,
+    "winRate": 0.75,
+    "momentum": 0.8,
+    "batStrength": 0.870719998133253,
+    "bowlStrength": 0.7772873726635817
+  },
+  "australia": {
+    "elo": 2059,
+    "winRate": 0.6,
+    "momentum": 0.4,
+    "batStrength": 0.7800211735927012,
+    "bowlStrength": 0.8132385922270865
+  },
+  "south_africa": {
+    "elo": 1958,
+    "winRate": 0.65,
+    "momentum": 0.8,
+    "batStrength": 0.8245346643831403,
+    "bowlStrength": 0.6759601553031861
+  },
+  "pakistan": {
+    "elo": 1954,
+    "winRate": 0.8,
+    "momentum": 0.7333333333333333,
+    "batStrength": 0.6972493714400975,
+    "bowlStrength": 0.7848238387103303
+  },
+  "new_zealand": {
+    "elo": 2001,
+    "winRate": 0.7,
+    "momentum": 0.5333333333333333,
+    "batStrength": 0.8437556301999534,
+    "bowlStrength": 0.734235357432689
+  },
+  "west_indies": {
+    "elo": 1767,
+    "winRate": 0.35,
+    "momentum": 0.8,
+    "batStrength": 0.7034725127778811,
+    "bowlStrength": 0.6328929010746333
+  },
+  "zimbabwe": {
+    "elo": 1637,
+    "winRate": 0.45,
+    "momentum": 0.3333333333333333,
+    "batStrength": 0.6106367020720134,
+    "bowlStrength": 0.6565574031245249
+  },
+  "namibia": {
+    "elo": 1527,
+    "winRate": 0.25,
+    "momentum": 0,
+    "batStrength": 0.4959653123495443,
+    "bowlStrength": 0.5901589102707543
+  },
+  "canada": {
+    "elo": 1532,
+    "winRate": 0.4,
+    "momentum": 0.26666666666666666,
+    "batStrength": 0.5476275165879333,
+    "bowlStrength": 0.6504188089581442
+  },
+  "bangladesh": {
+    "elo": 1850,
+    "winRate": 0.65,
+    "momentum": 1,
+    "batStrength": 0.7173429145752199,
+    "bowlStrength": 0.7584781170797179
+  },
+  "kenya": {
+    "elo": 1475,
+    "winRate": 0.3,
+    "momentum": 0.5333333333333333,
+    "batStrength": 0.5018175491732594,
+    "bowlStrength": 0.6526594199329872
+  },
+  "netherlands": {
+    "elo": 1781,
+    "winRate": 0.6,
+    "momentum": 0.4,
+    "batStrength": 0.5523840481305997,
+    "bowlStrength": 0.6963647828680875
+  },
+  "united_states_of_america": {
+    "elo": 1701,
+    "winRate": 0.5,
+    "momentum": 0.13333333333333333,
+    "batStrength": 0.650843677518394,
+    "bowlStrength": 0.7422217022988112
+  },
+  "africa_xi": {
+    "elo": 1468,
+    "winRate": 0.25,
+    "momentum": 0.1,
+    "batStrength": 1,
+    "bowlStrength": 0.85
+  },
+  "asia_xi": {
+    "elo": 1532,
+    "winRate": 0.75,
+    "momentum": 0.9,
+    "batStrength": 1,
+    "bowlStrength": 0.925
+  },
+  "icc_world_xi": {
+    "elo": 1466,
+    "winRate": 0.14285714285714285,
+    "momentum": 0.2,
+    "batStrength": 0.676,
+    "bowlStrength": 0.5428571428571429
+  },
+  "ireland": {
+    "elo": 1770,
+    "winRate": 0.45,
+    "momentum": 0.4,
+    "batStrength": 0.6582140644012335,
+    "bowlStrength": 0.6872871393245764
+  },
+  "bermuda": {
+    "elo": 1556,
+    "winRate": 0.75,
+    "momentum": 0.6,
+    "batStrength": 0.5205557745373415,
+    "bowlStrength": 0.6988739298975605
+  },
+  "scotland": {
+    "elo": 1784,
+    "winRate": 0.75,
+    "momentum": 0.6,
+    "batStrength": 0.6256045666295731,
+    "bowlStrength": 0.7917818200747566
+  },
+  "united_arab_emirates": {
+    "elo": 1719,
+    "winRate": 0.65,
+    "momentum": 0.2,
+    "batStrength": 0.5553247363857561,
+    "bowlStrength": 0.7833150342010927
+  },
+  "hong_kong": {
+    "elo": 1586,
+    "winRate": 0.65,
+    "momentum": 1,
+    "batStrength": 0.5292468472279097,
+    "bowlStrength": 0.6692614516922761
+  },
+  "bahamas": {
+    "elo": 1327,
+    "winRate": 0.3,
+    "momentum": 0,
+    "batStrength": 0.3915576636742647,
+    "bowlStrength": 0.6202213167597961
+  },
+  "cayman_islands": {
+    "elo": 1420,
+    "winRate": 0.45,
+    "momentum": 0.6,
+    "batStrength": 0.5056421058838858,
+    "bowlStrength": 0.5927098362712899
+  },
+  "argentina": {
+    "elo": 1443,
+    "winRate": 0.6,
+    "momentum": 0.6,
+    "batStrength": 0.4203964743365931,
+    "bowlStrength": 0.6611279173123701
+  },
+  "italy": {
+    "elo": 1686,
+    "winRate": 0.6,
+    "momentum": 0.26666666666666666,
+    "batStrength": 0.5434014791738361,
+    "bowlStrength": 0.6760822645934244
+  },
+  "nepal": {
+    "elo": 1629,
+    "winRate": 0.5,
+    "momentum": 0.2,
+    "batStrength": 0.604057653943678,
+    "bowlStrength": 0.6679274362246036
+  },
+  "tanzania": {
+    "elo": 1533,
+    "winRate": 0.45,
+    "momentum": 0,
+    "batStrength": 0.41016505241513085,
+    "bowlStrength": 0.6434868933010971
+  },
+  "denmark": {
+    "elo": 1498,
+    "winRate": 0.4,
+    "momentum": 0,
+    "batStrength": 0.5932435704701514,
+    "bowlStrength": 0.6484215744469723
+  },
+  "singapore": {
+    "elo": 1315,
+    "winRate": 0.35,
+    "momentum": 0.2,
+    "batStrength": 0.453142398740605,
+    "bowlStrength": 0.5947549189043244
+  },
+  "malaysia": {
+    "elo": 1514,
+    "winRate": 0.45,
+    "momentum": 0,
+    "batStrength": 0.44977744044835755,
+    "bowlStrength": 0.5991741911241706
+  },
+  "ghana": {
+    "elo": 1369,
+    "winRate": 0.3,
+    "momentum": 0.6,
+    "batStrength": 0.40923427751983005,
+    "bowlStrength": 0.6291052191372691
+  },
+  "vanuatu": {
+    "elo": 1469,
+    "winRate": 0.45,
+    "momentum": 0.6666666666666666,
+    "batStrength": 0.45784323767743096,
+    "bowlStrength": 0.6542925672982105
+  },
+  "bhutan": {
+    "elo": 1397,
+    "winRate": 0.45,
+    "momentum": 0.4,
+    "batStrength": 0.42139160032818007,
+    "bowlStrength": 0.6126038221028812
+  },
+  "japan": {
+    "elo": 1532,
+    "winRate": 0.55,
+    "momentum": 0.13333333333333333,
+    "batStrength": 0.4900730167684665,
+    "bowlStrength": 0.6575595091505237
+  },
+  "samoa": {
+    "elo": 1348,
+    "winRate": 0.2,
+    "momentum": 0.06666666666666667,
+    "batStrength": 0.44277950551428935,
+    "bowlStrength": 0.6250690569774517
+  },
+  "belgium": {
+    "elo": 1479,
+    "winRate": 0.35,
+    "momentum": 0,
+    "batStrength": 0.5769395733867151,
+    "bowlStrength": 0.644636928210878
+  },
+  "norway": {
+    "elo": 1528,
+    "winRate": 0.6,
+    "momentum": 0.7333333333333333,
+    "batStrength": 0.4974374375617839,
+    "bowlStrength": 0.6822831179683556
+  },
+  "oman": {
+    "elo": 1721,
+    "winRate": 0.8,
+    "momentum": 0.8,
+    "batStrength": 0.5475815173879772,
+    "bowlStrength": 0.7273688114238784
+  },
+  "uganda": {
+    "elo": 1678,
+    "winRate": 0.55,
+    "momentum": 0.3333333333333333,
+    "batStrength": 0.43557021485900654,
+    "bowlStrength": 0.7426066350165952
+  },
+  "thailand": {
+    "elo": 1600,
+    "winRate": 0.45,
+    "momentum": 0,
+    "batStrength": 0.4304522939183304,
+    "bowlStrength": 0.786208995906283
+  },
+  "papua_new_guinea": {
+    "elo": 1587,
+    "winRate": 0.4,
+    "momentum": 0.3333333333333333,
+    "batStrength": 0.48444405415580183,
+    "bowlStrength": 0.6750702491842306
+  },
+  "nigeria": {
+    "elo": 1582,
+    "winRate": 0.65,
+    "momentum": 0.9333333333333333,
+    "batStrength": 0.5066502465529801,
+    "bowlStrength": 0.7461151255877058
+  },
+  "guernsey": {
+    "elo": 1511,
+    "winRate": 0.45,
+    "momentum": 0,
+    "batStrength": 0.5313724862174837,
+    "bowlStrength": 0.6601588147926494
+  },
+  "jersey": {
+    "elo": 1666,
+    "winRate": 0.7,
+    "momentum": 0.6666666666666666,
+    "batStrength": 0.6246699025042105,
+    "bowlStrength": 0.7419441525015589
+  },
+  "kuwait": {
+    "elo": 1530,
+    "winRate": 0.45,
+    "momentum": 0.5333333333333333,
+    "batStrength": 0.4938823432469236,
+    "bowlStrength": 0.6406022760750909
+  },
+  "saudi_arabia": {
+    "elo": 1458,
+    "winRate": 0.45,
+    "momentum": 0,
+    "batStrength": 0.5007639158462842,
+    "bowlStrength": 0.5863512666023543
+  },
+  "bahrain": {
+    "elo": 1568,
+    "winRate": 0.65,
+    "momentum": 0,
+    "batStrength": 0.5163297739887566,
+    "bowlStrength": 0.6549697463871719
+  },
+  "maldives": {
+    "elo": 1274,
+    "winRate": 0.3,
+    "momentum": 0.5333333333333333,
+    "batStrength": 0.3985513159839346,
+    "bowlStrength": 0.5675969204297118
+  },
+  "south_korea": {
+    "elo": 1269,
+    "winRate": 0.1,
+    "momentum": 0.2,
+    "batStrength": 0.39281748823361257,
+    "bowlStrength": 0.6354837378878908
+  },
+  "china": {
+    "elo": 1335,
+    "winRate": 0.35,
+    "momentum": 0.6666666666666666,
+    "batStrength": 0.24002199959188278,
+    "bowlStrength": 0.6221008842176038
+  },
+  "fiji": {
+    "elo": 1419,
+    "winRate": 0.45,
+    "momentum": 0.6666666666666666,
+    "batStrength": 0.44756440790098634,
+    "bowlStrength": 0.6313489253529173
+  },
+  "suriname": {
+    "elo": 1446,
+    "winRate": 0.4166666666666667,
+    "momentum": 0.4,
+    "batStrength": 0.5063333333333333,
+    "bowlStrength": 0.7583333333333333
+  },
+  "botswana": {
+    "elo": 1378,
+    "winRate": 0.35,
+    "momentum": 0,
+    "batStrength": 0.4046741451276711,
+    "bowlStrength": 0.6517276645199843
+  },
+  "gibraltar": {
+    "elo": 1411,
+    "winRate": 0.45,
+    "momentum": 0.4666666666666667,
+    "batStrength": 0.5778692378179164,
+    "bowlStrength": 0.6064206818614649
+  },
+  "israel": {
+    "elo": 1445,
+    "winRate": 0.3333333333333333,
+    "momentum": 0.5333333333333333,
+    "batStrength": 0.4826666666666667,
+    "bowlStrength": 0.6466666666666667
+  },
+  "germany": {
+    "elo": 1579,
+    "winRate": 0.5,
+    "momentum": 0.9333333333333333,
+    "batStrength": 0.49567269082750237,
+    "bowlStrength": 0.6441313419007384
+  },
+  "isle_of_man": {
+    "elo": 1512,
+    "winRate": 0.55,
+    "momentum": 0.3333333333333333,
+    "batStrength": 0.4041497437477199,
+    "bowlStrength": 0.5861418532925995
+  },
+  "spain": {
+    "elo": 1675,
+    "winRate": 0.8,
+    "momentum": 1,
+    "batStrength": 0.4862193256716415,
+    "bowlStrength": 0.7756721949721568
+  },
+  "qatar": {
+    "elo": 1485,
+    "winRate": 0.4,
+    "momentum": 0.4,
+    "batStrength": 0.537805302341474,
+    "bowlStrength": 0.6447735146727025
+  },
+  "indonesia": {
+    "elo": 1544,
+    "winRate": 0.6,
+    "momentum": 1,
+    "batStrength": 0.4309436910147298,
+    "bowlStrength": 0.679565849875323
+  },
+  "philippines": {
+    "elo": 1407,
+    "winRate": 0.55,
+    "momentum": 0.4,
+    "batStrength": 0.45049864191181055,
+    "bowlStrength": 0.6266103930547527
+  },
+  "sierra_leone": {
+    "elo": 1330,
+    "winRate": 0.25,
+    "momentum": 0.26666666666666666,
+    "batStrength": 0.40266509808868317,
+    "bowlStrength": 0.5878110240995694
+  },
+  "zambia": {
+    "elo": 1429,
+    "winRate": 0.3333333333333333,
+    "momentum": 0.5333333333333333,
+    "batStrength": 0.5226666666666666,
+    "bowlStrength": 0.6799999999999999
+  },
+  "france": {
+    "elo": 1388,
+    "winRate": 0.35,
+    "momentum": 0.3333333333333333,
+    "batStrength": 0.4605364194866814,
+    "bowlStrength": 0.6034069790136708
+  },
+  "austria": {
+    "elo": 1648,
+    "winRate": 0.75,
+    "momentum": 0.7333333333333333,
+    "batStrength": 0.5880033837044004,
+    "bowlStrength": 0.739693153605519
+  },
+  "sweden": {
+    "elo": 1486,
+    "winRate": 0.45,
+    "momentum": 0.7333333333333333,
+    "batStrength": 0.5095581007328552,
+    "bowlStrength": 0.7427444687059117
+  },
+  "gambia": {
+    "elo": 1369,
+    "winRate": 0.09090909090909091,
+    "momentum": 0.13333333333333333,
+    "batStrength": 0.32581818181818184,
+    "bowlStrength": 0.51
+  },
+  "rwanda": {
+    "elo": 1521,
+    "winRate": 0.55,
+    "momentum": 0.26666666666666666,
+    "batStrength": 0.43492106786541657,
+    "bowlStrength": 0.6870861980556333
+  },
+  "lesotho": {
+    "elo": 1210,
+    "winRate": 0.1,
+    "momentum": 0.3333333333333333,
+    "batStrength": 0.2807619126951269,
+    "bowlStrength": 0.5673285250297766
+  },
+  "malawi": {
+    "elo": 1374,
+    "winRate": 0.3,
+    "momentum": 0.4666666666666667,
+    "batStrength": 0.4272928532584607,
+    "bowlStrength": 0.5617771111858783
+  },
+  "mozambique": {
+    "elo": 1286,
+    "winRate": 0.4,
+    "momentum": 0.06666666666666667,
+    "batStrength": 0.3976486160808801,
+    "bowlStrength": 0.6254978327208633
+  },
+  "cyprus": {
+    "elo": 1598,
+    "winRate": 0.9,
+    "momentum": 1,
+    "batStrength": 0.5362749200691781,
+    "bowlStrength": 0.7782291250615911
+  },
+  "finland": {
+    "elo": 1373,
+    "winRate": 0.35,
+    "momentum": 0.06666666666666667,
+    "batStrength": 0.4249594699890416,
+    "bowlStrength": 0.6123515226721172
+  },
+  "portugal": {
+    "elo": 1580,
+    "winRate": 0.7,
+    "momentum": 0.6666666666666666,
+    "batStrength": 0.5393359993998854,
+    "bowlStrength": 0.7287424063163298
+  },
+  "czech_republic": {
+    "elo": 1324,
+    "winRate": 0.15,
+    "momentum": 0.13333333333333333,
+    "batStrength": 0.46556831864510423,
+    "bowlStrength": 0.5471838051155454
+  },
+  "belize": {
+    "elo": 1345,
+    "winRate": 0.17647058823529413,
+    "momentum": 0.4666666666666667,
+    "batStrength": 0.356,
+    "bowlStrength": 0.6142857142857143
+  },
+  "panama": {
+    "elo": 1376,
+    "winRate": 0.3,
+    "momentum": 0.9333333333333333,
+    "batStrength": 0.3834738644422922,
+    "bowlStrength": 0.5744258038672403
+  },
+  "myanmar": {
+    "elo": 1321,
+    "winRate": 0.4,
+    "momentum": 0,
+    "batStrength": 0.33141719386764257,
+    "bowlStrength": 0.5964780873697035
+  },
+  "swaziland": {
+    "elo": 1367,
+    "winRate": 0,
+    "momentum": 0,
+    "batStrength": 0.36133333333333334,
+    "bowlStrength": 0.2625
+  },
+  "st_helena": {
+    "elo": 1408,
+    "winRate": 0.2727272727272727,
+    "momentum": 0.3333333333333333,
+    "batStrength": 0.34909090909090906,
+    "bowlStrength": 0.64
+  },
+  "mali": {
+    "elo": 1327,
+    "winRate": 0,
+    "momentum": 0,
+    "batStrength": 0.15519999999999998,
+    "bowlStrength": 0.52
+  },
+  "iran": {
+    "elo": 1480,
+    "winRate": 0,
+    "momentum": 0,
+    "batStrength": 0.432,
+    "bowlStrength": 0.2
+  },
+  "luxembourg": {
+    "elo": 1361,
+    "winRate": 0.2,
+    "momentum": 0.26666666666666666,
+    "batStrength": 0.49600383095033873,
+    "bowlStrength": 0.6342479405665824
+  },
+  "bulgaria": {
+    "elo": 1264,
+    "winRate": 0.25,
+    "momentum": 0.06666666666666667,
+    "batStrength": 0.5054037895120993,
+    "bowlStrength": 0.5233017620371542
+  },
+  "romania": {
+    "elo": 1523,
+    "winRate": 0.55,
+    "momentum": 0.26666666666666666,
+    "batStrength": 0.5803246660993888,
+    "bowlStrength": 0.7110271616524668
+  },
+  "greece": {
+    "elo": 1354,
+    "winRate": 0.2,
+    "momentum": 0.4666666666666667,
+    "batStrength": 0.40780906225603325,
+    "bowlStrength": 0.5880944022396065
+  },
+  "serbia": {
+    "elo": 1321,
+    "winRate": 0.35,
+    "momentum": 0.06666666666666667,
+    "batStrength": 0.4866782912398288,
+    "bowlStrength": 0.6466432101218282
+  },
+  "malta": {
+    "elo": 1363,
+    "winRate": 0.35,
+    "momentum": 0.5333333333333333,
+    "batStrength": 0.547479525990704,
+    "bowlStrength": 0.5834164657413173
+  },
+  "hungary": {
+    "elo": 1461,
+    "winRate": 0.5,
+    "momentum": 0.26666666666666666,
+    "batStrength": 0.6171937063965958,
+    "bowlStrength": 0.6900878354889021
+  },
+  "eswatini": {
+    "elo": 1258,
+    "winRate": 0.25,
+    "momentum": 0.8,
+    "batStrength": 0.3081826383074316,
+    "bowlStrength": 0.5597634938926406
+  },
+  "cameroon": {
+    "elo": 1297,
+    "winRate": 0.3,
+    "momentum": 0.7333333333333333,
+    "batStrength": 0.27589990690951344,
+    "bowlStrength": 0.5316005210729376
+  },
+  "estonia": {
+    "elo": 1418,
+    "winRate": 0.55,
+    "momentum": 0.8,
+    "batStrength": 0.47169974675389326,
+    "bowlStrength": 0.7146187430891187
+  },
+  "seychelles": {
+    "elo": 1383,
+    "winRate": 0.16666666666666666,
+    "momentum": 0,
+    "batStrength": 0.3456666666666667,
+    "bowlStrength": 0.4666666666666667
+  },
+  "brazil": {
+    "elo": 1447,
+    "winRate": 0.45,
+    "momentum": 0.4,
+    "batStrength": 0.3307374664535549,
+    "bowlStrength": 0.6638941165042904
+  },
+  "switzerland": {
+    "elo": 1645,
+    "winRate": 0.8,
+    "momentum": 1,
+    "batStrength": 0.5497252732117516,
+    "bowlStrength": 0.7631223429892214
+  },
+  "turkey": {
+    "elo": 1379,
+    "winRate": 0.4,
+    "momentum": 0.4,
+    "batStrength": 0.4680385016030148,
+    "bowlStrength": 0.6326221853964925
+  },
+  "croatia": {
+    "elo": 1318,
+    "winRate": 0.1,
+    "momentum": 0,
+    "batStrength": 0.3703796268130877,
+    "bowlStrength": 0.41733481275467665
+  },
+  "slovenia": {
+    "elo": 1333,
+    "winRate": 0.06666666666666667,
+    "momentum": 0,
+    "batStrength": 0.4608,
+    "bowlStrength": 0.5
+  },
+  "barbados": {
+    "elo": 1522,
+    "winRate": 0.3333333333333333,
+    "momentum": 0.16666666666666666,
+    "batStrength": 0.36,
+    "bowlStrength": 0.36666666666666664
+  },
+  "cook_islands": {
+    "elo": 1342,
+    "winRate": 0.35,
+    "momentum": 0,
+    "batStrength": 0.4250778053694802,
+    "bowlStrength": 0.591360570779112
+  },
+  "cambodia": {
+    "elo": 1291,
+    "winRate": 0.3,
+    "momentum": 0,
+    "batStrength": 0.42192793863379197,
+    "bowlStrength": 0.5120996965962151
+  },
+  "mongolia": {
+    "elo": 1181,
+    "winRate": 0,
+    "momentum": 0,
+    "batStrength": 0.17396231709188356,
+    "bowlStrength": 0.39413670229996767
+  },
+  "chile": {
+    "elo": 1419,
+    "winRate": 0,
+    "momentum": 0,
+    "batStrength": 0.165,
+    "bowlStrength": 0.4
+  },
+  "mexico": {
+    "elo": 1449,
+    "winRate": 0.5,
+    "momentum": 0.4666666666666667,
+    "batStrength": 0.38380000000000003,
+    "bowlStrength": 0.82
+  },
+  "costa_rica": {
+    "elo": 1412,
+    "winRate": 0.2,
+    "momentum": 0.3333333333333333,
+    "batStrength": 0.29719999999999996,
+    "bowlStrength": 0.6
+  },
+  "ivory_coast": {
+    "elo": 1409,
+    "winRate": 0,
+    "momentum": 0,
+    "batStrength": 0.1008,
+    "bowlStrength": 0.26666666666666666
+  },
+  "turks_and_caicos_island": {
+    "elo": 1453,
+    "winRate": 0.25,
+    "momentum": 0.3,
+    "batStrength": 0.396,
+    "bowlStrength": 0.6666666666666667
+  },
+  "timor_leste": {
+    "elo": 1370,
+    "winRate": 0,
+    "momentum": 0,
+    "batStrength": 0.2175,
+    "bowlStrength": 0.375
+  }
+}

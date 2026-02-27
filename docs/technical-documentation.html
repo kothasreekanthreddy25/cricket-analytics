@@ -1,0 +1,1045 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cricket Analytics - Technical Documentation</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    color: #1a1a2e;
+    background: #fff;
+    line-height: 1.7;
+    font-size: 14px;
+    padding: 0;
+  }
+
+  @media print {
+    body { padding: 0; font-size: 12px; }
+    .page-break { page-break-before: always; }
+    .no-break { page-break-inside: avoid; }
+    .cover { height: 100vh; }
+  }
+
+  /* Cover Page */
+  .cover {
+    background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+    color: white;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    text-align: center;
+    padding: 60px 40px;
+  }
+  .cover h1 {
+    font-size: 42px;
+    font-weight: 700;
+    background: linear-gradient(to right, #a78bfa, #22d3ee);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 16px;
+  }
+  .cover h2 {
+    font-size: 22px;
+    font-weight: 400;
+    color: #a5b4fc;
+    margin-bottom: 40px;
+  }
+  .cover .badges {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-bottom: 40px;
+  }
+  .cover .badge {
+    padding: 8px 18px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 500;
+  }
+  .cover .badge.tf { background: rgba(255,107,53,0.15); color: #ff9a76; border: 1px solid rgba(255,107,53,0.3); }
+  .cover .badge.socket { background: rgba(34,211,238,0.15); color: #67e8f9; border: 1px solid rgba(34,211,238,0.3); }
+  .cover .badge.next { background: rgba(167,139,250,0.15); color: #c4b5fd; border: 1px solid rgba(167,139,250,0.3); }
+  .cover .meta {
+    color: #94a3b8;
+    font-size: 13px;
+    margin-top: 20px;
+  }
+
+  /* Content */
+  .content {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 50px 40px;
+  }
+
+  h2 {
+    font-size: 28px;
+    font-weight: 700;
+    color: #1e1b4b;
+    margin: 50px 0 20px;
+    padding-bottom: 10px;
+    border-bottom: 3px solid #a78bfa;
+  }
+  h3 {
+    font-size: 20px;
+    font-weight: 600;
+    color: #312e81;
+    margin: 35px 0 12px;
+  }
+  h4 {
+    font-size: 16px;
+    font-weight: 600;
+    color: #4338ca;
+    margin: 25px 0 8px;
+  }
+
+  p { margin: 10px 0; color: #374151; }
+
+  /* Code blocks */
+  pre {
+    background: #1e1b4b;
+    color: #e2e8f0;
+    padding: 20px;
+    border-radius: 10px;
+    overflow-x: auto;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12.5px;
+    line-height: 1.6;
+    margin: 16px 0;
+    border-left: 4px solid #7c3aed;
+  }
+  code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12.5px;
+  }
+  p code, li code {
+    background: #f3f0ff;
+    color: #5b21b6;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 12px;
+  }
+
+  /* Keywords in code */
+  .kw { color: #c084fc; }
+  .fn { color: #67e8f9; }
+  .str { color: #86efac; }
+  .cm { color: #64748b; font-style: italic; }
+  .num { color: #fbbf24; }
+  .type { color: #f9a8d4; }
+
+  /* Info boxes */
+  .info-box {
+    padding: 16px 20px;
+    border-radius: 10px;
+    margin: 16px 0;
+  }
+  .info-box.blue { background: #eff6ff; border-left: 4px solid #3b82f6; }
+  .info-box.green { background: #f0fdf4; border-left: 4px solid #22c55e; }
+  .info-box.purple { background: #faf5ff; border-left: 4px solid #a855f7; }
+  .info-box.orange { background: #fff7ed; border-left: 4px solid #f97316; }
+  .info-box strong { display: block; margin-bottom: 4px; }
+
+  /* Architecture diagram */
+  .diagram {
+    background: #fafafe;
+    border: 2px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 24px;
+    margin: 20px 0;
+    text-align: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    line-height: 2;
+    white-space: pre;
+    overflow-x: auto;
+  }
+
+  /* Table */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 16px 0;
+    font-size: 13px;
+  }
+  th {
+    background: #312e81;
+    color: white;
+    padding: 10px 14px;
+    text-align: left;
+    font-weight: 600;
+  }
+  td {
+    padding: 10px 14px;
+    border-bottom: 1px solid #e5e7eb;
+  }
+  tr:nth-child(even) td { background: #f9fafb; }
+
+  ul, ol { margin: 10px 0 10px 24px; color: #374151; }
+  li { margin: 6px 0; }
+
+  .toc a { color: #4338ca; text-decoration: none; }
+  .toc a:hover { text-decoration: underline; }
+  .toc li { margin: 8px 0; }
+
+  .file-path {
+    display: inline-block;
+    background: #f1f5f9;
+    color: #475569;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+  }
+</style>
+</head>
+<body>
+
+<!-- COVER PAGE -->
+<div class="cover">
+  <h1>Cricket Analytics</h1>
+  <h2>Technical Documentation</h2>
+  <div class="badges">
+    <span class="badge tf">TensorFlow.js Neural Network</span>
+    <span class="badge socket">Socket.IO Real-Time Scores</span>
+    <span class="badge next">Next.js 14 App Router</span>
+  </div>
+  <p style="color: #cbd5e1; max-width: 500px; font-size: 15px;">
+    AI-powered match predictions using a feedforward neural network, with real-time live score updates via WebSocket connections.
+  </p>
+  <div class="meta">
+    <p>ICC T20 World Cup 2026 Edition</p>
+    <p>Version 1.0 &mdash; February 2026</p>
+  </div>
+</div>
+
+<!-- TABLE OF CONTENTS -->
+<div class="content page-break">
+  <h2>Table of Contents</h2>
+  <ol class="toc" style="font-size: 15px; line-height: 2.2;">
+    <li><a href="#part1">Part 1: TensorFlow.js Match Prediction Model</a>
+      <ol>
+        <li><a href="#s1-1">1.1 Architecture Overview</a></li>
+        <li><a href="#s1-2">1.2 Feature Engineering (14 Input Features)</a></li>
+        <li><a href="#s1-3">1.3 Neural Network Structure</a></li>
+        <li><a href="#s1-4">1.4 Domain Weight Initialization</a></li>
+        <li><a href="#s1-5">1.5 Prediction &amp; Confidence Scoring</a></li>
+        <li><a href="#s1-6">1.6 Training Pipeline</a></li>
+        <li><a href="#s1-7">1.7 Analysis Engine Integration</a></li>
+      </ol>
+    </li>
+    <li><a href="#part2">Part 2: Socket.IO Real-Time Live Scores</a>
+      <ol>
+        <li><a href="#s2-1">2.1 Architecture Overview</a></li>
+        <li><a href="#s2-2">2.2 Type Definitions (Event Contract)</a></li>
+        <li><a href="#s2-3">2.3 Server-Side: Socket.IO Bootstrap</a></li>
+        <li><a href="#s2-4">2.4 Server-Side: Live Score Poller</a></li>
+        <li><a href="#s2-5">2.5 Client-Side: React Hook</a></li>
+        <li><a href="#s2-6">2.6 UI Integration</a></li>
+      </ol>
+    </li>
+    <li><a href="#part3">Part 3: File Reference &amp; Data Flow</a></li>
+  </ol>
+</div>
+
+<!-- ==================== PART 1: TENSORFLOW.JS ==================== -->
+<div class="content page-break">
+  <h2 id="part1">Part 1: TensorFlow.js Match Prediction Model</h2>
+
+  <h3 id="s1-1">1.1 Architecture Overview</h3>
+  <p>
+    The match prediction system uses a <strong>feedforward neural network</strong> built with
+    TensorFlow.js (<code>@tensorflow/tfjs</code>) that runs entirely server-side in the Node.js
+    runtime. The model takes 14 normalized input features describing two competing teams and outputs
+    win probabilities with a confidence score.
+  </p>
+
+  <div class="diagram">
+ 14 Features       Hidden Layer 1      Hidden Layer 2      Output
+ (Normalized)       (32 neurons)        (16 neurons)     (2 classes)
+
+ [teamARanking  ] ──┐
+ [teamBRanking  ] ──┤                                   ┌──────────┐
+ [teamAWinRate  ] ──┤   ┌──────────┐   ┌──────────┐    │ P(Team A)│
+ [teamBWinRate  ] ──┤──>│ Dense 32 │──>│ Dense 16 │───>│          │
+ [h2hWinRate    ] ──┤   │  (ReLU)  │   │  (ReLU)  │    │ P(Team B)│
+ [isHome        ] ──┤   └──────────┘   └──────────┘    └──────────┘
+ [pitchType     ] ──┤        |                             Softmax
+ [formatFactor  ] ──┤    Dropout(0.2)
+ [teamAMomentum ] ──┤
+ [teamBMomentum ] ──┤
+ [teamABatStr   ] ──┤
+ [teamBBatStr   ] ──┤
+ [teamABowlStr  ] ──┤
+ [teamBBowlStr  ] ──┘
+  </div>
+
+  <div class="info-box purple">
+    <strong>File Location</strong>
+    <span class="file-path">lib/tf-model.ts</span> &mdash; Core TensorFlow.js model definition, prediction, and training functions.
+  </div>
+
+  <!-- 1.2 Features -->
+  <h3 id="s1-2" class="page-break">1.2 Feature Engineering (14 Input Features)</h3>
+  <p>
+    Every feature is normalized to the <code>[0, 1]</code> range. The model receives a flat array
+    of 14 floating-point numbers:
+  </p>
+
+  <table>
+    <thead>
+      <tr><th>#</th><th>Feature</th><th>Range</th><th>Description</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>0</td><td><code>teamARanking</code></td><td>0.05 &ndash; 1.0</td><td>ICC ranking normalized (rank 1 = 1.0, rank 20 = 0.05)</td></tr>
+      <tr><td>1</td><td><code>teamBRanking</code></td><td>0.05 &ndash; 1.0</td><td>Same for Team B</td></tr>
+      <tr><td>2</td><td><code>teamARecentWinRate</code></td><td>0 &ndash; 1</td><td>Blended odds-informed win rate + ranking factor</td></tr>
+      <tr><td>3</td><td><code>teamBRecentWinRate</code></td><td>0 &ndash; 1</td><td>Same for Team B</td></tr>
+      <tr><td>4</td><td><code>h2hTeamAWinRate</code></td><td>0 &ndash; 1</td><td>Head-to-head historical win rate</td></tr>
+      <tr><td>5</td><td><code>isHome</code></td><td>0, 0.5, 1</td><td>1 = Team A home, 0.5 = neutral, 0 = away</td></tr>
+      <tr><td>6</td><td><code>pitchType</code></td><td>0 &ndash; 1</td><td>0 = pace-friendly, 0.5 = balanced, 1 = spin-friendly</td></tr>
+      <tr><td>7</td><td><code>formatFactor</code></td><td>0, 0.5, 1</td><td>0 = Test, 0.5 = ODI, 1 = T20</td></tr>
+      <tr><td>8</td><td><code>teamAMomentum</code></td><td>0 &ndash; 1</td><td>Recent form momentum (ranking * 0.7 + home bonus)</td></tr>
+      <tr><td>9</td><td><code>teamBMomentum</code></td><td>0 &ndash; 1</td><td>Same for Team B</td></tr>
+      <tr><td>10</td><td><code>teamABattingStrength</code></td><td>0 &ndash; 1</td><td>Batting strength derived from ranking</td></tr>
+      <tr><td>11</td><td><code>teamBBattingStrength</code></td><td>0 &ndash; 1</td><td>Same for Team B</td></tr>
+      <tr><td>12</td><td><code>teamABowlingStrength</code></td><td>0 &ndash; 1</td><td>Bowling strength adjusted by pitch conditions</td></tr>
+      <tr><td>13</td><td><code>teamBBowlingStrength</code></td><td>0 &ndash; 1</td><td>Same for Team B</td></tr>
+    </tbody>
+  </table>
+
+  <h4>Feature Interface Definition</h4>
+<pre><span class="kw">export interface</span> <span class="type">MatchFeatures</span> {
+  <span class="cm">// Team strength indicators (0-1 normalized)</span>
+  teamARanking: <span class="type">number</span>
+  teamBRanking: <span class="type">number</span>
+  teamARecentWinRate: <span class="type">number</span>
+  teamBRecentWinRate: <span class="type">number</span>
+
+  <span class="cm">// Head to head</span>
+  h2hTeamAWinRate: <span class="type">number</span>
+
+  <span class="cm">// Venue/conditions</span>
+  isHome: <span class="type">number</span>       <span class="cm">// 1 = teamA home, 0.5 = neutral, 0 = away</span>
+  pitchType: <span class="type">number</span>    <span class="cm">// 0 = pace, 0.5 = balanced, 1 = spin</span>
+
+  <span class="cm">// Format factor</span>
+  formatFactor: <span class="type">number</span> <span class="cm">// 0 = Test, 0.5 = ODI, 1 = T20</span>
+
+  <span class="cm">// Form momentum</span>
+  teamAMomentum: <span class="type">number</span>
+  teamBMomentum: <span class="type">number</span>
+
+  <span class="cm">// Batting/bowling strength</span>
+  teamABattingStrength: <span class="type">number</span>
+  teamBBattingStrength: <span class="type">number</span>
+  teamABowlingStrength: <span class="type">number</span>
+  teamBBowlingStrength: <span class="type">number</span>
+}</pre>
+
+  <!-- 1.3 Network Structure -->
+  <h3 id="s1-3" class="page-break">1.3 Neural Network Structure</h3>
+  <p>The model is a <strong>Sequential</strong> neural network with the following layers:</p>
+
+  <table>
+    <thead>
+      <tr><th>Layer</th><th>Type</th><th>Units</th><th>Activation</th><th>Purpose</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>1</td><td>Dense</td><td>32</td><td>ReLU</td><td>Feature extraction &mdash; learns non-linear combinations</td></tr>
+      <tr><td>2</td><td>Dropout</td><td>&mdash;</td><td>&mdash;</td><td>20% dropout to prevent overfitting</td></tr>
+      <tr><td>3</td><td>Dense</td><td>16</td><td>ReLU</td><td>Deeper feature abstraction</td></tr>
+      <tr><td>4</td><td>Dense</td><td>2</td><td>Softmax</td><td>Output: probabilities summing to 1.0</td></tr>
+    </tbody>
+  </table>
+
+  <h4>Model Construction Code</h4>
+<pre><span class="kw">import</span> * <span class="kw">as</span> tf <span class="kw">from</span> <span class="str">'@tensorflow/tfjs'</span>
+
+<span class="kw">const</span> FEATURE_COUNT = <span class="num">14</span>
+<span class="kw">const</span> HIDDEN_UNITS_1 = <span class="num">32</span>
+<span class="kw">const</span> HIDDEN_UNITS_2 = <span class="num">16</span>
+
+<span class="kw">function</span> <span class="fn">buildModel</span>(): tf.LayersModel {
+  <span class="kw">const</span> m = tf.<span class="fn">sequential</span>()
+
+  <span class="cm">// Layer 1: Dense with 32 units, ReLU activation</span>
+  m.<span class="fn">add</span>(tf.layers.<span class="fn">dense</span>({
+    inputShape: [FEATURE_COUNT],
+    units: HIDDEN_UNITS_1,
+    activation: <span class="str">'relu'</span>,
+    kernelInitializer: <span class="str">'glorotUniform'</span>,
+  }))
+
+  <span class="cm">// Layer 2: Dropout (20%) for regularization</span>
+  m.<span class="fn">add</span>(tf.layers.<span class="fn">dropout</span>({ rate: <span class="num">0.2</span> }))
+
+  <span class="cm">// Layer 3: Dense with 16 units, ReLU activation</span>
+  m.<span class="fn">add</span>(tf.layers.<span class="fn">dense</span>({
+    units: HIDDEN_UNITS_2,
+    activation: <span class="str">'relu'</span>,
+    kernelInitializer: <span class="str">'glorotUniform'</span>,
+  }))
+
+  <span class="cm">// Layer 4: Output layer with Softmax</span>
+  m.<span class="fn">add</span>(tf.layers.<span class="fn">dense</span>({
+    units: <span class="num">2</span>,
+    activation: <span class="str">'softmax'</span>,
+  }))
+
+  <span class="cm">// Compile with Adam optimizer</span>
+  m.<span class="fn">compile</span>({
+    optimizer: tf.train.<span class="fn">adam</span>(<span class="num">0.001</span>),
+    loss: <span class="str">'categoricalCrossentropy'</span>,
+    metrics: [<span class="str">'accuracy'</span>],
+  })
+
+  <span class="kw">return</span> m
+}</pre>
+
+  <div class="info-box blue no-break">
+    <strong>Why Softmax Output?</strong>
+    The softmax activation ensures the two output neurons produce valid probabilities that always
+    sum to 1.0. If P(Team A) = 0.62, then P(Team B) = 0.38 automatically. This is more
+    mathematically sound than independent sigmoid outputs.
+  </div>
+
+  <div class="info-box green no-break">
+    <strong>Why Glorot Uniform Initialization?</strong>
+    Glorot Uniform (Xavier) initialization scales weights based on the number of input/output
+    neurons, preventing vanishing/exploding gradients during forward propagation. It's the
+    standard for ReLU-activated networks.
+  </div>
+
+  <!-- 1.4 Domain Weights -->
+  <h3 id="s1-4">1.4 Domain Weight Initialization</h3>
+  <p>
+    Since we don't have extensive historical training data, the model is initialized with
+    <strong>domain-informed weights</strong> that emphasize the most predictive features based on
+    cricket analytics knowledge:
+  </p>
+
+<pre><span class="kw">function</span> <span class="fn">initializeWithDomainWeights</span>(m: tf.LayersModel) {
+  <span class="kw">const</span> layers = m.layers
+  <span class="kw">const</span> w1 = layers[<span class="num">0</span>].<span class="fn">getWeights</span>()
+
+  <span class="kw">if</span> (w1.length >= <span class="num">2</span>) {
+    <span class="kw">const</span> weightShape = w1[<span class="num">0</span>].shape
+    <span class="kw">const</span> weightData = <span class="kw">new</span> Float32Array(weightShape[<span class="num">0</span>] * weightShape[<span class="num">1</span>])
+
+    <span class="cm">// Base: small random values centered on 0</span>
+    <span class="kw">for</span> (<span class="kw">let</span> i = <span class="num">0</span>; i &lt; weightData.length; i++) {
+      weightData[i] = (Math.<span class="fn">random</span>() - <span class="num">0.5</span>) * <span class="num">0.3</span>
+    }
+
+    <span class="cm">// Boost weights for the most predictive features:</span>
+    <span class="cm">// [0,1] = rankings, [2,3] = win rates, [4] = h2h, [8,9] = momentum</span>
+    <span class="kw">const</span> importantFeatures = [<span class="num">0</span>, <span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>, <span class="num">4</span>, <span class="num">8</span>, <span class="num">9</span>]
+    <span class="kw">for</span> (<span class="kw">const</span> feat <span class="kw">of</span> importantFeatures) {
+      <span class="kw">for</span> (<span class="kw">let</span> j = <span class="num">0</span>; j &lt; weightShape[<span class="num">1</span>]; j++) {
+        weightData[feat * weightShape[<span class="num">1</span>] + j] *= <span class="num">2.0</span>  <span class="cm">// 2x weight boost</span>
+      }
+    }
+
+    layers[<span class="num">0</span>].<span class="fn">setWeights</span>([
+      tf.<span class="fn">tensor2d</span>(weightData, weightShape),
+      tf.<span class="fn">zeros</span>(biasShape),
+    ])
+  }
+}</pre>
+
+  <div class="info-box orange no-break">
+    <strong>Feature Importance (Boosted 2x)</strong>
+    Rankings, win rates, head-to-head, and momentum are the strongest predictors of match outcomes
+    in cricket. Pitch type, format, and batting/bowling strength serve as contextual modifiers.
+  </div>
+
+  <!-- 1.5 Prediction -->
+  <h3 id="s1-5" class="page-break">1.5 Prediction &amp; Confidence Scoring</h3>
+  <p>
+    The <code>predict()</code> function converts features into a tensor, runs inference, and
+    returns formatted probabilities with a confidence level:
+  </p>
+
+<pre><span class="kw">export function</span> <span class="fn">predict</span>(features: <span class="type">MatchFeatures</span>): <span class="type">PredictionResult</span> {
+  <span class="kw">const</span> m = <span class="fn">getModel</span>()
+  <span class="kw">const</span> input = <span class="fn">featuresToTensor</span>(features)
+  <span class="kw">const</span> output = m.<span class="fn">predict</span>(input) <span class="kw">as</span> tf.Tensor
+  <span class="kw">const</span> probs = output.<span class="fn">dataSync</span>()  <span class="cm">// [P(A), P(B)]</span>
+
+  <span class="cm">// Memory cleanup</span>
+  input.<span class="fn">dispose</span>()
+  output.<span class="fn">dispose</span>()
+
+  <span class="cm">// Round to 1 decimal place</span>
+  <span class="kw">const</span> teamAWinProb = Math.<span class="fn">round</span>(probs[<span class="num">0</span>] * <span class="num">1000</span>) / <span class="num">10</span>
+  <span class="kw">const</span> teamBWinProb = Math.<span class="fn">round</span>(probs[<span class="num">1</span>] * <span class="num">1000</span>) / <span class="num">10</span>
+
+  <span class="cm">// Confidence based on probability gap</span>
+  <span class="kw">const</span> gap = Math.<span class="fn">abs</span>(probs[<span class="num">0</span>] - probs[<span class="num">1</span>])
+  <span class="kw">let</span> confidence: <span class="str">'high'</span> | <span class="str">'medium'</span> | <span class="str">'low'</span>
+  <span class="kw">if</span> (gap > <span class="num">0.3</span>) confidence = <span class="str">'high'</span>
+  <span class="kw">else if</span> (gap > <span class="num">0.15</span>) confidence = <span class="str">'medium'</span>
+  <span class="kw">else</span> confidence = <span class="str">'low'</span>
+
+  <span class="kw">return</span> { teamAWinProb, teamBWinProb, confidence }
+}</pre>
+
+  <h4>Confidence Levels</h4>
+  <table>
+    <thead>
+      <tr><th>Confidence</th><th>Probability Gap</th><th>Example</th></tr>
+    </thead>
+    <tbody>
+      <tr><td style="color: #16a34a; font-weight: 600;">HIGH</td><td>&gt; 30%</td><td>India (72%) vs Nepal (28%) &mdash; clear favorite</td></tr>
+      <tr><td style="color: #ca8a04; font-weight: 600;">MEDIUM</td><td>15% &ndash; 30%</td><td>Australia (58%) vs England (42%) &mdash; slight edge</td></tr>
+      <tr><td style="color: #dc2626; font-weight: 600;">LOW</td><td>&lt; 15%</td><td>Pakistan (52%) vs South Africa (48%) &mdash; coin flip</td></tr>
+    </tbody>
+  </table>
+
+  <!-- 1.6 Training -->
+  <h3 id="s1-6">1.6 Training Pipeline</h3>
+  <p>
+    The model supports online training with historical match data. When training data becomes
+    available, the <code>trainModel()</code> function fine-tunes the pre-initialized weights:
+  </p>
+
+<pre><span class="kw">export async function</span> <span class="fn">trainModel</span>(
+  trainingData: { features: <span class="type">MatchFeatures</span>; winner: <span class="str">'A'</span> | <span class="str">'B'</span> }[]
+): Promise&lt;tf.History&gt; {
+  <span class="kw">const</span> m = <span class="fn">getModel</span>()
+
+  <span class="cm">// Convert features to 2D tensor [numSamples, 14]</span>
+  <span class="kw">const</span> xs = tf.<span class="fn">tensor2d</span>(trainingData.<span class="fn">map</span>(d => [
+    d.features.teamARanking,
+    d.features.teamBRanking,
+    <span class="cm">// ... all 14 features</span>
+  ]))
+
+  <span class="cm">// One-hot encode labels: A wins = [1,0], B wins = [0,1]</span>
+  <span class="kw">const</span> ys = tf.<span class="fn">tensor2d</span>(trainingData.<span class="fn">map</span>(d =>
+    d.winner === <span class="str">'A'</span> ? [<span class="num">1</span>, <span class="num">0</span>] : [<span class="num">0</span>, <span class="num">1</span>]
+  ))
+
+  <span class="kw">const</span> history = <span class="kw">await</span> m.<span class="fn">fit</span>(xs, ys, {
+    epochs: <span class="num">50</span>,
+    batchSize: <span class="num">16</span>,
+    validationSplit: <span class="num">0.2</span>,   <span class="cm">// 20% held out for validation</span>
+    shuffle: <span class="kw">true</span>,
+  })
+
+  xs.<span class="fn">dispose</span>()
+  ys.<span class="fn">dispose</span>()
+  <span class="kw">return</span> history
+}</pre>
+
+  <!-- 1.7 Analysis Engine -->
+  <h3 id="s1-7">1.7 Analysis Engine Integration</h3>
+  <p>
+    The analysis engine (<span class="file-path">lib/analysis-engine.ts</span>) orchestrates the
+    full prediction pipeline:
+  </p>
+
+  <ol>
+    <li><strong>Data Gathering</strong> &mdash; Fetches match details, tournament fixtures, and pre-match odds from the Roanuz Cricket API</li>
+    <li><strong>Feature Construction</strong> &mdash; Normalizes ICC rankings, computes venue conditions, determines home advantage (India/Sri Lanka are T20 WC co-hosts)</li>
+    <li><strong>TF.js Prediction</strong> &mdash; Calls <code>predict(features)</code> to get win probabilities</li>
+    <li><strong>Insight Generation</strong> &mdash; Generates tips, players to watch, conditions analysis, and reasoning text</li>
+    <li><strong>Caching</strong> &mdash; Stores results in PostgreSQL via Prisma (30-minute cache)</li>
+  </ol>
+
+  <div class="diagram">
+  Roanuz API ──> Data Gathering ──> Feature Construction ──> TF.js Model
+       |                                                         |
+       v                                                         v
+  Match Details                                        Win Probabilities
+  Tournament Stats                                     + Confidence Score
+  Pre-match Odds                                             |
+                                                             v
+                                              Analysis Engine combines:
+                                              - Tips, Players to Watch
+                                              - Conditions, Recent Form
+                                              - AI Reasoning Text
+                                                             |
+                                                             v
+                                                  Cache in PostgreSQL
+                                                  Return to Frontend
+  </div>
+</div>
+
+<!-- ==================== PART 2: SOCKET.IO ==================== -->
+<div class="content page-break">
+  <h2 id="part2">Part 2: Socket.IO Real-Time Live Scores</h2>
+
+  <h3 id="s2-1">2.1 Architecture Overview</h3>
+  <p>
+    The live score system uses <strong>Socket.IO</strong> to push real-time match updates to
+    connected clients. The server polls the Roanuz Cricket API every 15 seconds for live match
+    data and broadcasts score changes via WebSocket.
+  </p>
+
+  <div class="diagram">
+  ┌─────────────────────────────────────────────────────────────┐
+  │                     Next.js Server                          │
+  │                                                             │
+  │  pages/api/socket.ts                                        │
+  │  ┌───────────────────┐     ┌──────────────────────┐        │
+  │  │  Socket.IO Server  │────│  Live Score Poller    │        │
+  │  │  (WebSocket)       │    │  (15s interval)       │        │
+  │  └────────┬──────────┘     └──────────┬───────────┘        │
+  │           │                           │                     │
+  │           │    score:update            │  Roanuz API        │
+  │           │    events                  │  GET /match/:key/  │
+  │           │                           │                     │
+  └───────────┼───────────────────────────┼─────────────────────┘
+              │                           │
+              ▼                           ▼
+  ┌───────────────────┐     ┌──────────────────────┐
+  │  Browser Client    │     │  Roanuz Cricket API   │
+  │  useLiveScores()   │     │  api.sports.roanuz.com│
+  │  hook updates      │     └──────────────────────┘
+  │  React state       │
+  │  ──> Match Cards   │
+  └───────────────────┘
+  </div>
+
+  <div class="info-box blue no-break">
+    <strong>Why Socket.IO over plain WebSocket?</strong>
+    Socket.IO provides automatic reconnection, transport fallback (long-polling to WebSocket upgrade),
+    room/namespace support, and typed events. It gracefully handles network drops which are common on
+    mobile devices during live match viewing.
+  </div>
+
+  <!-- 2.2 Types -->
+  <h3 id="s2-2">2.2 Type Definitions (Event Contract)</h3>
+  <p>
+    Shared types ensure type safety between server and client.
+    <span class="file-path">lib/socket-types.ts</span>
+  </p>
+
+<pre><span class="cm">// Data sent for each live match update</span>
+<span class="kw">export interface</span> <span class="type">LiveScoreUpdate</span> {
+  matchKey: <span class="type">string</span>     <span class="cm">// Unique match identifier</span>
+  teamA: <span class="type">string</span>        <span class="cm">// e.g. "India"</span>
+  teamB: <span class="type">string</span>        <span class="cm">// e.g. "Australia"</span>
+  scoreA: <span class="type">string</span>       <span class="cm">// e.g. "185/4 in 16.3"</span>
+  scoreB: <span class="type">string</span>       <span class="cm">// e.g. "142/10 in 19.2"</span>
+  status: <span class="type">string</span>       <span class="cm">// "live" | "completed" | "upcoming"</span>
+  statusNote: <span class="type">string</span>   <span class="cm">// e.g. "India needs 44 runs in 22 balls"</span>
+  lastUpdated: <span class="type">number</span>  <span class="cm">// Unix timestamp (ms)</span>
+}
+
+<span class="cm">// Server --&gt; Client events</span>
+<span class="kw">export interface</span> <span class="type">ServerToClientEvents</span> {
+  <span class="str">'score:update'</span>: (updates: <span class="type">LiveScoreUpdate</span>[]) => <span class="kw">void</span>
+  <span class="str">'polling:status'</span>: (payload: {
+    active: <span class="type">boolean</span>
+    liveMatchCount: <span class="type">number</span>
+    connectedClients: <span class="type">number</span>
+  }) => <span class="kw">void</span>
+}
+
+<span class="cm">// Client --&gt; Server events</span>
+<span class="kw">export interface</span> <span class="type">ClientToServerEvents</span> {
+  <span class="str">'subscribe:live'</span>: () => <span class="kw">void</span>
+  <span class="str">'unsubscribe:live'</span>: () => <span class="kw">void</span>
+}</pre>
+
+  <!-- 2.3 Server Bootstrap -->
+  <h3 id="s2-3" class="page-break">2.3 Server-Side: Socket.IO Bootstrap</h3>
+  <p>
+    Socket.IO attaches to the Next.js HTTP server via a <strong>Pages API route</strong>.
+    This coexists with the App Router without conflicts.
+    <span class="file-path">pages/api/socket.ts</span>
+  </p>
+
+<pre><span class="kw">import</span> { Server <span class="kw">as</span> SocketIOServer } <span class="kw">from</span> <span class="str">'socket.io'</span>
+<span class="kw">import type</span> { NextApiRequest, NextApiResponse } <span class="kw">from</span> <span class="str">'next'</span>
+<span class="kw">import</span> {
+  setIO, incrementSubscribers,
+  decrementSubscribers, getCachedScores,
+} <span class="kw">from</span> <span class="str">'@/lib/live-score-poller'</span>
+
+<span class="kw">export default function</span> <span class="fn">handler</span>(req, res) {
+  <span class="cm">// Idempotent: only initialize once (survives hot reload)</span>
+  <span class="kw">if</span> (res.socket.server.io) {
+    res.<span class="fn">end</span>()
+    <span class="kw">return</span>
+  }
+
+  <span class="cm">// Attach Socket.IO to the underlying Node HTTP server</span>
+  <span class="kw">const</span> io = <span class="kw">new</span> <span class="fn">SocketIOServer</span>(res.socket.server, {
+    path: <span class="str">'/api/socket'</span>,
+    addTrailingSlash: <span class="kw">false</span>,
+    cors: {
+      origin: [<span class="str">'http://localhost:3000'</span>],
+      methods: [<span class="str">'GET'</span>, <span class="str">'POST'</span>],
+    },
+    transports: [<span class="str">'polling'</span>, <span class="str">'websocket'</span>],
+  })
+
+  res.socket.server.io = io  <span class="cm">// Persist on server object</span>
+  <span class="fn">setIO</span>(io)                  <span class="cm">// Give poller broadcast access</span>
+
+  io.<span class="fn">on</span>(<span class="str">'connection'</span>, (socket) => {
+    socket.<span class="fn">on</span>(<span class="str">'subscribe:live'</span>, () => {
+      <span class="fn">incrementSubscribers</span>()
+
+      <span class="cm">// Send cached scores immediately (no wait for next poll)</span>
+      <span class="kw">const</span> cached = <span class="fn">getCachedScores</span>()
+      <span class="kw">if</span> (cached.length > <span class="num">0</span>) {
+        socket.<span class="fn">emit</span>(<span class="str">'score:update'</span>, cached)
+      }
+    })
+
+    socket.<span class="fn">on</span>(<span class="str">'disconnect'</span>, () => {
+      <span class="fn">decrementSubscribers</span>()
+    })
+  })
+
+  res.<span class="fn">end</span>()
+}</pre>
+
+  <div class="info-box green no-break">
+    <strong>Key Design: Idempotent Initialization</strong>
+    The <code>res.socket.server.io</code> check ensures Socket.IO is only initialized once, even
+    when Next.js hot-reloads the API route during development. The io instance persists on the
+    Node HTTP server object across module reloads.
+  </div>
+
+  <!-- 2.4 Poller -->
+  <h3 id="s2-4" class="page-break">2.4 Server-Side: Live Score Poller</h3>
+  <p>
+    A singleton service that polls Roanuz every 15 seconds. It only runs when clients are
+    connected (subscriber count &gt; 0), preventing unnecessary API calls.
+    <span class="file-path">lib/live-score-poller.ts</span>
+  </p>
+
+<pre><span class="kw">const</span> POLL_INTERVAL_MS = <span class="num">15_000</span>  <span class="cm">// 15 seconds</span>
+
+<span class="kw">let</span> pollingTimer: NodeJS.Timeout | <span class="kw">null</span> = <span class="kw">null</span>
+<span class="kw">let</span> subscriberCount = <span class="num">0</span>
+
+<span class="cm">// Only start polling when clients are connected</span>
+<span class="kw">function</span> <span class="fn">maybeStartPolling</span>() {
+  <span class="kw">if</span> (pollingTimer) <span class="kw">return</span>         <span class="cm">// Already polling</span>
+  <span class="kw">if</span> (subscriberCount &lt;= <span class="num">0</span>) <span class="kw">return</span>  <span class="cm">// No clients</span>
+  <span class="fn">pollOnce</span>()                       <span class="cm">// Immediate first poll</span>
+  pollingTimer = <span class="fn">setInterval</span>(pollOnce, POLL_INTERVAL_MS)
+}
+
+<span class="cm">// Stop when all clients disconnect</span>
+<span class="kw">function</span> <span class="fn">maybeStopPolling</span>() {
+  <span class="kw">if</span> (subscriberCount > <span class="num">0</span>) <span class="kw">return</span>
+  <span class="kw">if</span> (pollingTimer) {
+    <span class="fn">clearInterval</span>(pollingTimer)
+    pollingTimer = <span class="kw">null</span>
+  }
+}</pre>
+
+  <h4>Score Extraction from Roanuz API</h4>
+  <p>
+    The Roanuz API returns innings data in a nested structure. The <code>score</code> field is an
+    <strong>object</strong> (not a number), and <code>overs</code> is an <strong>array</strong>:
+  </p>
+
+<pre><span class="cm">// Roanuz API innings structure:</span>
+<span class="cm">// innings: { "a_1": { score_str: "185/4 in 16.3", score: { runs: 185, balls: 99 },</span>
+<span class="cm">//                       wickets: 4, overs: [16, 3] } }</span>
+
+<span class="kw">function</span> <span class="fn">extractScore</span>(matchData): { scoreA: <span class="type">string</span>; scoreB: <span class="type">string</span> } {
+  <span class="kw">const</span> innings = matchData.play.innings
+  <span class="kw">const</span> teamKeys = Object.<span class="fn">keys</span>(matchData.teams)
+
+  <span class="kw">for</span> (<span class="kw">const</span> ik <span class="kw">of</span> Object.<span class="fn">keys</span>(innings)) {
+    <span class="kw">const</span> inn = innings[ik]
+
+    <span class="cm">// Prefer score_str ("185/4 in 16.3") if available</span>
+    <span class="kw">let</span> scoreStr = inn?.score_str || <span class="str">''</span>
+
+    <span class="cm">// Fallback: build from nested fields</span>
+    <span class="kw">if</span> (!scoreStr && inn?.score) {
+      <span class="kw">const</span> runs = <span class="kw">typeof</span> inn.score === <span class="str">'object'</span>
+        ? inn.score.runs    <span class="cm">// { runs: 185, balls: 99 }</span>
+        : inn.score
+      <span class="kw">const</span> wickets = inn.wickets
+      <span class="kw">const</span> overs = Array.<span class="fn">isArray</span>(inn.overs)
+        ? <span class="str">`${inn.overs[0]}.${inn.overs[1]}`</span>  <span class="cm">// [16, 3] -> "16.3"</span>
+        : inn.overs
+      scoreStr = <span class="str">`${runs}/${wickets} (${overs} ov)`</span>
+    }
+
+    <span class="cm">// Innings key "a_1" -> team "a", "b_1" -> team "b"</span>
+    <span class="kw">const</span> teamChar = ik.<span class="fn">split</span>(<span class="str">'_'</span>)[<span class="num">0</span>]
+    <span class="kw">if</span> (teamChar === teamKeys[<span class="num">0</span>]) scoreA = scoreStr
+    <span class="kw">else</span> scoreB = scoreStr
+  }
+}</pre>
+
+  <h4>Poll Cycle</h4>
+<pre><span class="kw">async function</span> <span class="fn">pollOnce</span>() {
+  <span class="cm">// 1. Get tournament fixtures to find live matches</span>
+  <span class="kw">const</span> fixtureData = <span class="kw">await</span> <span class="fn">roanuzGet</span>(<span class="str">`tournament/${T20_WC_KEY}/fixtures/`</span>)
+  <span class="kw">const</span> liveFixtures = fixtures.<span class="fn">filter</span>(m => m.status === <span class="str">'started'</span>)
+
+  <span class="cm">// 2. Broadcast polling status to all clients</span>
+  io?.<span class="fn">emit</span>(<span class="str">'polling:status'</span>, {
+    active: <span class="kw">true</span>,
+    liveMatchCount: liveFixtures.length,
+    connectedClients: subscriberCount,
+  })
+
+  <span class="cm">// 3. Fetch detailed scores for each live match (parallel)</span>
+  <span class="kw">const</span> updates = <span class="kw">await</span> Promise.<span class="fn">all</span>(
+    liveFixtures.<span class="fn">map</span>(<span class="kw">async</span> (fixture) => {
+      <span class="kw">const</span> detail = <span class="kw">await</span> <span class="fn">getMatchDetails</span>(fixture.key)
+      <span class="kw">const</span> { scoreA, scoreB } = <span class="fn">extractScore</span>(detail.data)
+      <span class="kw">return</span> { matchKey, teamA, teamB, scoreA, scoreB, ... }
+    })
+  )
+
+  <span class="cm">// 4. Broadcast score updates to all subscribed clients</span>
+  io?.<span class="fn">emit</span>(<span class="str">'score:update'</span>, updates)
+  cachedLiveScores = updates  <span class="cm">// Cache for new connections</span>
+}</pre>
+
+  <!-- 2.5 Client Hook -->
+  <h3 id="s2-5" class="page-break">2.5 Client-Side: React Hook</h3>
+  <p>
+    The <code>useLiveScores()</code> hook manages the Socket.IO connection lifecycle and exposes
+    reactive state.
+    <span class="file-path">lib/use-live-scores.ts</span>
+  </p>
+
+<pre><span class="str">'use client'</span>
+
+<span class="kw">import</span> { useEffect, useState, useRef, useCallback } <span class="kw">from</span> <span class="str">'react'</span>
+<span class="kw">import</span> { io, Socket } <span class="kw">from</span> <span class="str">'socket.io-client'</span>
+
+<span class="kw">export function</span> <span class="fn">useLiveScores</span>() {
+  <span class="kw">const</span> [scores, setScores] = <span class="fn">useState</span>&lt;Map&lt;<span class="type">string</span>, <span class="type">LiveScoreUpdate</span>&gt;&gt;(<span class="kw">new</span> Map())
+  <span class="kw">const</span> [connected, setConnected] = <span class="fn">useState</span>(<span class="kw">false</span>)
+
+  <span class="fn">useEffect</span>(() => {
+    <span class="cm">// Step 1: Bootstrap Socket.IO server via HTTP request</span>
+    <span class="fn">fetch</span>(<span class="str">'/api/socket'</span>).<span class="fn">then</span>(() => {
+
+      <span class="cm">// Step 2: Connect via WebSocket</span>
+      <span class="kw">const</span> socket = <span class="fn">io</span>({
+        path: <span class="str">'/api/socket'</span>,
+        transports: [<span class="str">'polling'</span>, <span class="str">'websocket'</span>],
+        reconnection: <span class="kw">true</span>,
+        reconnectionAttempts: <span class="num">Infinity</span>,
+        reconnectionDelay: <span class="num">1000</span>,
+        reconnectionDelayMax: <span class="num">10000</span>,
+      })
+
+      <span class="cm">// Step 3: Subscribe to live scores on connect</span>
+      socket.<span class="fn">on</span>(<span class="str">'connect'</span>, () => {
+        setConnected(<span class="kw">true</span>)
+        socket.<span class="fn">emit</span>(<span class="str">'subscribe:live'</span>)
+      })
+
+      <span class="cm">// Step 4: Handle incoming score updates</span>
+      socket.<span class="fn">on</span>(<span class="str">'score:update'</span>, (updates) => {
+        <span class="fn">setScores</span>((prev) => {
+          <span class="kw">const</span> next = <span class="kw">new</span> Map(prev)
+          <span class="kw">for</span> (<span class="kw">const</span> update <span class="kw">of</span> updates) {
+            next.<span class="fn">set</span>(update.matchKey, update)
+          }
+          <span class="kw">return</span> next  <span class="cm">// O(1) lookup by match key</span>
+        })
+      })
+
+      socket.<span class="fn">on</span>(<span class="str">'disconnect'</span>, () => setConnected(<span class="kw">false</span>))
+    })
+
+    <span class="cm">// Cleanup on unmount</span>
+    <span class="kw">return</span> () => {
+      socket.<span class="fn">emit</span>(<span class="str">'unsubscribe:live'</span>)
+      socket.<span class="fn">disconnect</span>()
+    }
+  }, [])
+
+  <span class="kw">return</span> { scores, connected, <span class="fn">getScore</span>: (key) => scores.<span class="fn">get</span>(key) }
+}</pre>
+
+  <div class="info-box purple no-break">
+    <strong>Connection Flow</strong>
+    <ol style="margin-top: 8px;">
+      <li><code>fetch('/api/socket')</code> triggers the Pages API handler, initializing Socket.IO on the server</li>
+      <li><code>io({ path: '/api/socket' })</code> establishes the WebSocket connection</li>
+      <li>On connect, client emits <code>subscribe:live</code> &mdash; server starts polling Roanuz</li>
+      <li>Every 15s, server broadcasts <code>score:update</code> with latest live scores</li>
+      <li>On unmount, client emits <code>unsubscribe:live</code> &mdash; server stops polling when no clients remain</li>
+    </ol>
+  </div>
+
+  <!-- 2.6 UI Integration -->
+  <h3 id="s2-6" class="page-break">2.6 UI Integration</h3>
+  <p>
+    The analysis page merges Socket.IO score updates into the match card state via a
+    <code>useEffect</code>:
+    <span class="file-path">app/analysis/page.tsx</span>
+  </p>
+
+<pre><span class="kw">import</span> { useLiveScores } <span class="kw">from</span> <span class="str">'@/lib/use-live-scores'</span>
+
+<span class="kw">export default function</span> <span class="fn">AnalysisPage</span>() {
+  <span class="kw">const</span> [matches, setMatches] = <span class="fn">useState</span>([])
+  <span class="kw">const</span> { scores: liveScores, connected: socketConnected } = <span class="fn">useLiveScores</span>()
+
+  <span class="cm">// Merge live scores into match cards whenever updates arrive</span>
+  <span class="fn">useEffect</span>(() => {
+    <span class="kw">if</span> (liveScores.size === <span class="num">0</span>) <span class="kw">return</span>
+    <span class="fn">setMatches</span>((prev) =>
+      prev.<span class="fn">map</span>((m) => {
+        <span class="kw">const</span> live = liveScores.<span class="fn">get</span>(m.key)
+        <span class="kw">if</span> (!live) <span class="kw">return</span> m
+        <span class="kw">return</span> {
+          ...m,
+          scoreA: live.scoreA || m.scoreA,
+          scoreB: live.scoreB || m.scoreB,
+          statusNote: live.statusNote || m.statusNote,
+          status: live.status || m.status,
+        }
+      })
+    )
+  }, [liveScores])
+
+  <span class="cm">// Connection indicator in header</span>
+  <span class="kw">return</span> (
+    &lt;div&gt;
+      {socketConnected && (
+        &lt;span className=<span class="str">"badge green"</span>&gt;
+          &lt;span className=<span class="str">"pulse-dot"</span> /&gt;
+          Live Updates
+        &lt;/span&gt;
+      )}
+      ...
+    &lt;/div&gt;
+  )
+}</pre>
+
+  <div class="info-box green no-break">
+    <strong>Automatic Card Updates</strong>
+    The <code>MatchCard</code> component renders from the <code>matches</code> state array. When
+    <code>liveScores</code> changes (via Socket.IO), the <code>useEffect</code> merges new data
+    into the state, triggering a React re-render. Cards update seamlessly without page refresh.
+  </div>
+</div>
+
+<!-- ==================== PART 3: FILE REFERENCE ==================== -->
+<div class="content page-break">
+  <h2 id="part3">Part 3: File Reference &amp; Data Flow</h2>
+
+  <h3>Project File Structure</h3>
+  <table>
+    <thead>
+      <tr><th>File</th><th>Type</th><th>Purpose</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>lib/tf-model.ts</code></td><td>TF.js</td><td>Neural network model: build, predict, train</td></tr>
+      <tr><td><code>lib/analysis-engine.ts</code></td><td>Engine</td><td>Data aggregation, feature construction, insight generation</td></tr>
+      <tr><td><code>lib/socket-types.ts</code></td><td>Types</td><td>Shared Socket.IO event type definitions</td></tr>
+      <tr><td><code>lib/live-score-poller.ts</code></td><td>Service</td><td>Server-side Roanuz polling singleton</td></tr>
+      <tr><td><code>lib/use-live-scores.ts</code></td><td>Hook</td><td>Client-side React hook for Socket.IO connection</td></tr>
+      <tr><td><code>lib/roanuz.ts</code></td><td>API Client</td><td>Roanuz Cricket API wrapper with auth token caching</td></tr>
+      <tr><td><code>pages/api/socket.ts</code></td><td>Endpoint</td><td>Socket.IO server bootstrap (Pages API route)</td></tr>
+      <tr><td><code>app/api/analysis/route.ts</code></td><td>API Route</td><td>Analysis endpoint with 30-min database caching</td></tr>
+      <tr><td><code>app/analysis/page.tsx</code></td><td>Page</td><td>Match cards UI with live score integration</td></tr>
+    </tbody>
+  </table>
+
+  <h3>End-to-End Data Flow</h3>
+  <div class="diagram" style="font-size: 12px;">
+  ┌──────────────────── PREDICTION FLOW ────────────────────┐
+  │                                                          │
+  │  User clicks match card                                  │
+  │       │                                                  │
+  │       ▼                                                  │
+  │  /api/analysis?match=KEY                                 │
+  │       │                                                  │
+  │       ├── Check Prisma cache (30 min TTL)                │
+  │       │     └── If cached: return immediately            │
+  │       │                                                  │
+  │       ├── Fetch from Roanuz API:                         │
+  │       │     ├── Tournament fixtures                      │
+  │       │     ├── Match details (teams, venue, players)    │
+  │       │     └── Pre-match odds                           │
+  │       │                                                  │
+  │       ├── Build 14-feature vector                        │
+  │       │     ├── ICC rankings normalized                  │
+  │       │     ├── Win rates (odds-informed)                │
+  │       │     ├── Venue conditions (pitch type)            │
+  │       │     └── Home advantage (co-host check)           │
+  │       │                                                  │
+  │       ├── TensorFlow.js predict(features)                │
+  │       │     └── Returns: [P(A), P(B)] + confidence       │
+  │       │                                                  │
+  │       ├── Generate insights:                             │
+  │       │     ├── Match tips (7-9 tips)                    │
+  │       │     ├── Players to watch (3 per team)            │
+  │       │     ├── Conditions analysis                      │
+  │       │     ├── Recent form (last 7 matches)             │
+  │       │     └── AI reasoning paragraph                   │
+  │       │                                                  │
+  │       └── Cache in PostgreSQL, return to client          │
+  │                                                          │
+  └──────────────────────────────────────────────────────────┘
+
+  ┌──────────────── LIVE SCORE FLOW ────────────────────────┐
+  │                                                          │
+  │  Page loads -> fetch('/api/socket') -> io() connect      │
+  │       │                                                  │
+  │       ├── Client emits 'subscribe:live'                  │
+  │       │                                                  │
+  │       ├── Server starts 15s polling interval             │
+  │       │     │                                            │
+  │       │     ├── GET /tournament/fixtures/ (find live)    │
+  │       │     ├── GET /match/:key/ (score details)         │
+  │       │     └── Extract score_str / score.runs           │
+  │       │                                                  │
+  │       ├── Server emits 'score:update' via WebSocket      │
+  │       │                                                  │
+  │       ├── Client useEffect merges into matches state     │
+  │       │     └── React re-renders updated match cards     │
+  │       │                                                  │
+  │       └── On unmount: 'unsubscribe:live' + disconnect    │
+  │             └── Server stops polling when 0 subscribers  │
+  │                                                          │
+  └──────────────────────────────────────────────────────────┘
+  </div>
+
+  <h3>Technology Stack</h3>
+  <table>
+    <thead>
+      <tr><th>Technology</th><th>Version</th><th>Purpose</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Next.js</td><td>14.2</td><td>React framework (App Router + Pages API)</td></tr>
+      <tr><td>TensorFlow.js</td><td>4.22</td><td>Neural network inference &amp; training</td></tr>
+      <tr><td>Socket.IO</td><td>4.x</td><td>Real-time WebSocket communication</td></tr>
+      <tr><td>Prisma</td><td>6.19</td><td>PostgreSQL ORM for analysis caching</td></tr>
+      <tr><td>Roanuz API</td><td>v5</td><td>Cricket match data source</td></tr>
+      <tr><td>TypeScript</td><td>5.x</td><td>Type-safe development</td></tr>
+      <tr><td>Tailwind CSS</td><td>3.x</td><td>UI styling</td></tr>
+    </tbody>
+  </table>
+
+  <div style="text-align: center; margin-top: 60px; color: #94a3b8; font-size: 13px;">
+    <p>&mdash; End of Documentation &mdash;</p>
+    <p>Cricket Analytics &bull; ICC T20 World Cup 2026 &bull; v1.0</p>
+  </div>
+</div>
+
+</body>
+</html>

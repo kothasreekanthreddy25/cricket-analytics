@@ -1,0 +1,6622 @@
+{
+  "england_vs_sri_lanka": {
+    "aWins": 34,
+    "bWins": 25
+  },
+  "england_vs_india": {
+    "aWins": 49,
+    "bWins": 40
+  },
+  "australia_vs_england": {
+    "aWins": 72,
+    "bWins": 31
+  },
+  "south_africa_vs_pakistan": {
+    "aWins": 40,
+    "bWins": 31
+  },
+  "new_zealand_vs_india": {
+    "aWins": 33,
+    "bWins": 28
+  },
+  "india_vs_new_zealand": {
+    "aWins": 37,
+    "bWins": 21
+  },
+  "england_vs_australia": {
+    "aWins": 55,
+    "bWins": 68
+  },
+  "sri_lanka_vs_australia": {
+    "aWins": 14,
+    "bWins": 28
+  },
+  "sri_lanka_vs_england": {
+    "aWins": 15,
+    "bWins": 30
+  },
+  "west_indies_vs_south_africa": {
+    "aWins": 15,
+    "bWins": 29
+  },
+  "zimbabwe_vs_namibia": {
+    "aWins": 9,
+    "bWins": 8
+  },
+  "sri_lanka_vs_new_zealand": {
+    "aWins": 20,
+    "bWins": 21
+  },
+  "australia_vs_pakistan": {
+    "aWins": 69,
+    "bWins": 21
+  },
+  "canada_vs_bangladesh": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "kenya_vs_south_africa": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "india_vs_netherlands": {
+    "aWins": 4,
+    "bWins": 0
+  },
+  "new_zealand_vs_west_indies": {
+    "aWins": 39,
+    "bWins": 11
+  },
+  "india_vs_australia": {
+    "aWins": 44,
+    "bWins": 48
+  },
+  "canada_vs_kenya": {
+    "aWins": 5,
+    "bWins": 7
+  },
+  "netherlands_vs_england": {
+    "aWins": 0,
+    "bWins": 3
+  },
+  "pakistan_vs_namibia": {
+    "aWins": 2,
+    "bWins": 0
+  },
+  "south_africa_vs_new_zealand": {
+    "aWins": 23,
+    "bWins": 20
+  },
+  "india_vs_zimbabwe": {
+    "aWins": 12,
+    "bWins": 0
+  },
+  "canada_vs_sri_lanka": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "england_vs_namibia": {
+    "aWins": 2,
+    "bWins": 0
+  },
+  "bangladesh_vs_south_africa": {
+    "aWins": 7,
+    "bWins": 25
+  },
+  "england_vs_pakistan": {
+    "aWins": 74,
+    "bWins": 25
+  },
+  "canada_vs_west_indies": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "india_vs_namibia": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "kenya_vs_sri_lanka": {
+    "aWins": 1,
+    "bWins": 2
+  },
+  "zimbabwe_vs_australia": {
+    "aWins": 1,
+    "bWins": 8
+  },
+  "pakistan_vs_netherlands": {
+    "aWins": 5,
+    "bWins": 0
+  },
+  "bangladesh_vs_new_zealand": {
+    "aWins": 11,
+    "bWins": 19
+  },
+  "india_vs_england": {
+    "aWins": 60,
+    "bWins": 38
+  },
+  "australia_vs_namibia": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "south_africa_vs_canada": {
+    "aWins": 2,
+    "bWins": 0
+  },
+  "zimbabwe_vs_netherlands": {
+    "aWins": 3,
+    "bWins": 2
+  },
+  "sri_lanka_vs_west_indies": {
+    "aWins": 30,
+    "bWins": 22
+  },
+  "kenya_vs_bangladesh": {
+    "aWins": 1,
+    "bWins": 4
+  },
+  "pakistan_vs_india": {
+    "aWins": 7,
+    "bWins": 24
+  },
+  "canada_vs_new_zealand": {
+    "aWins": 0,
+    "bWins": 3
+  },
+  "netherlands_vs_namibia": {
+    "aWins": 7,
+    "bWins": 2
+  },
+  "australia_vs_sri_lanka": {
+    "aWins": 47,
+    "bWins": 22
+  },
+  "kenya_vs_india": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "zimbabwe_vs_new_zealand": {
+    "aWins": 2,
+    "bWins": 15
+  },
+  "india_vs_sri_lanka": {
+    "aWins": 67,
+    "bWins": 28
+  },
+  "australia_vs_new_zealand": {
+    "aWins": 64,
+    "bWins": 13
+  },
+  "zimbabwe_vs_kenya": {
+    "aWins": 5,
+    "bWins": 1
+  },
+  "sri_lanka_vs_zimbabwe": {
+    "aWins": 11,
+    "bWins": 6
+  },
+  "kenya_vs_australia": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "india_vs_kenya": {
+    "aWins": 2,
+    "bWins": 0
+  },
+  "australia_vs_india": {
+    "aWins": 60,
+    "bWins": 42
+  },
+  "pakistan_vs_zimbabwe": {
+    "aWins": 27,
+    "bWins": 1
+  },
+  "sri_lanka_vs_pakistan": {
+    "aWins": 29,
+    "bWins": 40
+  },
+  "kenya_vs_zimbabwe": {
+    "aWins": 0,
+    "bWins": 4
+  },
+  "sri_lanka_vs_kenya": {
+    "aWins": 2,
+    "bWins": 0
+  },
+  "pakistan_vs_kenya": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "zimbabwe_vs_pakistan": {
+    "aWins": 6,
+    "bWins": 28
+  },
+  "australia_vs_west_indies": {
+    "aWins": 47,
+    "bWins": 13
+  },
+  "pakistan_vs_sri_lanka": {
+    "aWins": 36,
+    "bWins": 23
+  },
+  "pakistan_vs_new_zealand": {
+    "aWins": 13,
+    "bWins": 22
+  },
+  "new_zealand_vs_sri_lanka": {
+    "aWins": 47,
+    "bWins": 20
+  },
+  "pakistan_vs_england": {
+    "aWins": 7,
+    "bWins": 16
+  },
+  "england_vs_zimbabwe": {
+    "aWins": 5,
+    "bWins": 1
+  },
+  "south_africa_vs_england": {
+    "aWins": 29,
+    "bWins": 42
+  },
+  "south_africa_vs_zimbabwe": {
+    "aWins": 22,
+    "bWins": 0
+  },
+  "england_vs_south_africa": {
+    "aWins": 40,
+    "bWins": 24
+  },
+  "zimbabwe_vs_england": {
+    "aWins": 0,
+    "bWins": 2
+  },
+  "zimbabwe_vs_south_africa": {
+    "aWins": 0,
+    "bWins": 18
+  },
+  "bangladesh_vs_australia": {
+    "aWins": 4,
+    "bWins": 24
+  },
+  "australia_vs_bangladesh": {
+    "aWins": 13,
+    "bWins": 2
+  },
+  "bangladesh_vs_pakistan": {
+    "aWins": 9,
+    "bWins": 37
+  },
+  "pakistan_vs_bangladesh": {
+    "aWins": 24,
+    "bWins": 10
+  },
+  "pakistan_vs_south_africa": {
+    "aWins": 28,
+    "bWins": 39
+  },
+  "australia_vs_zimbabwe": {
+    "aWins": 6,
+    "bWins": 2
+  },
+  "bangladesh_vs_england": {
+    "aWins": 6,
+    "bWins": 21
+  },
+  "england_vs_bangladesh": {
+    "aWins": 11,
+    "bWins": 3
+  },
+  "new_zealand_vs_australia": {
+    "aWins": 15,
+    "bWins": 42
+  },
+  "west_indies_vs_zimbabwe": {
+    "aWins": 21,
+    "bWins": 3
+  },
+  "zimbabwe_vs_west_indies": {
+    "aWins": 4,
+    "bWins": 5
+  },
+  "new_zealand_vs_pakistan": {
+    "aWins": 58,
+    "bWins": 35
+  },
+  "south_africa_vs_west_indies": {
+    "aWins": 41,
+    "bWins": 22
+  },
+  "zimbabwe_vs_india": {
+    "aWins": 5,
+    "bWins": 22
+  },
+  "bangladesh_vs_zimbabwe": {
+    "aWins": 47,
+    "bWins": 11
+  },
+  "india_vs_pakistan": {
+    "aWins": 31,
+    "bWins": 18
+  },
+  "new_zealand_vs_south_africa": {
+    "aWins": 20,
+    "bWins": 30
+  },
+  "zimbabwe_vs_sri_lanka": {
+    "aWins": 4,
+    "bWins": 26
+  },
+  "england_vs_west_indies": {
+    "aWins": 54,
+    "bWins": 27
+  },
+  "bangladesh_vs_west_indies": {
+    "aWins": 27,
+    "bWins": 34
+  },
+  "west_indies_vs_bangladesh": {
+    "aWins": 20,
+    "bWins": 10
+  },
+  "england_vs_new_zealand": {
+    "aWins": 49,
+    "bWins": 34
+  },
+  "west_indies_vs_england": {
+    "aWins": 19,
+    "bWins": 43
+  },
+  "bangladesh_vs_sri_lanka": {
+    "aWins": 13,
+    "bWins": 39
+  },
+  "sri_lanka_vs_india": {
+    "aWins": 16,
+    "bWins": 55
+  },
+  "south_africa_vs_sri_lanka": {
+    "aWins": 46,
+    "bWins": 21
+  },
+  "sri_lanka_vs_south_africa": {
+    "aWins": 16,
+    "bWins": 24
+  },
+  "new_zealand_vs_united_states_of_america": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "united_states_of_america_vs_australia": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "kenya_vs_pakistan": {
+    "aWins": 0,
+    "bWins": 3
+  },
+  "pakistan_vs_west_indies": {
+    "aWins": 34,
+    "bWins": 22
+  },
+  "new_zealand_vs_bangladesh": {
+    "aWins": 41,
+    "bWins": 5
+  },
+  "south_africa_vs_india": {
+    "aWins": 24,
+    "bWins": 26
+  },
+  "bangladesh_vs_india": {
+    "aWins": 7,
+    "bWins": 39
+  },
+  "india_vs_bangladesh": {
+    "aWins": 27,
+    "bWins": 5
+  },
+  "west_indies_vs_pakistan": {
+    "aWins": 21,
+    "bWins": 25
+  },
+  "pakistan_vs_australia": {
+    "aWins": 8,
+    "bWins": 16
+  },
+  "zimbabwe_vs_bangladesh": {
+    "aWins": 14,
+    "bWins": 23
+  },
+  "west_indies_vs_india": {
+    "aWins": 14,
+    "bWins": 43
+  },
+  "west_indies_vs_sri_lanka": {
+    "aWins": 11,
+    "bWins": 12
+  },
+  "new_zealand_vs_zimbabwe": {
+    "aWins": 11,
+    "bWins": 0
+  },
+  "africa_xi_vs_asia_xi": {
+    "aWins": 1,
+    "bWins": 3
+  },
+  "sri_lanka_vs_bangladesh": {
+    "aWins": 34,
+    "bWins": 14
+  },
+  "australia_vs_icc_world_xi": {
+    "aWins": 3,
+    "bWins": 0
+  },
+  "india_vs_south_africa": {
+    "aWins": 59,
+    "bWins": 40
+  },
+  "west_indies_vs_australia": {
+    "aWins": 10,
+    "bWins": 39
+  },
+  "australia_vs_south_africa": {
+    "aWins": 36,
+    "bWins": 21
+  },
+  "south_africa_vs_australia": {
+    "aWins": 36,
+    "bWins": 36
+  },
+  "ireland_vs_england": {
+    "aWins": 1,
+    "bWins": 12
+  },
+  "india_vs_west_indies": {
+    "aWins": 50,
+    "bWins": 17
+  },
+  "bermuda_vs_canada": {
+    "aWins": 1,
+    "bWins": 4
+  },
+  "canada_vs_netherlands": {
+    "aWins": 1,
+    "bWins": 10
+  },
+  "bermuda_vs_netherlands": {
+    "aWins": 1,
+    "bWins": 2
+  },
+  "kenya_vs_scotland": {
+    "aWins": 1,
+    "bWins": 5
+  },
+  "kenya_vs_canada": {
+    "aWins": 4,
+    "bWins": 0
+  },
+  "australia_vs_scotland": {
+    "aWins": 3,
+    "bWins": 0
+  },
+  "bermuda_vs_sri_lanka": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "netherlands_vs_south_africa": {
+    "aWins": 2,
+    "bWins": 5
+  },
+  "ireland_vs_pakistan": {
+    "aWins": 4,
+    "bWins": 18
+  },
+  "australia_vs_netherlands": {
+    "aWins": 2,
+    "bWins": 0
+  },
+  "canada_vs_england": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "bermuda_vs_india": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "scotland_vs_south_africa": {
+    "aWins": 0,
+    "bWins": 3
+  },
+  "kenya_vs_new_zealand": {
+    "aWins": 0,
+    "bWins": 3
+  },
+  "netherlands_vs_scotland": {
+    "aWins": 14,
+    "bWins": 12
+  },
+  "west_indies_vs_ireland": {
+    "aWins": 14,
+    "bWins": 5
+  },
+  "england_vs_kenya": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "bangladesh_vs_bermuda": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "west_indies_vs_new_zealand": {
+    "aWins": 12,
+    "bWins": 21
+  },
+  "england_vs_ireland": {
+    "aWins": 7,
+    "bWins": 4
+  },
+  "ireland_vs_south_africa": {
+    "aWins": 5,
+    "bWins": 16
+  },
+  "ireland_vs_new_zealand": {
+    "aWins": 0,
+    "bWins": 11
+  },
+  "australia_vs_ireland": {
+    "aWins": 8,
+    "bWins": 0
+  },
+  "bangladesh_vs_ireland": {
+    "aWins": 14,
+    "bWins": 6
+  },
+  "ireland_vs_sri_lanka": {
+    "aWins": 2,
+    "bWins": 7
+  },
+  "ireland_vs_india": {
+    "aWins": 0,
+    "bWins": 5
+  },
+  "scotland_vs_india": {
+    "aWins": 0,
+    "bWins": 2
+  },
+  "pakistan_vs_scotland": {
+    "aWins": 5,
+    "bWins": 0
+  },
+  "south_africa_vs_bangladesh": {
+    "aWins": 28,
+    "bWins": 1
+  },
+  "kenya_vs_bermuda": {
+    "aWins": 3,
+    "bWins": 0
+  },
+  "bermuda_vs_kenya": {
+    "aWins": 0,
+    "bWins": 5
+  },
+  "new_zealand_vs_england": {
+    "aWins": 14,
+    "bWins": 39
+  },
+  "south_africa_vs_netherlands": {
+    "aWins": 2,
+    "bWins": 0
+  },
+  "bangladesh_vs_united_arab_emirates": {
+    "aWins": 5,
+    "bWins": 2
+  },
+  "pakistan_vs_hong_kong": {
+    "aWins": 3,
+    "bWins": 0
+  },
+  "hong_kong_vs_india": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "sri_lanka_vs_united_arab_emirates": {
+    "aWins": 6,
+    "bWins": 0
+  },
+  "canada_vs_bermuda": {
+    "aWins": 2,
+    "bWins": 1
+  },
+  "ireland_vs_scotland": {
+    "aWins": 21,
+    "bWins": 8
+  },
+  "bermuda_vs_scotland": {
+    "aWins": 1,
+    "bWins": 2
+  },
+  "ireland_vs_kenya": {
+    "aWins": 2,
+    "bWins": 0
+  },
+  "ireland_vs_zimbabwe": {
+    "aWins": 24,
+    "bWins": 11
+  },
+  "south_africa_vs_kenya": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "canada_vs_scotland": {
+    "aWins": 1,
+    "bWins": 2
+  },
+  "england_vs_netherlands": {
+    "aWins": 3,
+    "bWins": 2
+  },
+  "new_zealand_vs_scotland": {
+    "aWins": 5,
+    "bWins": 0
+  },
+  "netherlands_vs_pakistan": {
+    "aWins": 0,
+    "bWins": 5
+  },
+  "india_vs_ireland": {
+    "aWins": 13,
+    "bWins": 0
+  },
+  "ireland_vs_netherlands": {
+    "aWins": 19,
+    "bWins": 8
+  },
+  "netherlands_vs_kenya": {
+    "aWins": 0,
+    "bWins": 3
+  },
+  "bahamas_vs_bermuda": {
+    "aWins": 0,
+    "bWins": 4
+  },
+  "united_states_of_america_vs_canada": {
+    "aWins": 12,
+    "bWins": 1
+  },
+  "bermuda_vs_cayman_islands": {
+    "aWins": 8,
+    "bWins": 1
+  },
+  "bermuda_vs_united_states_of_america": {
+    "aWins": 1,
+    "bWins": 6
+  },
+  "argentina_vs_united_states_of_america": {
+    "aWins": 0,
+    "bWins": 4
+  },
+  "cayman_islands_vs_bermuda": {
+    "aWins": 0,
+    "bWins": 2
+  },
+  "bermuda_vs_bahamas": {
+    "aWins": 5,
+    "bWins": 0
+  },
+  "canada_vs_united_states_of_america": {
+    "aWins": 7,
+    "bWins": 7
+  },
+  "ireland_vs_australia": {
+    "aWins": 0,
+    "bWins": 8
+  },
+  "canada_vs_ireland": {
+    "aWins": 3,
+    "bWins": 3
+  },
+  "ireland_vs_bangladesh": {
+    "aWins": 4,
+    "bWins": 15
+  },
+  "italy_vs_argentina": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "argentina_vs_nepal": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "nepal_vs_united_states_of_america": {
+    "aWins": 5,
+    "bWins": 4
+  },
+  "cayman_islands_vs_nepal": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "italy_vs_tanzania": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "italy_vs_united_states_of_america": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "argentina_vs_cayman_islands": {
+    "aWins": 0,
+    "bWins": 2
+  },
+  "sri_lanka_vs_canada": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "netherlands_vs_west_indies": {
+    "aWins": 0,
+    "bWins": 3
+  },
+  "canada_vs_zimbabwe": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "canada_vs_pakistan": {
+    "aWins": 0,
+    "bWins": 2
+  },
+  "ireland_vs_west_indies": {
+    "aWins": 2,
+    "bWins": 11
+  },
+  "australia_vs_kenya": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "bangladesh_vs_netherlands": {
+    "aWins": 4,
+    "bWins": 0
+  },
+  "australia_vs_canada": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "scotland_vs_netherlands": {
+    "aWins": 12,
+    "bWins": 5
+  },
+  "kenya_vs_united_arab_emirates": {
+    "aWins": 3,
+    "bWins": 2
+  },
+  "united_arab_emirates_vs_kenya": {
+    "aWins": 2,
+    "bWins": 0
+  },
+  "ireland_vs_canada": {
+    "aWins": 3,
+    "bWins": 0
+  },
+  "namibia_vs_scotland": {
+    "aWins": 1,
+    "bWins": 7
+  },
+  "kenya_vs_ireland": {
+    "aWins": 1,
+    "bWins": 4
+  },
+  "scotland_vs_united_arab_emirates": {
+    "aWins": 11,
+    "bWins": 5
+  },
+  "namibia_vs_canada": {
+    "aWins": 7,
+    "bWins": 1
+  },
+  "netherlands_vs_bangladesh": {
+    "aWins": 2,
+    "bWins": 5
+  },
+  "denmark_vs_tanzania": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "nepal_vs_singapore": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "malaysia_vs_singapore": {
+    "aWins": 16,
+    "bWins": 7
+  },
+  "denmark_vs_united_states_of_america": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "nepal_vs_tanzania": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "tanzania_vs_united_states_of_america": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "malaysia_vs_nepal": {
+    "aWins": 2,
+    "bWins": 18
+  },
+  "denmark_vs_singapore": {
+    "aWins": 1,
+    "bWins": 3
+  },
+  "singapore_vs_tanzania": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "denmark_vs_nepal": {
+    "aWins": 0,
+    "bWins": 2
+  },
+  "singapore_vs_united_states_of_america": {
+    "aWins": 1,
+    "bWins": 2
+  },
+  "ghana_vs_vanuatu": {
+    "aWins": 0,
+    "bWins": 2
+  },
+  "bhutan_vs_japan": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "samoa_vs_bhutan": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "belgium_vs_japan": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "samoa_vs_norway": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "kenya_vs_namibia": {
+    "aWins": 3,
+    "bWins": 5
+  },
+  "namibia_vs_kenya": {
+    "aWins": 2,
+    "bWins": 2
+  },
+  "united_arab_emirates_vs_ireland": {
+    "aWins": 5,
+    "bWins": 10
+  },
+  "namibia_vs_netherlands": {
+    "aWins": 2,
+    "bWins": 10
+  },
+  "kenya_vs_netherlands": {
+    "aWins": 2,
+    "bWins": 4
+  },
+  "bermuda_vs_oman": {
+    "aWins": 1,
+    "bWins": 1
+  },
+  "bermuda_vs_nepal": {
+    "aWins": 0,
+    "bWins": 3
+  },
+  "bermuda_vs_italy": {
+    "aWins": 1,
+    "bWins": 1
+  },
+  "italy_vs_nepal": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "oman_vs_uganda": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "italy_vs_oman": {
+    "aWins": 1,
+    "bWins": 2
+  },
+  "nepal_vs_uganda": {
+    "aWins": 4,
+    "bWins": 4
+  },
+  "scotland_vs_pakistan": {
+    "aWins": 0,
+    "bWins": 2
+  },
+  "netherlands_vs_ireland": {
+    "aWins": 2,
+    "bWins": 11
+  },
+  "pakistan_vs_thailand": {
+    "aWins": 4,
+    "bWins": 1
+  },
+  "japan_vs_sri_lanka": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "thailand_vs_zimbabwe": {
+    "aWins": 6,
+    "bWins": 4
+  },
+  "canada_vs_japan": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "japan_vs_zimbabwe": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "netherlands_vs_sri_lanka": {
+    "aWins": 0,
+    "bWins": 4
+  },
+  "scotland_vs_ireland": {
+    "aWins": 4,
+    "bWins": 10
+  },
+  "united_arab_emirates_vs_namibia": {
+    "aWins": 12,
+    "bWins": 6
+  },
+  "ireland_vs_namibia": {
+    "aWins": 4,
+    "bWins": 1
+  },
+  "uganda_vs_united_arab_emirates": {
+    "aWins": 2,
+    "bWins": 2
+  },
+  "italy_vs_hong_kong": {
+    "aWins": 1,
+    "bWins": 1
+  },
+  "kenya_vs_papua_new_guinea": {
+    "aWins": 0,
+    "bWins": 3
+  },
+  "namibia_vs_united_arab_emirates": {
+    "aWins": 2,
+    "bWins": 11
+  },
+  "denmark_vs_bermuda": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "uganda_vs_hong_kong": {
+    "aWins": 2,
+    "bWins": 3
+  },
+  "united_states_of_america_vs_italy": {
+    "aWins": 1,
+    "bWins": 1
+  },
+  "kenya_vs_nepal": {
+    "aWins": 3,
+    "bWins": 5
+  },
+  "namibia_vs_united_states_of_america": {
+    "aWins": 3,
+    "bWins": 6
+  },
+  "ireland_vs_united_arab_emirates": {
+    "aWins": 9,
+    "bWins": 3
+  },
+  "italy_vs_uganda": {
+    "aWins": 0,
+    "bWins": 3
+  },
+  "denmark_vs_kenya": {
+    "aWins": 1,
+    "bWins": 1
+  },
+  "hong_kong_vs_canada": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "nepal_vs_scotland": {
+    "aWins": 0,
+    "bWins": 4
+  },
+  "italy_vs_namibia": {
+    "aWins": 1,
+    "bWins": 1
+  },
+  "denmark_vs_netherlands": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "united_arab_emirates_vs_hong_kong": {
+    "aWins": 10,
+    "bWins": 4
+  },
+  "canada_vs_uganda": {
+    "aWins": 2,
+    "bWins": 3
+  },
+  "nepal_vs_papua_new_guinea": {
+    "aWins": 7,
+    "bWins": 4
+  },
+  "ireland_vs_united_states_of_america": {
+    "aWins": 4,
+    "bWins": 0
+  },
+  "hong_kong_vs_namibia": {
+    "aWins": 2,
+    "bWins": 2
+  },
+  "netherlands_vs_nepal": {
+    "aWins": 9,
+    "bWins": 6
+  },
+  "scotland_vs_papua_new_guinea": {
+    "aWins": 10,
+    "bWins": 2
+  },
+  "united_arab_emirates_vs_canada": {
+    "aWins": 2,
+    "bWins": 1
+  },
+  "ireland_vs_uganda": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "hong_kong_vs_united_states_of_america": {
+    "aWins": 1,
+    "bWins": 2
+  },
+  "canada_vs_namibia": {
+    "aWins": 1,
+    "bWins": 5
+  },
+  "united_arab_emirates_vs_italy": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "canada_vs_italy": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "denmark_vs_scotland": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "hong_kong_vs_ireland": {
+    "aWins": 0,
+    "bWins": 3
+  },
+  "united_arab_emirates_vs_united_states_of_america": {
+    "aWins": 4,
+    "bWins": 7
+  },
+  "bermuda_vs_papua_new_guinea": {
+    "aWins": 0,
+    "bWins": 2
+  },
+  "bermuda_vs_uganda": {
+    "aWins": 0,
+    "bWins": 3
+  },
+  "united_states_of_america_vs_denmark": {
+    "aWins": 1,
+    "bWins": 1
+  },
+  "hong_kong_vs_nepal": {
+    "aWins": 6,
+    "bWins": 12
+  },
+  "italy_vs_scotland": {
+    "aWins": 1,
+    "bWins": 1
+  },
+  "united_arab_emirates_vs_netherlands": {
+    "aWins": 2,
+    "bWins": 7
+  },
+  "hong_kong_vs_papua_new_guinea": {
+    "aWins": 4,
+    "bWins": 4
+  },
+  "papua_new_guinea_vs_scotland": {
+    "aWins": 0,
+    "bWins": 9
+  },
+  "united_arab_emirates_vs_nepal": {
+    "aWins": 13,
+    "bWins": 16
+  },
+  "scotland_vs_canada": {
+    "aWins": 2,
+    "bWins": 2
+  },
+  "malaysia_vs_cayman_islands": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "cayman_islands_vs_nigeria": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "malaysia_vs_guernsey": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "cayman_islands_vs_jersey": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "guernsey_vs_jersey": {
+    "aWins": 0,
+    "bWins": 4
+  },
+  "nigeria_vs_tanzania": {
+    "aWins": 0,
+    "bWins": 4
+  },
+  "netherlands_vs_united_arab_emirates": {
+    "aWins": 4,
+    "bWins": 5
+  },
+  "bangladesh_vs_nepal": {
+    "aWins": 2,
+    "bWins": 0
+  },
+  "netherlands_vs_zimbabwe": {
+    "aWins": 5,
+    "bWins": 4
+  },
+  "bangladesh_vs_hong_kong": {
+    "aWins": 1,
+    "bWins": 1
+  },
+  "united_arab_emirates_vs_zimbabwe": {
+    "aWins": 5,
+    "bWins": 5
+  },
+  "netherlands_vs_new_zealand": {
+    "aWins": 0,
+    "bWins": 3
+  },
+  "malaysia_vs_oman": {
+    "aWins": 2,
+    "bWins": 2
+  },
+  "nepal_vs_united_arab_emirates": {
+    "aWins": 5,
+    "bWins": 5
+  },
+  "hong_kong_vs_oman": {
+    "aWins": 1,
+    "bWins": 9
+  },
+  "hong_kong_vs_united_arab_emirates": {
+    "aWins": 1,
+    "bWins": 7
+  },
+  "malaysia_vs_united_arab_emirates": {
+    "aWins": 0,
+    "bWins": 8
+  },
+  "sri_lanka_vs_ireland": {
+    "aWins": 7,
+    "bWins": 1
+  },
+  "malaysia_vs_hong_kong": {
+    "aWins": 9,
+    "bWins": 8
+  },
+  "scotland_vs_england": {
+    "aWins": 0,
+    "bWins": 2
+  },
+  "singapore_vs_kuwait": {
+    "aWins": 1,
+    "bWins": 5
+  },
+  "bhutan_vs_saudi_arabia": {
+    "aWins": 0,
+    "bWins": 3
+  },
+  "bahrain_vs_maldives": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "kuwait_vs_maldives": {
+    "aWins": 4,
+    "bWins": 0
+  },
+  "singapore_vs_bhutan": {
+    "aWins": 2,
+    "bWins": 0
+  },
+  "bahrain_vs_saudi_arabia": {
+    "aWins": 5,
+    "bWins": 4
+  },
+  "bhutan_vs_kuwait": {
+    "aWins": 1,
+    "bWins": 2
+  },
+  "kuwait_vs_saudi_arabia": {
+    "aWins": 3,
+    "bWins": 2
+  },
+  "singapore_vs_maldives": {
+    "aWins": 3,
+    "bWins": 0
+  },
+  "bahrain_vs_bhutan": {
+    "aWins": 6,
+    "bWins": 0
+  },
+  "singapore_vs_denmark": {
+    "aWins": 1,
+    "bWins": 2
+  },
+  "jersey_vs_malaysia": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "denmark_vs_malaysia": {
+    "aWins": 1,
+    "bWins": 2
+  },
+  "jersey_vs_oman": {
+    "aWins": 2,
+    "bWins": 2
+  },
+  "jersey_vs_italy": {
+    "aWins": 4,
+    "bWins": 2
+  },
+  "singapore_vs_malaysia": {
+    "aWins": 3,
+    "bWins": 9
+  },
+  "denmark_vs_oman": {
+    "aWins": 1,
+    "bWins": 2
+  },
+  "singapore_vs_oman": {
+    "aWins": 1,
+    "bWins": 2
+  },
+  "italy_vs_malaysia": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "singapore_vs_jersey": {
+    "aWins": 1,
+    "bWins": 1
+  },
+  "denmark_vs_italy": {
+    "aWins": 3,
+    "bWins": 1
+  },
+  "malaysia_vs_thailand": {
+    "aWins": 3,
+    "bWins": 3
+  },
+  "nepal_vs_thailand": {
+    "aWins": 1,
+    "bWins": 4
+  },
+  "south_korea_vs_hong_kong": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "china_vs_japan": {
+    "aWins": 1,
+    "bWins": 2
+  },
+  "hong_kong_vs_sri_lanka": {
+    "aWins": 0,
+    "bWins": 2
+  },
+  "china_vs_pakistan": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "china_vs_sri_lanka": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "south_korea_vs_malaysia": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "kuwait_vs_nepal": {
+    "aWins": 1,
+    "bWins": 6
+  },
+  "china_vs_malaysia": {
+    "aWins": 1,
+    "bWins": 4
+  },
+  "maldives_vs_nepal": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "south_korea_vs_china": {
+    "aWins": 1,
+    "bWins": 2
+  },
+  "hong_kong_vs_malaysia": {
+    "aWins": 7,
+    "bWins": 3
+  },
+  "south_korea_vs_sri_lanka": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "singapore_vs_uganda": {
+    "aWins": 1,
+    "bWins": 3
+  },
+  "malaysia_vs_united_states_of_america": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "uganda_vs_united_states_of_america": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "malaysia_vs_uganda": {
+    "aWins": 2,
+    "bWins": 1
+  },
+  "bermuda_vs_singapore": {
+    "aWins": 0,
+    "bWins": 2
+  },
+  "namibia_vs_uganda": {
+    "aWins": 15,
+    "bWins": 5
+  },
+  "canada_vs_nepal": {
+    "aWins": 2,
+    "bWins": 5
+  },
+  "kenya_vs_uganda": {
+    "aWins": 6,
+    "bWins": 13
+  },
+  "namibia_vs_nepal": {
+    "aWins": 5,
+    "bWins": 3
+  },
+  "netherlands_vs_uganda": {
+    "aWins": 2,
+    "bWins": 1
+  },
+  "malaysia_vs_maldives": {
+    "aWins": 2,
+    "bWins": 0
+  },
+  "oman_vs_singapore": {
+    "aWins": 1,
+    "bWins": 2
+  },
+  "malaysia_vs_saudi_arabia": {
+    "aWins": 2,
+    "bWins": 2
+  },
+  "maldives_vs_oman": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "saudi_arabia_vs_singapore": {
+    "aWins": 2,
+    "bWins": 0
+  },
+  "kuwait_vs_oman": {
+    "aWins": 0,
+    "bWins": 3
+  },
+  "england_vs_scotland": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "india_vs_united_arab_emirates": {
+    "aWins": 4,
+    "bWins": 0
+  },
+  "pakistan_vs_united_arab_emirates": {
+    "aWins": 6,
+    "bWins": 0
+  },
+  "bangladesh_vs_scotland": {
+    "aWins": 6,
+    "bWins": 0
+  },
+  "scotland_vs_sri_lanka": {
+    "aWins": 0,
+    "bWins": 3
+  },
+  "south_africa_vs_united_arab_emirates": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "united_arab_emirates_vs_west_indies": {
+    "aWins": 0,
+    "bWins": 3
+  },
+  "namibia_vs_hong_kong": {
+    "aWins": 2,
+    "bWins": 2
+  },
+  "netherlands_vs_papua_new_guinea": {
+    "aWins": 3,
+    "bWins": 2
+  },
+  "hong_kong_vs_jersey": {
+    "aWins": 1,
+    "bWins": 2
+  },
+  "kenya_vs_oman": {
+    "aWins": 1,
+    "bWins": 3
+  },
+  "papua_new_guinea_vs_jersey": {
+    "aWins": 1,
+    "bWins": 1
+  },
+  "nepal_vs_ireland": {
+    "aWins": 0,
+    "bWins": 2
+  },
+  "netherlands_vs_oman": {
+    "aWins": 4,
+    "bWins": 3
+  },
+  "canada_vs_united_arab_emirates": {
+    "aWins": 2,
+    "bWins": 2
+  },
+  "ireland_vs_papua_new_guinea": {
+    "aWins": 4,
+    "bWins": 2
+  },
+  "jersey_vs_united_states_of_america": {
+    "aWins": 0,
+    "bWins": 2
+  },
+  "jersey_vs_namibia": {
+    "aWins": 0,
+    "bWins": 2
+  },
+  "ireland_vs_hong_kong": {
+    "aWins": 0,
+    "bWins": 2
+  },
+  "jersey_vs_nepal": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "scotland_vs_oman": {
+    "aWins": 5,
+    "bWins": 1
+  },
+  "namibia_vs_papua_new_guinea": {
+    "aWins": 7,
+    "bWins": 4
+  },
+  "ireland_vs_jersey": {
+    "aWins": 2,
+    "bWins": 0
+  },
+  "papua_new_guinea_vs_united_states_of_america": {
+    "aWins": 4,
+    "bWins": 5
+  },
+  "namibia_vs_oman": {
+    "aWins": 7,
+    "bWins": 6
+  },
+  "hong_kong_vs_scotland": {
+    "aWins": 2,
+    "bWins": 5
+  },
+  "fiji_vs_guernsey": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "cayman_islands_vs_vanuatu": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "norway_vs_vanuatu": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "fiji_vs_suriname": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "botswana_vs_guernsey": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "guernsey_vs_suriname": {
+    "aWins": 1,
+    "bWins": 1
+  },
+  "guernsey_vs_norway": {
+    "aWins": 2,
+    "bWins": 1
+  },
+  "suriname_vs_vanuatu": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "botswana_vs_fiji": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "zimbabwe_vs_ireland": {
+    "aWins": 8,
+    "bWins": 15
+  },
+  "namibia_vs_ireland": {
+    "aWins": 0,
+    "bWins": 2
+  },
+  "oman_vs_papua_new_guinea": {
+    "aWins": 5,
+    "bWins": 3
+  },
+  "oman_vs_nepal": {
+    "aWins": 4,
+    "bWins": 4
+  },
+  "united_arab_emirates_vs_oman": {
+    "aWins": 8,
+    "bWins": 9
+  },
+  "thailand_vs_bangladesh": {
+    "aWins": 0,
+    "bWins": 4
+  },
+  "china_vs_zimbabwe": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "thailand_vs_papua_new_guinea": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "thailand_vs_scotland": {
+    "aWins": 0,
+    "bWins": 5
+  },
+  "bangladesh_vs_papua_new_guinea": {
+    "aWins": 5,
+    "bWins": 0
+  },
+  "china_vs_netherlands": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "china_vs_papua_new_guinea": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "thailand_vs_netherlands": {
+    "aWins": 8,
+    "bWins": 3
+  },
+  "scotland_vs_zimbabwe": {
+    "aWins": 3,
+    "bWins": 5
+  },
+  "papua_new_guinea_vs_ireland": {
+    "aWins": 0,
+    "bWins": 2
+  },
+  "united_arab_emirates_vs_scotland": {
+    "aWins": 4,
+    "bWins": 6
+  },
+  "oman_vs_united_arab_emirates": {
+    "aWins": 3,
+    "bWins": 5
+  },
+  "hong_kong_vs_zimbabwe": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "ireland_vs_oman": {
+    "aWins": 2,
+    "bWins": 2
+  },
+  "bangladesh_vs_oman": {
+    "aWins": 2,
+    "bWins": 0
+  },
+  "nepal_vs_namibia": {
+    "aWins": 3,
+    "bWins": 3
+  },
+  "guernsey_vs_tanzania": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "nigeria_vs_oman": {
+    "aWins": 0,
+    "bWins": 2
+  },
+  "jersey_vs_tanzania": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "oman_vs_tanzania": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "tanzania_vs_vanuatu": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "jersey_vs_nigeria": {
+    "aWins": 2,
+    "bWins": 0
+  },
+  "guernsey_vs_oman": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "papua_new_guinea_vs_kenya": {
+    "aWins": 2,
+    "bWins": 0
+  },
+  "gibraltar_vs_israel": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "germany_vs_isle_of_man": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "gibraltar_vs_isle_of_man": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "israel_vs_spain": {
+    "aWins": 0,
+    "bWins": 2
+  },
+  "scotland_vs_hong_kong": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "south_africa_vs_ireland": {
+    "aWins": 15,
+    "bWins": 0
+  },
+  "kenya_vs_saudi_arabia": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "qatar_vs_uganda": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "qatar_vs_saudi_arabia": {
+    "aWins": 3,
+    "bWins": 3
+  },
+  "kenya_vs_qatar": {
+    "aWins": 0,
+    "bWins": 2
+  },
+  "papua_new_guinea_vs_namibia": {
+    "aWins": 4,
+    "bWins": 2
+  },
+  "denmark_vs_jersey": {
+    "aWins": 1,
+    "bWins": 3
+  },
+  "italy_vs_jersey": {
+    "aWins": 2,
+    "bWins": 4
+  },
+  "united_states_of_america_vs_oman": {
+    "aWins": 5,
+    "bWins": 3
+  },
+  "bermuda_vs_denmark": {
+    "aWins": 1,
+    "bWins": 2
+  },
+  "bermuda_vs_jersey": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "japan_vs_china": {
+    "aWins": 4,
+    "bWins": 0
+  },
+  "united_states_of_america_vs_jersey": {
+    "aWins": 1,
+    "bWins": 1
+  },
+  "kenya_vs_hong_kong": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "hong_kong_vs_netherlands": {
+    "aWins": 1,
+    "bWins": 6
+  },
+  "oman_vs_scotland": {
+    "aWins": 0,
+    "bWins": 7
+  },
+  "india_vs_thailand": {
+    "aWins": 3,
+    "bWins": 0
+  },
+  "papua_new_guinea_vs_pakistan": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "ireland_vs_thailand": {
+    "aWins": 3,
+    "bWins": 3
+  },
+  "sri_lanka_vs_thailand": {
+    "aWins": 3,
+    "bWins": 1
+  },
+  "papua_new_guinea_vs_south_africa": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "indonesia_vs_vanuatu": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "vanuatu_vs_philippines": {
+    "aWins": 1,
+    "bWins": 1
+  },
+  "vanuatu_vs_samoa": {
+    "aWins": 3,
+    "bWins": 3
+  },
+  "fiji_vs_indonesia": {
+    "aWins": 1,
+    "bWins": 1
+  },
+  "japan_vs_vanuatu": {
+    "aWins": 1,
+    "bWins": 4
+  },
+  "indonesia_vs_samoa": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "japan_vs_philippines": {
+    "aWins": 5,
+    "bWins": 1
+  },
+  "nepal_vs_kenya": {
+    "aWins": 1,
+    "bWins": 1
+  },
+  "united_arab_emirates_vs_papua_new_guinea": {
+    "aWins": 7,
+    "bWins": 5
+  },
+  "ghana_vs_sierra_leone": {
+    "aWins": 3,
+    "bWins": 2
+  },
+  "botswana_vs_zambia": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "sierra_leone_vs_zambia": {
+    "aWins": 0,
+    "bWins": 2
+  },
+  "ghana_vs_nigeria": {
+    "aWins": 1,
+    "bWins": 3
+  },
+  "botswana_vs_tanzania": {
+    "aWins": 1,
+    "bWins": 4
+  },
+  "botswana_vs_ghana": {
+    "aWins": 1,
+    "bWins": 1
+  },
+  "tanzania_vs_zambia": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "nigeria_vs_sierra_leone": {
+    "aWins": 14,
+    "bWins": 1
+  },
+  "nigeria_vs_zambia": {
+    "aWins": 4,
+    "bWins": 0
+  },
+  "botswana_vs_sierra_leone": {
+    "aWins": 3,
+    "bWins": 3
+  },
+  "ghana_vs_tanzania": {
+    "aWins": 1,
+    "bWins": 2
+  },
+  "sierra_leone_vs_tanzania": {
+    "aWins": 0,
+    "bWins": 3
+  },
+  "ghana_vs_zambia": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "qatar_vs_kuwait": {
+    "aWins": 3,
+    "bWins": 5
+  },
+  "bahrain_vs_thailand": {
+    "aWins": 1,
+    "bWins": 1
+  },
+  "bahrain_vs_qatar": {
+    "aWins": 4,
+    "bWins": 6
+  },
+  "china_vs_thailand": {
+    "aWins": 0,
+    "bWins": 5
+  },
+  "qatar_vs_china": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "kuwait_vs_bahrain": {
+    "aWins": 6,
+    "bWins": 3
+  },
+  "japan_vs_samoa": {
+    "aWins": 3,
+    "bWins": 2
+  },
+  "vanuatu_vs_papua_new_guinea": {
+    "aWins": 0,
+    "bWins": 5
+  },
+  "china_vs_bahrain": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "kuwait_vs_bhutan": {
+    "aWins": 2,
+    "bWins": 1
+  },
+  "thailand_vs_saudi_arabia": {
+    "aWins": 0,
+    "bWins": 4
+  },
+  "papua_new_guinea_vs_japan": {
+    "aWins": 2,
+    "bWins": 0
+  },
+  "kuwait_vs_thailand": {
+    "aWins": 0,
+    "bWins": 3
+  },
+  "samoa_vs_vanuatu": {
+    "aWins": 4,
+    "bWins": 4
+  },
+  "samoa_vs_papua_new_guinea": {
+    "aWins": 1,
+    "bWins": 3
+  },
+  "vanuatu_vs_japan": {
+    "aWins": 3,
+    "bWins": 1
+  },
+  "canada_vs_oman": {
+    "aWins": 3,
+    "bWins": 5
+  },
+  "uganda_vs_singapore": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "united_states_of_america_vs_singapore": {
+    "aWins": 1,
+    "bWins": 1
+  },
+  "uganda_vs_oman": {
+    "aWins": 0,
+    "bWins": 2
+  },
+  "canada_vs_malaysia": {
+    "aWins": 2,
+    "bWins": 1
+  },
+  "singapore_vs_canada": {
+    "aWins": 1,
+    "bWins": 1
+  },
+  "france_vs_germany": {
+    "aWins": 1,
+    "bWins": 5
+  },
+  "norway_vs_belgium": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "scotland_vs_namibia": {
+    "aWins": 6,
+    "bWins": 4
+  },
+  "austria_vs_sweden": {
+    "aWins": 3,
+    "bWins": 0
+  },
+  "netherlands_vs_united_states_of_america": {
+    "aWins": 9,
+    "bWins": 0
+  },
+  "qatar_vs_cayman_islands": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "italy_vs_guernsey": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "vanuatu_vs_jersey": {
+    "aWins": 0,
+    "bWins": 2
+  },
+  "germany_vs_jersey": {
+    "aWins": 3,
+    "bWins": 3
+  },
+  "vanuatu_vs_ghana": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "qatar_vs_italy": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "guernsey_vs_qatar": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "italy_vs_cayman_islands": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "jersey_vs_ghana": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "germany_vs_vanuatu": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "cayman_islands_vs_germany": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "guernsey_vs_ghana": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "italy_vs_vanuatu": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "qatar_vs_jersey": {
+    "aWins": 0,
+    "bWins": 2
+  },
+  "uganda_vs_namibia": {
+    "aWins": 6,
+    "bWins": 5
+  },
+  "tanzania_vs_kenya": {
+    "aWins": 3,
+    "bWins": 4
+  },
+  "guernsey_vs_germany": {
+    "aWins": 1,
+    "bWins": 3
+  },
+  "jersey_vs_vanuatu": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "tanzania_vs_uganda": {
+    "aWins": 4,
+    "bWins": 7
+  },
+  "namibia_vs_zimbabwe": {
+    "aWins": 4,
+    "bWins": 10
+  },
+  "pakistan_vs_icc_world_xi": {
+    "aWins": 2,
+    "bWins": 1
+  },
+  "tanzania_vs_namibia": {
+    "aWins": 0,
+    "bWins": 4
+  },
+  "zimbabwe_vs_uganda": {
+    "aWins": 5,
+    "bWins": 2
+  },
+  "united_arab_emirates_vs_china": {
+    "aWins": 2,
+    "bWins": 0
+  },
+  "united_arab_emirates_vs_thailand": {
+    "aWins": 4,
+    "bWins": 3
+  },
+  "hong_kong_vs_china": {
+    "aWins": 5,
+    "bWins": 0
+  },
+  "nepal_vs_malaysia": {
+    "aWins": 5,
+    "bWins": 4
+  },
+  "nepal_vs_china": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "united_arab_emirates_vs_malaysia": {
+    "aWins": 4,
+    "bWins": 0
+  },
+  "hong_kong_vs_thailand": {
+    "aWins": 0,
+    "bWins": 2
+  },
+  "nepal_vs_hong_kong": {
+    "aWins": 2,
+    "bWins": 4
+  },
+  "thailand_vs_united_arab_emirates": {
+    "aWins": 5,
+    "bWins": 0
+  },
+  "scotland_vs_kenya": {
+    "aWins": 2,
+    "bWins": 0
+  },
+  "oman_vs_canada": {
+    "aWins": 1,
+    "bWins": 5
+  },
+  "nepal_vs_oman": {
+    "aWins": 5,
+    "bWins": 5
+  },
+  "oman_vs_namibia": {
+    "aWins": 1,
+    "bWins": 5
+  },
+  "zimbabwe_vs_nepal": {
+    "aWins": 1,
+    "bWins": 1
+  },
+  "west_indies_vs_united_arab_emirates": {
+    "aWins": 2,
+    "bWins": 0
+  },
+  "papua_new_guinea_vs_west_indies": {
+    "aWins": 0,
+    "bWins": 2
+  },
+  "scotland_vs_nepal": {
+    "aWins": 4,
+    "bWins": 6
+  },
+  "papua_new_guinea_vs_netherlands": {
+    "aWins": 2,
+    "bWins": 3
+  },
+  "zimbabwe_vs_hong_kong": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "west_indies_vs_netherlands": {
+    "aWins": 2,
+    "bWins": 0
+  },
+  "papua_new_guinea_vs_nepal": {
+    "aWins": 2,
+    "bWins": 6
+  },
+  "netherlands_vs_hong_kong": {
+    "aWins": 3,
+    "bWins": 0
+  },
+  "papua_new_guinea_vs_hong_kong": {
+    "aWins": 1,
+    "bWins": 1
+  },
+  "west_indies_vs_scotland": {
+    "aWins": 2,
+    "bWins": 1
+  },
+  "ghana_vs_gambia": {
+    "aWins": 2,
+    "bWins": 0
+  },
+  "qatar_vs_united_arab_emirates": {
+    "aWins": 0,
+    "bWins": 5
+  },
+  "maldives_vs_bahrain": {
+    "aWins": 0,
+    "bWins": 2
+  },
+  "saudi_arabia_vs_united_arab_emirates": {
+    "aWins": 1,
+    "bWins": 3
+  },
+  "gambia_vs_sierra_leone": {
+    "aWins": 0,
+    "bWins": 2
+  },
+  "qatar_vs_maldives": {
+    "aWins": 3,
+    "bWins": 0
+  },
+  "united_arab_emirates_vs_bahrain": {
+    "aWins": 5,
+    "bWins": 0
+  },
+  "united_arab_emirates_vs_maldives": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "saudi_arabia_vs_qatar": {
+    "aWins": 0,
+    "bWins": 4
+  },
+  "united_arab_emirates_vs_kuwait": {
+    "aWins": 5,
+    "bWins": 1
+  },
+  "saudi_arabia_vs_maldives": {
+    "aWins": 2,
+    "bWins": 0
+  },
+  "malaysia_vs_vanuatu": {
+    "aWins": 4,
+    "bWins": 4
+  },
+  "jersey_vs_denmark": {
+    "aWins": 5,
+    "bWins": 1
+  },
+  "uganda_vs_bermuda": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "uganda_vs_vanuatu": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "malaysia_vs_denmark": {
+    "aWins": 1,
+    "bWins": 1
+  },
+  "uganda_vs_denmark": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "malaysia_vs_jersey": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "bermuda_vs_vanuatu": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "denmark_vs_vanuatu": {
+    "aWins": 3,
+    "bWins": 1
+  },
+  "malaysia_vs_bermuda": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "uganda_vs_jersey": {
+    "aWins": 2,
+    "bWins": 1
+  },
+  "west_indies_vs_icc_world_xi": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "india_vs_malaysia": {
+    "aWins": 2,
+    "bWins": 0
+  },
+  "thailand_vs_pakistan": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "sri_lanka_vs_malaysia": {
+    "aWins": 4,
+    "bWins": 0
+  },
+  "pakistan_vs_malaysia": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "bangladesh_vs_malaysia": {
+    "aWins": 4,
+    "bWins": 0
+  },
+  "new_zealand_vs_ireland": {
+    "aWins": 5,
+    "bWins": 0
+  },
+  "thailand_vs_ireland": {
+    "aWins": 0,
+    "bWins": 2
+  },
+  "uganda_vs_scotland": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "papua_new_guinea_vs_bangladesh": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "uganda_vs_kenya": {
+    "aWins": 7,
+    "bWins": 4
+  },
+  "tanzania_vs_rwanda": {
+    "aWins": 12,
+    "bWins": 0
+  },
+  "kenya_vs_rwanda": {
+    "aWins": 8,
+    "bWins": 4
+  },
+  "scotland_vs_thailand": {
+    "aWins": 3,
+    "bWins": 2
+  },
+  "uganda_vs_ireland": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "united_arab_emirates_vs_bangladesh": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "uganda_vs_rwanda": {
+    "aWins": 16,
+    "bWins": 1
+  },
+  "uganda_vs_tanzania": {
+    "aWins": 11,
+    "bWins": 5
+  },
+  "rwanda_vs_kenya": {
+    "aWins": 6,
+    "bWins": 8
+  },
+  "kenya_vs_tanzania": {
+    "aWins": 3,
+    "bWins": 2
+  },
+  "thailand_vs_uganda": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "botswana_vs_lesotho": {
+    "aWins": 4,
+    "bWins": 0
+  },
+  "malawi_vs_namibia": {
+    "aWins": 0,
+    "bWins": 2
+  },
+  "sierra_leone_vs_namibia": {
+    "aWins": 0,
+    "bWins": 2
+  },
+  "mozambique_vs_lesotho": {
+    "aWins": 4,
+    "bWins": 0
+  },
+  "mozambique_vs_botswana": {
+    "aWins": 0,
+    "bWins": 4
+  },
+  "mozambique_vs_namibia": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "namibia_vs_lesotho": {
+    "aWins": 2,
+    "bWins": 0
+  },
+  "sierra_leone_vs_malawi": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "sierra_leone_vs_lesotho": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "botswana_vs_namibia": {
+    "aWins": 0,
+    "bWins": 2
+  },
+  "fiji_vs_vanuatu": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "papua_new_guinea_vs_samoa": {
+    "aWins": 3,
+    "bWins": 1
+  },
+  "fiji_vs_papua_new_guinea": {
+    "aWins": 0,
+    "bWins": 4
+  },
+  "lesotho_vs_malawi": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "fiji_vs_samoa": {
+    "aWins": 3,
+    "bWins": 2
+  },
+  "papua_new_guinea_vs_vanuatu": {
+    "aWins": 7,
+    "bWins": 1
+  },
+  "vanuatu_vs_fiji": {
+    "aWins": 5,
+    "bWins": 1
+  },
+  "germany_vs_cyprus": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "germany_vs_denmark": {
+    "aWins": 2,
+    "bWins": 1
+  },
+  "italy_vs_spain": {
+    "aWins": 3,
+    "bWins": 1
+  },
+  "isle_of_man_vs_belgium": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "isle_of_man_vs_finland": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "gibraltar_vs_guernsey": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "france_vs_portugal": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "germany_vs_france": {
+    "aWins": 3,
+    "bWins": 0
+  },
+  "spain_vs_jersey": {
+    "aWins": 0,
+    "bWins": 2
+  },
+  "italy_vs_finland": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "jersey_vs_isle_of_man": {
+    "aWins": 2,
+    "bWins": 1
+  },
+  "israel_vs_guernsey": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "sweden_vs_israel": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "israel_vs_gibraltar": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "norway_vs_sweden": {
+    "aWins": 3,
+    "bWins": 1
+  },
+  "portugal_vs_denmark": {
+    "aWins": 0,
+    "bWins": 2
+  },
+  "belgium_vs_italy": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "finland_vs_spain": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "israel_vs_czech_republic": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "austria_vs_germany": {
+    "aWins": 2,
+    "bWins": 4
+  },
+  "denmark_vs_france": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "cyprus_vs_portugal": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "jersey_vs_finland": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "norway_vs_israel": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "china_vs_south_korea": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "japan_vs_south_korea": {
+    "aWins": 4,
+    "bWins": 1
+  },
+  "hong_kong_vs_pakistan": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "india_vs_hong_kong": {
+    "aWins": 2,
+    "bWins": 0
+  },
+  "belize_vs_canada": {
+    "aWins": 0,
+    "bWins": 2
+  },
+  "panama_vs_united_states_of_america": {
+    "aWins": 0,
+    "bWins": 2
+  },
+  "panama_vs_canada": {
+    "aWins": 0,
+    "bWins": 2
+  },
+  "united_states_of_america_vs_belize": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "panama_vs_belize": {
+    "aWins": 1,
+    "bWins": 1
+  },
+  "belize_vs_united_states_of_america": {
+    "aWins": 0,
+    "bWins": 2
+  },
+  "myanmar_vs_nepal": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "china_vs_bhutan": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "myanmar_vs_singapore": {
+    "aWins": 3,
+    "bWins": 2
+  },
+  "china_vs_singapore": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "thailand_vs_singapore": {
+    "aWins": 2,
+    "bWins": 2
+  },
+  "nepal_vs_bhutan": {
+    "aWins": 3,
+    "bWins": 0
+  },
+  "myanmar_vs_malaysia": {
+    "aWins": 0,
+    "bWins": 2
+  },
+  "china_vs_nepal": {
+    "aWins": 0,
+    "bWins": 2
+  },
+  "thailand_vs_myanmar": {
+    "aWins": 2,
+    "bWins": 0
+  },
+  "united_arab_emirates_vs_australia": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "swaziland_vs_namibia": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "swaziland_vs_lesotho": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "st_helena_vs_malawi": {
+    "aWins": 1,
+    "bWins": 1
+  },
+  "namibia_vs_mozambique": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "botswana_vs_st_helena": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "swaziland_vs_malawi": {
+    "aWins": 0,
+    "bWins": 2
+  },
+  "botswana_vs_malawi": {
+    "aWins": 4,
+    "bWins": 0
+  },
+  "malawi_vs_mozambique": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "swaziland_vs_botswana": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "malawi_vs_lesotho": {
+    "aWins": 4,
+    "bWins": 0
+  },
+  "lesotho_vs_botswana": {
+    "aWins": 0,
+    "bWins": 2
+  },
+  "namibia_vs_st_helena": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "namibia_vs_botswana": {
+    "aWins": 10,
+    "bWins": 1
+  },
+  "denmark_vs_uganda": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "united_states_of_america_vs_uganda": {
+    "aWins": 1,
+    "bWins": 1
+  },
+  "pakistan_vs_ireland": {
+    "aWins": 5,
+    "bWins": 3
+  },
+  "kenya_vs_singapore": {
+    "aWins": 2,
+    "bWins": 0
+  },
+  "kenya_vs_denmark": {
+    "aWins": 0,
+    "bWins": 2
+  },
+  "japan_vs_indonesia": {
+    "aWins": 5,
+    "bWins": 4
+  },
+  "philippines_vs_south_korea": {
+    "aWins": 6,
+    "bWins": 0
+  },
+  "philippines_vs_japan": {
+    "aWins": 1,
+    "bWins": 2
+  },
+  "philippines_vs_indonesia": {
+    "aWins": 6,
+    "bWins": 1
+  },
+  "indonesia_vs_japan": {
+    "aWins": 2,
+    "bWins": 1
+  },
+  "indonesia_vs_south_korea": {
+    "aWins": 3,
+    "bWins": 2
+  },
+  "oman_vs_ireland": {
+    "aWins": 1,
+    "bWins": 2
+  },
+  "oman_vs_netherlands": {
+    "aWins": 2,
+    "bWins": 1
+  },
+  "thailand_vs_china": {
+    "aWins": 2,
+    "bWins": 0
+  },
+  "kuwait_vs_malaysia": {
+    "aWins": 1,
+    "bWins": 7
+  },
+  "china_vs_hong_kong": {
+    "aWins": 2,
+    "bWins": 5
+  },
+  "kuwait_vs_united_arab_emirates": {
+    "aWins": 0,
+    "bWins": 6
+  },
+  "thailand_vs_nepal": {
+    "aWins": 4,
+    "bWins": 1
+  },
+  "china_vs_kuwait": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "thailand_vs_hong_kong": {
+    "aWins": 4,
+    "bWins": 1
+  },
+  "china_vs_united_arab_emirates": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "thailand_vs_kuwait": {
+    "aWins": 2,
+    "bWins": 0
+  },
+  "thailand_vs_malaysia": {
+    "aWins": 3,
+    "bWins": 6
+  },
+  "hong_kong_vs_kuwait": {
+    "aWins": 7,
+    "bWins": 4
+  },
+  "papua_new_guinea_vs_philippines": {
+    "aWins": 3,
+    "bWins": 0
+  },
+  "philippines_vs_vanuatu": {
+    "aWins": 1,
+    "bWins": 2
+  },
+  "zimbabwe_vs_united_arab_emirates": {
+    "aWins": 5,
+    "bWins": 3
+  },
+  "canada_vs_hong_kong": {
+    "aWins": 1,
+    "bWins": 2
+  },
+  "oman_vs_united_states_of_america": {
+    "aWins": 4,
+    "bWins": 3
+  },
+  "canada_vs_papua_new_guinea": {
+    "aWins": 2,
+    "bWins": 0
+  },
+  "zimbabwe_vs_mozambique": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "sierra_leone_vs_uganda": {
+    "aWins": 0,
+    "bWins": 3
+  },
+  "mozambique_vs_nigeria": {
+    "aWins": 0,
+    "bWins": 2
+  },
+  "zimbabwe_vs_tanzania": {
+    "aWins": 2,
+    "bWins": 0
+  },
+  "indonesia_vs_papua_new_guinea": {
+    "aWins": 0,
+    "bWins": 2
+  },
+  "mozambique_vs_rwanda": {
+    "aWins": 0,
+    "bWins": 4
+  },
+  "namibia_vs_sierra_leone": {
+    "aWins": 2,
+    "bWins": 0
+  },
+  "zimbabwe_vs_rwanda": {
+    "aWins": 4,
+    "bWins": 0
+  },
+  "fiji_vs_japan": {
+    "aWins": 0,
+    "bWins": 2
+  },
+  "japan_vs_papua_new_guinea": {
+    "aWins": 0,
+    "bWins": 3
+  },
+  "zimbabwe_vs_nigeria": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "rwanda_vs_tanzania": {
+    "aWins": 1,
+    "bWins": 5
+  },
+  "ghana_vs_namibia": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "uganda_vs_botswana": {
+    "aWins": 6,
+    "bWins": 0
+  },
+  "ghana_vs_kenya": {
+    "aWins": 0,
+    "bWins": 2
+  },
+  "botswana_vs_nigeria": {
+    "aWins": 0,
+    "bWins": 5
+  },
+  "uganda_vs_ghana": {
+    "aWins": 3,
+    "bWins": 0
+  },
+  "germany_vs_italy": {
+    "aWins": 0,
+    "bWins": 7
+  },
+  "guernsey_vs_italy": {
+    "aWins": 0,
+    "bWins": 2
+  },
+  "jersey_vs_norway": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "denmark_vs_norway": {
+    "aWins": 3,
+    "bWins": 1
+  },
+  "rwanda_vs_mali": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "denmark_vs_germany": {
+    "aWins": 0,
+    "bWins": 3
+  },
+  "rwanda_vs_uganda": {
+    "aWins": 0,
+    "bWins": 11
+  },
+  "germany_vs_norway": {
+    "aWins": 2,
+    "bWins": 0
+  },
+  "guernsey_vs_denmark": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "maldives_vs_thailand": {
+    "aWins": 2,
+    "bWins": 3
+  },
+  "germany_vs_netherlands": {
+    "aWins": 0,
+    "bWins": 2
+  },
+  "germany_vs_scotland": {
+    "aWins": 0,
+    "bWins": 2
+  },
+  "singapore_vs_qatar": {
+    "aWins": 2,
+    "bWins": 4
+  },
+  "nepal_vs_qatar": {
+    "aWins": 5,
+    "bWins": 1
+  },
+  "kuwait_vs_qatar": {
+    "aWins": 4,
+    "bWins": 1
+  },
+  "malaysia_vs_qatar": {
+    "aWins": 1,
+    "bWins": 4
+  },
+  "singapore_vs_nepal": {
+    "aWins": 1,
+    "bWins": 2
+  },
+  "netherlands_vs_thailand": {
+    "aWins": 2,
+    "bWins": 6
+  },
+  "canada_vs_cayman_islands": {
+    "aWins": 8,
+    "bWins": 0
+  },
+  "cayman_islands_vs_united_states_of_america": {
+    "aWins": 0,
+    "bWins": 2
+  },
+  "united_states_of_america_vs_bermuda": {
+    "aWins": 1,
+    "bWins": 1
+  },
+  "scotland_vs_united_states_of_america": {
+    "aWins": 8,
+    "bWins": 2
+  },
+  "namibia_vs_thailand": {
+    "aWins": 0,
+    "bWins": 2
+  },
+  "bangladesh_vs_united_states_of_america": {
+    "aWins": 4,
+    "bWins": 1
+  },
+  "scotland_vs_bangladesh": {
+    "aWins": 1,
+    "bWins": 3
+  },
+  "papua_new_guinea_vs_thailand": {
+    "aWins": 1,
+    "bWins": 2
+  },
+  "rwanda_vs_nigeria": {
+    "aWins": 5,
+    "bWins": 4
+  },
+  "bangladesh_vs_thailand": {
+    "aWins": 4,
+    "bWins": 1
+  },
+  "united_states_of_america_vs_papua_new_guinea": {
+    "aWins": 5,
+    "bWins": 2
+  },
+  "united_states_of_america_vs_namibia": {
+    "aWins": 6,
+    "bWins": 1
+  },
+  "qatar_vs_singapore": {
+    "aWins": 2,
+    "bWins": 0
+  },
+  "canada_vs_vanuatu": {
+    "aWins": 2,
+    "bWins": 0
+  },
+  "south_korea_vs_japan": {
+    "aWins": 0,
+    "bWins": 2
+  },
+  "malaysia_vs_canada": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "hong_kong_vs_japan": {
+    "aWins": 5,
+    "bWins": 1
+  },
+  "canada_vs_qatar": {
+    "aWins": 2,
+    "bWins": 0
+  },
+  "singapore_vs_vanuatu": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "denmark_vs_qatar": {
+    "aWins": 2,
+    "bWins": 0
+  },
+  "canada_vs_denmark": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "qatar_vs_vanuatu": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "canada_vs_singapore": {
+    "aWins": 1,
+    "bWins": 1
+  },
+  "nepal_vs_zimbabwe": {
+    "aWins": 0,
+    "bWins": 3
+  },
+  "singapore_vs_zimbabwe": {
+    "aWins": 1,
+    "bWins": 1
+  },
+  "nepal_vs_netherlands": {
+    "aWins": 3,
+    "bWins": 6
+  },
+  "ireland_vs_nepal": {
+    "aWins": 2,
+    "bWins": 0
+  },
+  "scotland_vs_singapore": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "canada_vs_jersey": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "canada_vs_nigeria": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "netherlands_vs_singapore": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "united_arab_emirates_vs_jersey": {
+    "aWins": 1,
+    "bWins": 1
+  },
+  "bermuda_vs_namibia": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "united_arab_emirates_vs_nigeria": {
+    "aWins": 2,
+    "bWins": 0
+  },
+  "papua_new_guinea_vs_singapore": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "spain_vs_portugal": {
+    "aWins": 2,
+    "bWins": 0
+  },
+  "ireland_vs_nigeria": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "namibia_vs_singapore": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "gibraltar_vs_portugal": {
+    "aWins": 0,
+    "bWins": 6
+  },
+  "spain_vs_gibraltar": {
+    "aWins": 2,
+    "bWins": 0
+  },
+  "hong_kong_vs_nigeria": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "nepal_vs_maldives": {
+    "aWins": 5,
+    "bWins": 0
+  },
+  "nepal_vs_bangladesh": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "bangladesh_vs_maldives": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "bhutan_vs_maldives": {
+    "aWins": 3,
+    "bWins": 3
+  },
+  "oman_vs_germany": {
+    "aWins": 0,
+    "bWins": 4
+  },
+  "thailand_vs_west_indies": {
+    "aWins": 0,
+    "bWins": 2
+  },
+  "oman_vs_maldives": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "iran_vs_kuwait": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "england_vs_thailand": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "south_africa_vs_thailand": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "hong_kong_vs_singapore": {
+    "aWins": 5,
+    "bWins": 1
+  },
+  "spain_vs_germany": {
+    "aWins": 2,
+    "bWins": 2
+  },
+  "germany_vs_austria": {
+    "aWins": 5,
+    "bWins": 0
+  },
+  "isle_of_man_vs_guernsey": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "belgium_vs_luxembourg": {
+    "aWins": 2,
+    "bWins": 0
+  },
+  "belgium_vs_czech_republic": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "bulgaria_vs_romania": {
+    "aWins": 1,
+    "bWins": 4
+  },
+  "romania_vs_bulgaria": {
+    "aWins": 3,
+    "bWins": 0
+  },
+  "netherlands_vs_malaysia": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "luxembourg_vs_czech_republic": {
+    "aWins": 0,
+    "bWins": 2
+  },
+  "austria_vs_czech_republic": {
+    "aWins": 2,
+    "bWins": 1
+  },
+  "czech_republic_vs_luxembourg": {
+    "aWins": 1,
+    "bWins": 1
+  },
+  "austria_vs_luxembourg": {
+    "aWins": 4,
+    "bWins": 2
+  },
+  "czech_republic_vs_austria": {
+    "aWins": 0,
+    "bWins": 4
+  },
+  "nigeria_vs_namibia": {
+    "aWins": 1,
+    "bWins": 3
+  },
+  "botswana_vs_kenya": {
+    "aWins": 1,
+    "bWins": 6
+  },
+  "namibia_vs_rwanda": {
+    "aWins": 3,
+    "bWins": 0
+  },
+  "namibia_vs_nigeria": {
+    "aWins": 4,
+    "bWins": 1
+  },
+  "greece_vs_romania": {
+    "aWins": 1,
+    "bWins": 1
+  },
+  "serbia_vs_greece": {
+    "aWins": 0,
+    "bWins": 2
+  },
+  "romania_vs_serbia": {
+    "aWins": 2,
+    "bWins": 0
+  },
+  "serbia_vs_romania": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "belgium_vs_malta": {
+    "aWins": 4,
+    "bWins": 2
+  },
+  "malta_vs_belgium": {
+    "aWins": 0,
+    "bWins": 4
+  },
+  "norway_vs_germany": {
+    "aWins": 2,
+    "bWins": 2
+  },
+  "norway_vs_france": {
+    "aWins": 2,
+    "bWins": 1
+  },
+  "denmark_vs_sweden": {
+    "aWins": 1,
+    "bWins": 4
+  },
+  "sweden_vs_denmark": {
+    "aWins": 1,
+    "bWins": 1
+  },
+  "ghana_vs_rwanda": {
+    "aWins": 1,
+    "bWins": 2
+  },
+  "gibraltar_vs_malta": {
+    "aWins": 2,
+    "bWins": 3
+  },
+  "rwanda_vs_ghana": {
+    "aWins": 3,
+    "bWins": 2
+  },
+  "malta_vs_gibraltar": {
+    "aWins": 3,
+    "bWins": 0
+  },
+  "sweden_vs_finland": {
+    "aWins": 2,
+    "bWins": 2
+  },
+  "portugal_vs_gibraltar": {
+    "aWins": 2,
+    "bWins": 0
+  },
+  "finland_vs_sweden": {
+    "aWins": 1,
+    "bWins": 2
+  },
+  "ireland_vs_germany": {
+    "aWins": 2,
+    "bWins": 0
+  },
+  "france_vs_netherlands": {
+    "aWins": 0,
+    "bWins": 3
+  },
+  "france_vs_ireland": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "france_vs_scotland": {
+    "aWins": 0,
+    "bWins": 2
+  },
+  "luxembourg_vs_bulgaria": {
+    "aWins": 2,
+    "bWins": 0
+  },
+  "hungary_vs_czech_republic": {
+    "aWins": 1,
+    "bWins": 2
+  },
+  "romania_vs_czech_republic": {
+    "aWins": 4,
+    "bWins": 1
+  },
+  "bulgaria_vs_malta": {
+    "aWins": 0,
+    "bWins": 2
+  },
+  "romania_vs_hungary": {
+    "aWins": 1,
+    "bWins": 1
+  },
+  "luxembourg_vs_hungary": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "romania_vs_malta": {
+    "aWins": 4,
+    "bWins": 3
+  },
+  "malta_vs_hungary": {
+    "aWins": 1,
+    "bWins": 2
+  },
+  "romania_vs_luxembourg": {
+    "aWins": 2,
+    "bWins": 1
+  },
+  "botswana_vs_eswatini": {
+    "aWins": 4,
+    "bWins": 0
+  },
+  "sierra_leone_vs_nigeria": {
+    "aWins": 0,
+    "bWins": 5
+  },
+  "tanzania_vs_zimbabwe": {
+    "aWins": 0,
+    "bWins": 4
+  },
+  "botswana_vs_mozambique": {
+    "aWins": 5,
+    "bWins": 0
+  },
+  "nigeria_vs_kenya": {
+    "aWins": 2,
+    "bWins": 7
+  },
+  "uganda_vs_nigeria": {
+    "aWins": 9,
+    "bWins": 1
+  },
+  "germany_vs_spain": {
+    "aWins": 2,
+    "bWins": 2
+  },
+  "eswatini_vs_zimbabwe": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "tanzania_vs_mozambique": {
+    "aWins": 2,
+    "bWins": 0
+  },
+  "rwanda_vs_eswatini": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "kenya_vs_nigeria": {
+    "aWins": 6,
+    "bWins": 1
+  },
+  "nigeria_vs_uganda": {
+    "aWins": 1,
+    "bWins": 7
+  },
+  "united_states_of_america_vs_nepal": {
+    "aWins": 3,
+    "bWins": 3
+  },
+  "tanzania_vs_eswatini": {
+    "aWins": 2,
+    "bWins": 0
+  },
+  "cameroon_vs_sierra_leone": {
+    "aWins": 1,
+    "bWins": 5
+  },
+  "mozambique_vs_eswatini": {
+    "aWins": 6,
+    "bWins": 0
+  },
+  "zimbabwe_vs_scotland": {
+    "aWins": 1,
+    "bWins": 1
+  },
+  "papua_new_guinea_vs_oman": {
+    "aWins": 0,
+    "bWins": 5
+  },
+  "estonia_vs_cyprus": {
+    "aWins": 2,
+    "bWins": 4
+  },
+  "cyprus_vs_isle_of_man": {
+    "aWins": 0,
+    "bWins": 3
+  },
+  "estonia_vs_isle_of_man": {
+    "aWins": 0,
+    "bWins": 2
+  },
+  "cyprus_vs_estonia": {
+    "aWins": 4,
+    "bWins": 2
+  },
+  "jersey_vs_germany": {
+    "aWins": 2,
+    "bWins": 1
+  },
+  "seychelles_vs_ghana": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "malawi_vs_uganda": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "italy_vs_germany": {
+    "aWins": 4,
+    "bWins": 3
+  },
+  "lesotho_vs_seychelles": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "namibia_vs_sri_lanka": {
+    "aWins": 1,
+    "bWins": 1
+  },
+  "italy_vs_denmark": {
+    "aWins": 2,
+    "bWins": 0
+  },
+  "argentina_vs_brazil": {
+    "aWins": 2,
+    "bWins": 3
+  },
+  "malawi_vs_ghana": {
+    "aWins": 1,
+    "bWins": 1
+  },
+  "lesotho_vs_uganda": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "swaziland_vs_uganda": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "malawi_vs_seychelles": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "swaziland_vs_ghana": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "swaziland_vs_seychelles": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "rwanda_vs_lesotho": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "gibraltar_vs_switzerland": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "bulgaria_vs_switzerland": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "swaziland_vs_rwanda": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "malawi_vs_rwanda": {
+    "aWins": 2,
+    "bWins": 6
+  },
+  "uganda_vs_seychelles": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "switzerland_vs_malta": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "maldives_vs_saudi_arabia": {
+    "aWins": 0,
+    "bWins": 2
+  },
+  "gibraltar_vs_bulgaria": {
+    "aWins": 1,
+    "bWins": 4
+  },
+  "malta_vs_switzerland": {
+    "aWins": 1,
+    "bWins": 2
+  },
+  "bahrain_vs_kuwait": {
+    "aWins": 1,
+    "bWins": 6
+  },
+  "maldives_vs_kuwait": {
+    "aWins": 0,
+    "bWins": 3
+  },
+  "mozambique_vs_cameroon": {
+    "aWins": 1,
+    "bWins": 1
+  },
+  "new_zealand_vs_namibia": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "cameroon_vs_botswana": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "mozambique_vs_sierra_leone": {
+    "aWins": 0,
+    "bWins": 4
+  },
+  "tanzania_vs_cameroon": {
+    "aWins": 3,
+    "bWins": 0
+  },
+  "tanzania_vs_botswana": {
+    "aWins": 2,
+    "bWins": 0
+  },
+  "namibia_vs_india": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "canada_vs_belize": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "bahamas_vs_argentina": {
+    "aWins": 2,
+    "bWins": 0
+  },
+  "belize_vs_panama": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "argentina_vs_belize": {
+    "aWins": 2,
+    "bWins": 0
+  },
+  "bahamas_vs_united_states_of_america": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "belize_vs_bermuda": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "panama_vs_bahamas": {
+    "aWins": 1,
+    "bWins": 1
+  },
+  "argentina_vs_canada": {
+    "aWins": 1,
+    "bWins": 1
+  },
+  "canada_vs_panama": {
+    "aWins": 2,
+    "bWins": 0
+  },
+  "tanzania_vs_nigeria": {
+    "aWins": 2,
+    "bWins": 2
+  },
+  "sri_lanka_vs_netherlands": {
+    "aWins": 5,
+    "bWins": 0
+  },
+  "malaysia_vs_kuwait": {
+    "aWins": 2,
+    "bWins": 1
+  },
+  "bhutan_vs_nepal": {
+    "aWins": 0,
+    "bWins": 3
+  },
+  "united_states_of_america_vs_zimbabwe": {
+    "aWins": 0,
+    "bWins": 3
+  },
+  "united_arab_emirates_vs_bhutan": {
+    "aWins": 2,
+    "bWins": 0
+  },
+  "hong_kong_vs_bhutan": {
+    "aWins": 6,
+    "bWins": 0
+  },
+  "united_states_of_america_vs_thailand": {
+    "aWins": 1,
+    "bWins": 2
+  },
+  "malaysia_vs_bhutan": {
+    "aWins": 3,
+    "bWins": 3
+  },
+  "united_states_of_america_vs_ireland": {
+    "aWins": 1,
+    "bWins": 2
+  },
+  "malaysia_vs_bangladesh": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "sri_lanka_vs_scotland": {
+    "aWins": 3,
+    "bWins": 0
+  },
+  "bangladesh_vs_kenya": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "scotland_vs_malaysia": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "kenya_vs_malaysia": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "canada_vs_philippines": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "germany_vs_bahrain": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "nepal_vs_philippines": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "united_arab_emirates_vs_germany": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "ireland_vs_bahrain": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "germany_vs_ireland": {
+    "aWins": 0,
+    "bWins": 2
+  },
+  "bahrain_vs_united_arab_emirates": {
+    "aWins": 2,
+    "bWins": 3
+  },
+  "philippines_vs_oman": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "germany_vs_canada": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "bahrain_vs_philippines": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "bahrain_vs_canada": {
+    "aWins": 0,
+    "bWins": 2
+  },
+  "philippines_vs_germany": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "papua_new_guinea_vs_united_arab_emirates": {
+    "aWins": 4,
+    "bWins": 4
+  },
+  "saudi_arabia_vs_kuwait": {
+    "aWins": 0,
+    "bWins": 5
+  },
+  "qatar_vs_bahrain": {
+    "aWins": 5,
+    "bWins": 1
+  },
+  "oman_vs_saudi_arabia": {
+    "aWins": 2,
+    "bWins": 1
+  },
+  "oman_vs_kuwait": {
+    "aWins": 3,
+    "bWins": 1
+  },
+  "oman_vs_qatar": {
+    "aWins": 7,
+    "bWins": 1
+  },
+  "malaysia_vs_papua_new_guinea": {
+    "aWins": 2,
+    "bWins": 3
+  },
+  "new_zealand_vs_netherlands": {
+    "aWins": 4,
+    "bWins": 0
+  },
+  "norway_vs_guernsey": {
+    "aWins": 1,
+    "bWins": 2
+  },
+  "spain_vs_norway": {
+    "aWins": 3,
+    "bWins": 0
+  },
+  "guernsey_vs_spain": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "spain_vs_guernsey": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "denmark_vs_finland": {
+    "aWins": 4,
+    "bWins": 1
+  },
+  "gibraltar_vs_hungary": {
+    "aWins": 0,
+    "bWins": 2
+  },
+  "czech_republic_vs_gibraltar": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "hungary_vs_bulgaria": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "malta_vs_czech_republic": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "czech_republic_vs_bulgaria": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "gibraltar_vs_romania": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "czech_republic_vs_hungary": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "uganda_vs_nepal": {
+    "aWins": 2,
+    "bWins": 1
+  },
+  "jersey_vs_guernsey": {
+    "aWins": 5,
+    "bWins": 2
+  },
+  "united_states_of_america_vs_scotland": {
+    "aWins": 1,
+    "bWins": 2
+  },
+  "united_states_of_america_vs_united_arab_emirates": {
+    "aWins": 4,
+    "bWins": 2
+  },
+  "sweden_vs_germany": {
+    "aWins": 0,
+    "bWins": 2
+  },
+  "brazil_vs_nigeria": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "rwanda_vs_brazil": {
+    "aWins": 2,
+    "bWins": 0
+  },
+  "germany_vs_nigeria": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "germany_vs_sweden": {
+    "aWins": 4,
+    "bWins": 0
+  },
+  "brazil_vs_germany": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "botswana_vs_rwanda": {
+    "aWins": 0,
+    "bWins": 7
+  },
+  "uganda_vs_germany": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "kenya_vs_brazil": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "jersey_vs_uganda": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "hong_kong_vs_italy": {
+    "aWins": 1,
+    "bWins": 1
+  },
+  "singapore_vs_united_arab_emirates": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "qatar_vs_malaysia": {
+    "aWins": 2,
+    "bWins": 3
+  },
+  "nepal_vs_kuwait": {
+    "aWins": 3,
+    "bWins": 0
+  },
+  "bahrain_vs_hong_kong": {
+    "aWins": 1,
+    "bWins": 3
+  },
+  "jersey_vs_kenya": {
+    "aWins": 1,
+    "bWins": 2
+  },
+  "bahrain_vs_nepal": {
+    "aWins": 0,
+    "bWins": 4
+  },
+  "united_arab_emirates_vs_qatar": {
+    "aWins": 7,
+    "bWins": 0
+  },
+  "bhutan_vs_bahrain": {
+    "aWins": 1,
+    "bWins": 1
+  },
+  "kenya_vs_italy": {
+    "aWins": 2,
+    "bWins": 0
+  },
+  "serbia_vs_bulgaria": {
+    "aWins": 1,
+    "bWins": 5
+  },
+  "gibraltar_vs_belgium": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "portugal_vs_malta": {
+    "aWins": 3,
+    "bWins": 0
+  },
+  "denmark_vs_gibraltar": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "hungary_vs_belgium": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "portugal_vs_spain": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "hungary_vs_gibraltar": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "malta_vs_israel": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "belgium_vs_denmark": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "belgium_vs_portugal": {
+    "aWins": 1,
+    "bWins": 3
+  },
+  "denmark_vs_spain": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "singapore_vs_papua_new_guinea": {
+    "aWins": 1,
+    "bWins": 1
+  },
+  "israel_vs_hungary": {
+    "aWins": 1,
+    "bWins": 1
+  },
+  "spain_vs_belgium": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "thailand_vs_bhutan": {
+    "aWins": 3,
+    "bWins": 1
+  },
+  "maldives_vs_malaysia": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "luxembourg_vs_austria": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "bulgaria_vs_serbia": {
+    "aWins": 2,
+    "bWins": 7
+  },
+  "bhutan_vs_thailand": {
+    "aWins": 1,
+    "bWins": 2
+  },
+  "zimbabwe_vs_singapore": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "hong_kong_vs_uganda": {
+    "aWins": 0,
+    "bWins": 3
+  },
+  "bhutan_vs_malaysia": {
+    "aWins": 0,
+    "bWins": 2
+  },
+  "romania_vs_turkey": {
+    "aWins": 1,
+    "bWins": 1
+  },
+  "zimbabwe_vs_jersey": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "uganda_vs_papua_new_guinea": {
+    "aWins": 1,
+    "bWins": 1
+  },
+  "cyprus_vs_romania": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "croatia_vs_sweden": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "isle_of_man_vs_serbia": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "finland_vs_italy": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "zimbabwe_vs_united_states_of_america": {
+    "aWins": 6,
+    "bWins": 4
+  },
+  "italy_vs_sweden": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "turkey_vs_serbia": {
+    "aWins": 1,
+    "bWins": 1
+  },
+  "croatia_vs_greece": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "romania_vs_isle_of_man": {
+    "aWins": 0,
+    "bWins": 2
+  },
+  "singapore_vs_hong_kong": {
+    "aWins": 0,
+    "bWins": 2
+  },
+  "zimbabwe_vs_papua_new_guinea": {
+    "aWins": 3,
+    "bWins": 0
+  },
+  "united_states_of_america_vs_netherlands": {
+    "aWins": 0,
+    "bWins": 3
+  },
+  "finland_vs_greece": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "cyprus_vs_turkey": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "italy_vs_croatia": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "sweden_vs_greece": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "cyprus_vs_serbia": {
+    "aWins": 3,
+    "bWins": 1
+  },
+  "croatia_vs_finland": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "isle_of_man_vs_turkey": {
+    "aWins": 2,
+    "bWins": 0
+  },
+  "serbia_vs_croatia": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "finland_vs_cyprus": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "romania_vs_sweden": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "isle_of_man_vs_italy": {
+    "aWins": 0,
+    "bWins": 3
+  },
+  "estonia_vs_norway": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "guernsey_vs_bulgaria": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "france_vs_czech_republic": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "austria_vs_slovenia": {
+    "aWins": 3,
+    "bWins": 0
+  },
+  "france_vs_switzerland": {
+    "aWins": 0,
+    "bWins": 2
+  },
+  "guernsey_vs_luxembourg": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "guernsey_vs_austria": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "switzerland_vs_estonia": {
+    "aWins": 5,
+    "bWins": 0
+  },
+  "slovenia_vs_bulgaria": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "france_vs_norway": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "norway_vs_switzerland": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "czech_republic_vs_estonia": {
+    "aWins": 1,
+    "bWins": 3
+  },
+  "slovenia_vs_guernsey": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "barbados_vs_pakistan": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "switzerland_vs_czech_republic": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "luxembourg_vs_slovenia": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "barbados_vs_australia": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "scotland_vs_new_zealand": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "bulgaria_vs_czech_republic": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "guernsey_vs_france": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "luxembourg_vs_switzerland": {
+    "aWins": 1,
+    "bWins": 2
+  },
+  "norway_vs_austria": {
+    "aWins": 1,
+    "bWins": 3
+  },
+  "india_vs_barbados": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "italy_vs_bermuda": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "vanuatu_vs_singapore": {
+    "aWins": 1,
+    "bWins": 1
+  },
+  "united_arab_emirates_vs_singapore": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "kuwait_vs_hong_kong": {
+    "aWins": 0,
+    "bWins": 2
+  },
+  "cook_islands_vs_fiji": {
+    "aWins": 0,
+    "bWins": 2
+  },
+  "vanuatu_vs_cook_islands": {
+    "aWins": 1,
+    "bWins": 3
+  },
+  "samoa_vs_fiji": {
+    "aWins": 1,
+    "bWins": 2
+  },
+  "samoa_vs_cook_islands": {
+    "aWins": 1,
+    "bWins": 3
+  },
+  "fiji_vs_cook_islands": {
+    "aWins": 2,
+    "bWins": 2
+  },
+  "botswana_vs_uganda": {
+    "aWins": 0,
+    "bWins": 3
+  },
+  "ghana_vs_mozambique": {
+    "aWins": 1,
+    "bWins": 1
+  },
+  "papua_new_guinea_vs_zimbabwe": {
+    "aWins": 0,
+    "bWins": 3
+  },
+  "uganda_vs_mozambique": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "cameroon_vs_kenya": {
+    "aWins": 0,
+    "bWins": 2
+  },
+  "ghana_vs_uganda": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "tanzania_vs_malawi": {
+    "aWins": 3,
+    "bWins": 0
+  },
+  "zimbabwe_vs_thailand": {
+    "aWins": 2,
+    "bWins": 3
+  },
+  "malaysia_vs_pakistan": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "thailand_vs_india": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "scotland_vs_west_indies": {
+    "aWins": 2,
+    "bWins": 1
+  },
+  "south_korea_vs_indonesia": {
+    "aWins": 0,
+    "bWins": 4
+  },
+  "japan_vs_hong_kong": {
+    "aWins": 1,
+    "bWins": 4
+  },
+  "spain_vs_sweden": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "saudi_arabia_vs_oman": {
+    "aWins": 0,
+    "bWins": 2
+  },
+  "canada_vs_saudi_arabia": {
+    "aWins": 2,
+    "bWins": 0
+  },
+  "oman_vs_bahrain": {
+    "aWins": 4,
+    "bWins": 1
+  },
+  "lesotho_vs_mali": {
+    "aWins": 2,
+    "bWins": 0
+  },
+  "canada_vs_bahrain": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "rwanda_vs_st_helena": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "mali_vs_kenya": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "kenya_vs_lesotho": {
+    "aWins": 2,
+    "bWins": 0
+  },
+  "saudi_arabia_vs_bahrain": {
+    "aWins": 1,
+    "bWins": 2
+  },
+  "mali_vs_botswana": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "st_helena_vs_lesotho": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "rwanda_vs_seychelles": {
+    "aWins": 2,
+    "bWins": 0
+  },
+  "mali_vs_rwanda": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "seychelles_vs_kenya": {
+    "aWins": 0,
+    "bWins": 2
+  },
+  "gambia_vs_eswatini": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "eswatini_vs_mozambique": {
+    "aWins": 3,
+    "bWins": 1
+  },
+  "cameroon_vs_mozambique": {
+    "aWins": 1,
+    "bWins": 1
+  },
+  "nigeria_vs_eswatini": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "qatar_vs_canada": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "mozambique_vs_tanzania": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "sierra_leone_vs_eswatini": {
+    "aWins": 5,
+    "bWins": 0
+  },
+  "cameroon_vs_nigeria": {
+    "aWins": 0,
+    "bWins": 2
+  },
+  "gambia_vs_tanzania": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "vanuatu_vs_malaysia": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "mozambique_vs_gambia": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "gambia_vs_cameroon": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "denmark_vs_canada": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "qatar_vs_kenya": {
+    "aWins": 0,
+    "bWins": 2
+  },
+  "tanzania_vs_qatar": {
+    "aWins": 2,
+    "bWins": 0
+  },
+  "bahrain_vs_malaysia": {
+    "aWins": 1,
+    "bWins": 2
+  },
+  "singapore_vs_bahrain": {
+    "aWins": 0,
+    "bWins": 5
+  },
+  "malaysia_vs_bahrain": {
+    "aWins": 3,
+    "bWins": 4
+  },
+  "singapore_vs_cambodia": {
+    "aWins": 4,
+    "bWins": 1
+  },
+  "cambodia_vs_singapore": {
+    "aWins": 0,
+    "bWins": 3
+  },
+  "argentina_vs_bermuda": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "bermuda_vs_argentina": {
+    "aWins": 3,
+    "bWins": 0
+  },
+  "isle_of_man_vs_spain": {
+    "aWins": 0,
+    "bWins": 5
+  },
+  "panama_vs_argentina": {
+    "aWins": 1,
+    "bWins": 1
+  },
+  "cayman_islands_vs_bahamas": {
+    "aWins": 4,
+    "bWins": 0
+  },
+  "bermuda_vs_panama": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "argentina_vs_bahamas": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "cayman_islands_vs_panama": {
+    "aWins": 2,
+    "bWins": 0
+  },
+  "hong_kong_vs_bahrain": {
+    "aWins": 1,
+    "bWins": 2
+  },
+  "jersey_vs_papua_new_guinea": {
+    "aWins": 2,
+    "bWins": 0
+  },
+  "united_arab_emirates_vs_uganda": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "malta_vs_portugal": {
+    "aWins": 0,
+    "bWins": 3
+  },
+  "norway_vs_denmark": {
+    "aWins": 0,
+    "bWins": 2
+  },
+  "finland_vs_denmark": {
+    "aWins": 0,
+    "bWins": 2
+  },
+  "finland_vs_norway": {
+    "aWins": 2,
+    "bWins": 4
+  },
+  "turkey_vs_sweden": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "france_vs_italy": {
+    "aWins": 0,
+    "bWins": 2
+  },
+  "france_vs_sweden": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "turkey_vs_jersey": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "france_vs_turkey": {
+    "aWins": 2,
+    "bWins": 0
+  },
+  "france_vs_jersey": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "italy_vs_turkey": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "jersey_vs_sweden": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "belgium_vs_germany": {
+    "aWins": 0,
+    "bWins": 2
+  },
+  "rwanda_vs_botswana": {
+    "aWins": 4,
+    "bWins": 1
+  },
+  "west_indies_vs_united_states_of_america": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "west_indies_vs_nepal": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "oman_vs_sri_lanka": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "serbia_vs_turkey": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "croatia_vs_bulgaria": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "croatia_vs_turkey": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "croatia_vs_serbia": {
+    "aWins": 1,
+    "bWins": 1
+  },
+  "turkey_vs_bulgaria": {
+    "aWins": 3,
+    "bWins": 2
+  },
+  "zimbabwe_vs_oman": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "oman_vs_west_indies": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "france_vs_malta": {
+    "aWins": 4,
+    "bWins": 2
+  },
+  "malta_vs_france": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "malta_vs_luxembourg": {
+    "aWins": 1,
+    "bWins": 1
+  },
+  "france_vs_luxembourg": {
+    "aWins": 2,
+    "bWins": 1
+  },
+  "luxembourg_vs_france": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "luxembourg_vs_malta": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "romania_vs_switzerland": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "france_vs_romania": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "malta_vs_romania": {
+    "aWins": 2,
+    "bWins": 2
+  },
+  "luxembourg_vs_romania": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "austria_vs_jersey": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "ireland_vs_italy": {
+    "aWins": 4,
+    "bWins": 1
+  },
+  "scotland_vs_germany": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "denmark_vs_ireland": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "scotland_vs_jersey": {
+    "aWins": 1,
+    "bWins": 1
+  },
+  "ireland_vs_austria": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "scotland_vs_italy": {
+    "aWins": 3,
+    "bWins": 0
+  },
+  "austria_vs_denmark": {
+    "aWins": 0,
+    "bWins": 2
+  },
+  "jersey_vs_ireland": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "scotland_vs_austria": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "bhutan_vs_myanmar": {
+    "aWins": 5,
+    "bWins": 3
+  },
+  "scotland_vs_denmark": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "bhutan_vs_china": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "malaysia_vs_myanmar": {
+    "aWins": 2,
+    "bWins": 0
+  },
+  "myanmar_vs_china": {
+    "aWins": 0,
+    "bWins": 3
+  },
+  "greece_vs_isle_of_man": {
+    "aWins": 0,
+    "bWins": 3
+  },
+  "malta_vs_greece": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "malta_vs_isle_of_man": {
+    "aWins": 0,
+    "bWins": 2
+  },
+  "hungary_vs_croatia": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "croatia_vs_hungary": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "germany_vs_guernsey": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "new_zealand_vs_united_arab_emirates": {
+    "aWins": 2,
+    "bWins": 1
+  },
+  "singapore_vs_myanmar": {
+    "aWins": 0,
+    "bWins": 8
+  },
+  "netherlands_vs_jersey": {
+    "aWins": 2,
+    "bWins": 0
+  },
+  "pakistan_vs_nepal": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "bhutan_vs_united_arab_emirates": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "kuwait_vs_china": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "myanmar_vs_hong_kong": {
+    "aWins": 1,
+    "bWins": 2
+  },
+  "qatar_vs_bhutan": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "japan_vs_cook_islands": {
+    "aWins": 3,
+    "bWins": 0
+  },
+  "papua_new_guinea_vs_cook_islands": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "kenya_vs_botswana": {
+    "aWins": 3,
+    "bWins": 0
+  },
+  "malawi_vs_kenya": {
+    "aWins": 1,
+    "bWins": 2
+  },
+  "cameroon_vs_eswatini": {
+    "aWins": 2,
+    "bWins": 0
+  },
+  "nepal_vs_india": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "qatar_vs_nepal": {
+    "aWins": 0,
+    "bWins": 2
+  },
+  "cook_islands_vs_vanuatu": {
+    "aWins": 0,
+    "bWins": 2
+  },
+  "indonesia_vs_cook_islands": {
+    "aWins": 2,
+    "bWins": 0
+  },
+  "united_states_of_america_vs_argentina": {
+    "aWins": 3,
+    "bWins": 0
+  },
+  "canada_vs_brazil": {
+    "aWins": 2,
+    "bWins": 0
+  },
+  "samoa_vs_indonesia": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "united_states_of_america_vs_brazil": {
+    "aWins": 3,
+    "bWins": 0
+  },
+  "canada_vs_argentina": {
+    "aWins": 3,
+    "bWins": 0
+  },
+  "kuwait_vs_myanmar": {
+    "aWins": 4,
+    "bWins": 1
+  },
+  "kenya_vs_cameroon": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "vanuatu_vs_indonesia": {
+    "aWins": 2,
+    "bWins": 0
+  },
+  "brazil_vs_argentina": {
+    "aWins": 2,
+    "bWins": 1
+  },
+  "italy_vs_france": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "papua_new_guinea_vs_indonesia": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "italy_vs_netherlands": {
+    "aWins": 0,
+    "bWins": 5
+  },
+  "brazil_vs_united_states_of_america": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "scotland_vs_france": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "bahrain_vs_oman": {
+    "aWins": 1,
+    "bWins": 5
+  },
+  "thailand_vs_sri_lanka": {
+    "aWins": 0,
+    "bWins": 2
+  },
+  "nepal_vs_mongolia": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "estonia_vs_gibraltar": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "gibraltar_vs_estonia": {
+    "aWins": 3,
+    "bWins": 1
+  },
+  "panama_vs_cayman_islands": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "maldives_vs_qatar": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "panama_vs_bermuda": {
+    "aWins": 0,
+    "bWins": 3
+  },
+  "india_vs_nepal": {
+    "aWins": 2,
+    "bWins": 0
+  },
+  "nigeria_vs_rwanda": {
+    "aWins": 7,
+    "bWins": 2
+  },
+  "sierra_leone_vs_ghana": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "serbia_vs_gibraltar": {
+    "aWins": 0,
+    "bWins": 4
+  },
+  "nigeria_vs_ghana": {
+    "aWins": 2,
+    "bWins": 0
+  },
+  "rwanda_vs_sierra_leone": {
+    "aWins": 6,
+    "bWins": 0
+  },
+  "sierra_leone_vs_rwanda": {
+    "aWins": 1,
+    "bWins": 2
+  },
+  "argentina_vs_chile": {
+    "aWins": 2,
+    "bWins": 0
+  },
+  "gibraltar_vs_luxembourg": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "luxembourg_vs_gibraltar": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "chile_vs_mexico": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "mexico_vs_argentina": {
+    "aWins": 0,
+    "bWins": 2
+  },
+  "chile_vs_argentina": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "oman_vs_malaysia": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "tanzania_vs_nepal": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "tanzania_vs_japan": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "nepal_vs_japan": {
+    "aWins": 2,
+    "bWins": 0
+  },
+  "tanzania_vs_hong_kong": {
+    "aWins": 0,
+    "bWins": 3
+  },
+  "cambodia_vs_indonesia": {
+    "aWins": 0,
+    "bWins": 10
+  },
+  "indonesia_vs_cambodia": {
+    "aWins": 4,
+    "bWins": 8
+  },
+  "namibia_vs_tanzania": {
+    "aWins": 2,
+    "bWins": 2
+  },
+  "nigeria_vs_zimbabwe": {
+    "aWins": 0,
+    "bWins": 4
+  },
+  "zimbabwe_vs_botswana": {
+    "aWins": 2,
+    "bWins": 0
+  },
+  "uganda_vs_zimbabwe": {
+    "aWins": 0,
+    "bWins": 4
+  },
+  "indonesia_vs_philippines": {
+    "aWins": 5,
+    "bWins": 4
+  },
+  "myanmar_vs_cambodia": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "cambodia_vs_china": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "indonesia_vs_bhutan": {
+    "aWins": 2,
+    "bWins": 2
+  },
+  "japan_vs_thailand": {
+    "aWins": 2,
+    "bWins": 1
+  },
+  "singapore_vs_thailand": {
+    "aWins": 3,
+    "bWins": 1
+  },
+  "japan_vs_maldives": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "saudi_arabia_vs_indonesia": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "singapore_vs_japan": {
+    "aWins": 1,
+    "bWins": 2
+  },
+  "indonesia_vs_thailand": {
+    "aWins": 1,
+    "bWins": 3
+  },
+  "maldives_vs_bhutan": {
+    "aWins": 1,
+    "bWins": 2
+  },
+  "nepal_vs_canada": {
+    "aWins": 1,
+    "bWins": 2
+  },
+  "japan_vs_saudi_arabia": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "myanmar_vs_thailand": {
+    "aWins": 0,
+    "bWins": 2
+  },
+  "indonesia_vs_malaysia": {
+    "aWins": 0,
+    "bWins": 2
+  },
+  "japan_vs_oman": {
+    "aWins": 1,
+    "bWins": 1
+  },
+  "japan_vs_singapore": {
+    "aWins": 3,
+    "bWins": 1
+  },
+  "cambodia_vs_saudi_arabia": {
+    "aWins": 0,
+    "bWins": 2
+  },
+  "indonesia_vs_bahrain": {
+    "aWins": 1,
+    "bWins": 3
+  },
+  "hong_kong_vs_maldives": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "oman_vs_china": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "japan_vs_united_arab_emirates": {
+    "aWins": 0,
+    "bWins": 2
+  },
+  "qatar_vs_indonesia": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "united_arab_emirates_vs_indonesia": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "malaysia_vs_japan": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "saudi_arabia_vs_bhutan": {
+    "aWins": 2,
+    "bWins": 0
+  },
+  "hong_kong_vs_qatar": {
+    "aWins": 5,
+    "bWins": 1
+  },
+  "vanuatu_vs_tanzania": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "tanzania_vs_kuwait": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "vanuatu_vs_kuwait": {
+    "aWins": 0,
+    "bWins": 2
+  },
+  "namibia_vs_south_africa": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "tanzania_vs_south_africa": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "bahrain_vs_tanzania": {
+    "aWins": 2,
+    "bWins": 2
+  },
+  "bahrain_vs_vanuatu": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "tanzania_vs_malaysia": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "south_africa_vs_uganda": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "papua_new_guinea_vs_malaysia": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "south_africa_vs_ghana": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "mexico_vs_costa_rica": {
+    "aWins": 4,
+    "bWins": 0
+  },
+  "cambodia_vs_kuwait": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "costa_rica_vs_mexico": {
+    "aWins": 1,
+    "bWins": 2
+  },
+  "oman_vs_cambodia": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "saudi_arabia_vs_hong_kong": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "jersey_vs_spain": {
+    "aWins": 0,
+    "bWins": 2
+  },
+  "cambodia_vs_bahrain": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "saudi_arabia_vs_nepal": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "cambodia_vs_united_arab_emirates": {
+    "aWins": 0,
+    "bWins": 2
+  },
+  "indonesia_vs_mongolia": {
+    "aWins": 4,
+    "bWins": 0
+  },
+  "mongolia_vs_indonesia": {
+    "aWins": 0,
+    "bWins": 2
+  },
+  "lesotho_vs_rwanda": {
+    "aWins": 0,
+    "bWins": 2
+  },
+  "scotland_vs_uganda": {
+    "aWins": 2,
+    "bWins": 0
+  },
+  "zimbabwe_vs_vanuatu": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "netherlands_vs_vanuatu": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "uganda_vs_thailand": {
+    "aWins": 0,
+    "bWins": 2
+  },
+  "sri_lanka_vs_uganda": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "vanuatu_vs_ireland": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "thailand_vs_indonesia": {
+    "aWins": 4,
+    "bWins": 2
+  },
+  "united_arab_emirates_vs_vanuatu": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "sri_lanka_vs_united_states_of_america": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "japan_vs_mongolia": {
+    "aWins": 5,
+    "bWins": 0
+  },
+  "mongolia_vs_japan": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "belgium_vs_france": {
+    "aWins": 1,
+    "bWins": 1
+  },
+  "france_vs_belgium": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "united_states_of_america_vs_bangladesh": {
+    "aWins": 1,
+    "bWins": 1
+  },
+  "bulgaria_vs_gibraltar": {
+    "aWins": 0,
+    "bWins": 2
+  },
+  "romania_vs_gibraltar": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "netherlands_vs_italy": {
+    "aWins": 2,
+    "bWins": 0
+  },
+  "rwanda_vs_cameroon": {
+    "aWins": 2,
+    "bWins": 0
+  },
+  "botswana_vs_cameroon": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "kenya_vs_malawi": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "uganda_vs_malawi": {
+    "aWins": 3,
+    "bWins": 0
+  },
+  "cameroon_vs_malawi": {
+    "aWins": 0,
+    "bWins": 4
+  },
+  "papua_new_guinea_vs_uganda": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "australia_vs_oman": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "uganda_vs_cameroon": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "nigeria_vs_malawi": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "west_indies_vs_uganda": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "italy_vs_luxembourg": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "portugal_vs_hungary": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "france_vs_isle_of_man": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "austria_vs_romania": {
+    "aWins": 1,
+    "bWins": 2
+  },
+  "israel_vs_austria": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "portugal_vs_romania": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "namibia_vs_australia": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "united_states_of_america_vs_india": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "portugal_vs_austria": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "luxembourg_vs_turkey": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "oman_vs_england": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "hungary_vs_romania": {
+    "aWins": 0,
+    "bWins": 3
+  },
+  "portugal_vs_israel": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "turkey_vs_italy": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "south_africa_vs_nepal": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "uganda_vs_new_zealand": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "gibraltar_vs_czech_republic": {
+    "aWins": 3,
+    "bWins": 0
+  },
+  "croatia_vs_czech_republic": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "norway_vs_finland": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "scotland_vs_australia": {
+    "aWins": 0,
+    "bWins": 3
+  },
+  "isle_of_man_vs_luxembourg": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "austria_vs_hungary": {
+    "aWins": 1,
+    "bWins": 1
+  },
+  "romania_vs_israel": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "croatia_vs_gibraltar": {
+    "aWins": 1,
+    "bWins": 1
+  },
+  "czech_republic_vs_croatia": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "luxembourg_vs_israel": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "france_vs_austria": {
+    "aWins": 0,
+    "bWins": 2
+  },
+  "portugal_vs_isle_of_man": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "italy_vs_romania": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "papua_new_guinea_vs_new_zealand": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "south_africa_vs_united_states_of_america": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "united_states_of_america_vs_west_indies": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "united_states_of_america_vs_england": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "singapore_vs_indonesia": {
+    "aWins": 0,
+    "bWins": 2
+  },
+  "bhutan_vs_indonesia": {
+    "aWins": 1,
+    "bWins": 1
+  },
+  "indonesia_vs_singapore": {
+    "aWins": 3,
+    "bWins": 1
+  },
+  "bhutan_vs_singapore": {
+    "aWins": 1,
+    "bWins": 1
+  },
+  "jersey_vs_serbia": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "switzerland_vs_belgium": {
+    "aWins": 1,
+    "bWins": 1
+  },
+  "germany_vs_gibraltar": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "croatia_vs_belgium": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "slovenia_vs_norway": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "jersey_vs_switzerland": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "jersey_vs_belgium": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "gibraltar_vs_slovenia": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "gibraltar_vs_sweden": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "switzerland_vs_serbia": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "belgium_vs_serbia": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "norway_vs_gibraltar": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "croatia_vs_switzerland": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "slovenia_vs_sweden": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "croatia_vs_germany": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "norway_vs_jersey": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "nepal_vs_pakistan": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "united_arab_emirates_vs_pakistan": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "croatia_vs_spain": {
+    "aWins": 0,
+    "bWins": 6
+  },
+  "spain_vs_croatia": {
+    "aWins": 4,
+    "bWins": 0
+  },
+  "norway_vs_estonia": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "estonia_vs_denmark": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "netherlands_vs_canada": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "spain_vs_cyprus": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "bulgaria_vs_guernsey": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "denmark_vs_czech_republic": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "malta_vs_finland": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "finland_vs_estonia": {
+    "aWins": 0,
+    "bWins": 2
+  },
+  "denmark_vs_greece": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "malta_vs_guernsey": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "spain_vs_czech_republic": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "finland_vs_guernsey": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "greece_vs_cyprus": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "bulgaria_vs_estonia": {
+    "aWins": 0,
+    "bWins": 3
+  },
+  "isle_of_man_vs_greece": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "malta_vs_bulgaria": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "cyprus_vs_czech_republic": {
+    "aWins": 2,
+    "bWins": 1
+  },
+  "estonia_vs_guernsey": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "greece_vs_spain": {
+    "aWins": 0,
+    "bWins": 4
+  },
+  "greece_vs_serbia": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "denmark_vs_cyprus": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "finland_vs_bulgaria": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "czech_republic_vs_greece": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "malta_vs_estonia": {
+    "aWins": 2,
+    "bWins": 2
+  },
+  "spain_vs_finland": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "cyprus_vs_malta": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "denmark_vs_guernsey": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "kuwait_vs_mongolia": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "mongolia_vs_hong_kong": {
+    "aWins": 0,
+    "bWins": 3
+  },
+  "myanmar_vs_mongolia": {
+    "aWins": 2,
+    "bWins": 0
+  },
+  "maldives_vs_hong_kong": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "myanmar_vs_kuwait": {
+    "aWins": 1,
+    "bWins": 1
+  },
+  "mongolia_vs_singapore": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "myanmar_vs_maldives": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "maldives_vs_mongolia": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "kuwait_vs_singapore": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "mongolia_vs_malaysia": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "serbia_vs_cyprus": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "denmark_vs_luxembourg": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "norway_vs_luxembourg": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "cameroon_vs_ghana": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "mali_vs_tanzania": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "spain_vs_greece": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "mali_vs_cameroon": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "ghana_vs_lesotho": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "cameroon_vs_tanzania": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "mali_vs_malawi": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "denmark_vs_kuwait": {
+    "aWins": 0,
+    "bWins": 2
+  },
+  "mali_vs_ghana": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "lesotho_vs_cameroon": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "jersey_vs_qatar": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "denmark_vs_papua_new_guinea": {
+    "aWins": 1,
+    "bWins": 1
+  },
+  "jersey_vs_kuwait": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "qatar_vs_papua_new_guinea": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "qatar_vs_denmark": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "kuwait_vs_kenya": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "kuwait_vs_papua_new_guinea": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "south_africa_vs_scotland": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "hong_kong_vs_south_korea": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "brazil_vs_mexico": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "kenya_vs_seychelles": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "indonesia_vs_maldives": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "zimbabwe_vs_seychelles": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "kenya_vs_mozambique": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "mozambique_vs_zimbabwe": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "thailand_vs_maldives": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "mozambique_vs_seychelles": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "kenya_vs_gambia": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "rwanda_vs_mozambique": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "zimbabwe_vs_gambia": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "gambia_vs_mozambique": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "bulgaria_vs_greece": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "bahrain_vs_uganda": {
+    "aWins": 1,
+    "bWins": 1
+  },
+  "tanzania_vs_italy": {
+    "aWins": 0,
+    "bWins": 2
+  },
+  "mongolia_vs_china": {
+    "aWins": 0,
+    "bWins": 2
+  },
+  "mongolia_vs_myanmar": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "indonesia_vs_myanmar": {
+    "aWins": 3,
+    "bWins": 0
+  },
+  "uganda_vs_italy": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "myanmar_vs_indonesia": {
+    "aWins": 0,
+    "bWins": 8
+  },
+  "singapore_vs_italy": {
+    "aWins": 0,
+    "bWins": 2
+  },
+  "thailand_vs_qatar": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "thailand_vs_cambodia": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "bhutan_vs_qatar": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "united_arab_emirates_vs_saudi_arabia": {
+    "aWins": 2,
+    "bWins": 0
+  },
+  "qatar_vs_cambodia": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "sierra_leone_vs_ivory_coast": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "nigeria_vs_st_helena": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "sierra_leone_vs_botswana": {
+    "aWins": 2,
+    "bWins": 1
+  },
+  "nigeria_vs_ivory_coast": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "eswatini_vs_st_helena": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "bahrain_vs_cambodia": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "st_helena_vs_sierra_leone": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "eswatini_vs_nigeria": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "ivory_coast_vs_botswana": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "st_helena_vs_botswana": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "ivory_coast_vs_eswatini": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "bhutan_vs_cambodia": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "ivory_coast_vs_st_helena": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "nigeria_vs_botswana": {
+    "aWins": 3,
+    "bWins": 1
+  },
+  "china_vs_namibia": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "panama_vs_suriname": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "bahamas_vs_brazil": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "mexico_vs_brazil": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "bermuda_vs_suriname": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "thailand_vs_namibia": {
+    "aWins": 3,
+    "bWins": 0
+  },
+  "suriname_vs_brazil": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "cayman_islands_vs_belize": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "malaysia_vs_namibia": {
+    "aWins": 0,
+    "bWins": 2
+  },
+  "cayman_islands_vs_suriname": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "bahamas_vs_belize": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "mexico_vs_bermuda": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "mexico_vs_cayman_islands": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "bahamas_vs_panama": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "bermuda_vs_brazil": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "suriname_vs_argentina": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "panama_vs_brazil": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "suriname_vs_mexico": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "bahamas_vs_cayman_islands": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "bermuda_vs_belize": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "cayman_islands_vs_brazil": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "bahamas_vs_suriname": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "argentina_vs_mexico": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "brazil_vs_belize": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "cayman_islands_vs_argentina": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "panama_vs_mexico": {
+    "aWins": 2,
+    "bWins": 0
+  },
+  "gibraltar_vs_jersey": {
+    "aWins": 0,
+    "bWins": 2
+  },
+  "bahamas_vs_mexico": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "belize_vs_suriname": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "myanmar_vs_bhutan": {
+    "aWins": 1,
+    "bWins": 1
+  },
+  "singapore_vs_philippines": {
+    "aWins": 1,
+    "bWins": 1
+  },
+  "philippines_vs_singapore": {
+    "aWins": 1,
+    "bWins": 1
+  },
+  "hungary_vs_malta": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "malta_vs_austria": {
+    "aWins": 0,
+    "bWins": 2
+  },
+  "hungary_vs_austria": {
+    "aWins": 0,
+    "bWins": 3
+  },
+  "uganda_vs_bahrain": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "tanzania_vs_bahrain": {
+    "aWins": 0,
+    "bWins": 2
+  },
+  "bahrain_vs_italy": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "tanzania_vs_singapore": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "bahrain_vs_indonesia": {
+    "aWins": 4,
+    "bWins": 1
+  },
+  "bahrain_vs_singapore": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "vanuatu_vs_france": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "france_vs_samoa": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "fiji_vs_france": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "brazil_vs_canada": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "norway_vs_portugal": {
+    "aWins": 1,
+    "bWins": 2
+  },
+  "portugal_vs_norway": {
+    "aWins": 2,
+    "bWins": 1
+  },
+  "cook_islands_vs_indonesia": {
+    "aWins": 0,
+    "bWins": 2
+  },
+  "cook_islands_vs_philippines": {
+    "aWins": 1,
+    "bWins": 1
+  },
+  "panama_vs_turks_and_caicos_island": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "costa_rica_vs_panama": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "turks_and_caicos_island_vs_mexico": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "costa_rica_vs_turks_and_caicos_island": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "united_states_of_america_vs_cayman_islands": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "turks_and_caicos_island_vs_costa_rica": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "united_states_of_america_vs_bahamas": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "bahamas_vs_canada": {
+    "aWins": 0,
+    "bWins": 3
+  },
+  "saudi_arabia_vs_thailand": {
+    "aWins": 2,
+    "bWins": 0
+  },
+  "eswatini_vs_sierra_leone": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "cayman_islands_vs_canada": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "saudi_arabia_vs_malaysia": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "eswatini_vs_botswana": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "singapore_vs_saudi_arabia": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "czech_republic_vs_cyprus": {
+    "aWins": 0,
+    "bWins": 3
+  },
+  "croatia_vs_malta": {
+    "aWins": 0,
+    "bWins": 2
+  },
+  "thailand_vs_cook_islands": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "cook_islands_vs_thailand": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "germany_vs_greece": {
+    "aWins": 3,
+    "bWins": 0
+  },
+  "greece_vs_germany": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "cook_islands_vs_japan": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "slovenia_vs_austria": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "sweden_vs_spain": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "sweden_vs_isle_of_man": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "sweden_vs_italy": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "belgium_vs_switzerland": {
+    "aWins": 0,
+    "bWins": 3
+  },
+  "sweden_vs_jersey": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "isle_of_man_vs_germany": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "austria_vs_switzerland": {
+    "aWins": 3,
+    "bWins": 2
+  },
+  "tanzania_vs_sierra_leone": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "malawi_vs_brazil": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "philippines_vs_china": {
+    "aWins": 0,
+    "bWins": 2
+  },
+  "cameroon_vs_uganda": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "nigeria_vs_brazil": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "rwanda_vs_malawi": {
+    "aWins": 2,
+    "bWins": 2
+  },
+  "philippines_vs_mongolia": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "slovenia_vs_serbia": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "brazil_vs_uganda": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "malawi_vs_sierra_leone": {
+    "aWins": 0,
+    "bWins": 2
+  },
+  "nigeria_vs_cameroon": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "norway_vs_czech_republic": {
+    "aWins": 2,
+    "bWins": 0
+  },
+  "serbia_vs_slovenia": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "brazil_vs_tanzania": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "mongolia_vs_philippines": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "brazil_vs_cameroon": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "austria_vs_gibraltar": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "sierra_leone_vs_brazil": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "canada_vs_bahamas": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "sweden_vs_norway": {
+    "aWins": 1,
+    "bWins": 2
+  },
+  "hungary_vs_slovenia": {
+    "aWins": 2,
+    "bWins": 0
+  },
+  "switzerland_vs_luxembourg": {
+    "aWins": 3,
+    "bWins": 1
+  },
+  "slovenia_vs_hungary": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "belgium_vs_austria": {
+    "aWins": 0,
+    "bWins": 4
+  },
+  "hungary_vs_france": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "jersey_vs_netherlands": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "malawi_vs_germany": {
+    "aWins": 1,
+    "bWins": 1
+  },
+  "bahrain_vs_germany": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "turkey_vs_greece": {
+    "aWins": 2,
+    "bWins": 0
+  },
+  "south_korea_vs_philippines": {
+    "aWins": 1,
+    "bWins": 1
+  },
+  "tanzania_vs_germany": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "malawi_vs_bahrain": {
+    "aWins": 0,
+    "bWins": 5
+  },
+  "greece_vs_bulgaria": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "netherlands_vs_guernsey": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "turkey_vs_gibraltar": {
+    "aWins": 0,
+    "bWins": 2
+  },
+  "germany_vs_tanzania": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "germany_vs_malawi": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "singapore_vs_samoa": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "rwanda_vs_bahrain": {
+    "aWins": 0,
+    "bWins": 2
+  },
+  "hong_kong_vs_samoa": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "estonia_vs_finland": {
+    "aWins": 1,
+    "bWins": 2
+  },
+  "finland_vs_switzerland": {
+    "aWins": 0,
+    "bWins": 2
+  },
+  "samoa_vs_malaysia": {
+    "aWins": 0,
+    "bWins": 2
+  },
+  "malawi_vs_cameroon": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "sierra_leone_vs_mozambique": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "nigeria_vs_united_arab_emirates": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "cameroon_vs_lesotho": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "samoa_vs_singapore": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "bahrain_vs_rwanda": {
+    "aWins": 2,
+    "bWins": 0
+  },
+  "samoa_vs_hong_kong": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "cameroon_vs_rwanda": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "bahrain_vs_malawi": {
+    "aWins": 2,
+    "bWins": 0
+  },
+  "lesotho_vs_mozambique": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "romania_vs_austria": {
+    "aWins": 1,
+    "bWins": 3
+  },
+  "hungary_vs_luxembourg": {
+    "aWins": 2,
+    "bWins": 0
+  },
+  "lesotho_vs_eswatini": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "cyprus_vs_croatia": {
+    "aWins": 2,
+    "bWins": 0
+  },
+  "croatia_vs_cyprus": {
+    "aWins": 0,
+    "bWins": 2
+  },
+  "sweden_vs_austria": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "sweden_vs_france": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "guernsey_vs_papua_new_guinea": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "sweden_vs_hungary": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "norway_vs_hungary": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "kenya_vs_jersey": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "czech_republic_vs_romania": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "netherlands_vs_germany": {
+    "aWins": 2,
+    "bWins": 0
+  },
+  "austria_vs_belgium": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "papua_new_guinea_vs_kuwait": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "finland_vs_germany": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "isle_of_man_vs_brazil": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "sierra_leone_vs_zimbabwe": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "brazil_vs_isle_of_man": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "japan_vs_fiji": {
+    "aWins": 2,
+    "bWins": 0
+  },
+  "estonia_vs_czech_republic": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "philippines_vs_samoa": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "united_arab_emirates_vs_india": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "indonesia_vs_fiji": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "hong_kong_vs_bangladesh": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "pakistan_vs_oman": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "philippines_vs_fiji": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "india_vs_oman": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "malawi_vs_nigeria": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "nepal_vs_west_indies": {
+    "aWins": 2,
+    "bWins": 1
+  },
+  "malawi_vs_botswana": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "samoa_vs_oman": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "kuwait_vs_japan": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "japan_vs_nepal": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "austria_vs_turkey": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "south_africa_vs_namibia": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "norway_vs_turkey": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "bulgaria_vs_austria": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "norway_vs_romania": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "austria_vs_norway": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "norway_vs_bulgaria": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "japan_vs_qatar": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "united_arab_emirates_vs_samoa": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "samoa_vs_qatar": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "nepal_vs_samoa": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "uganda_vs_canada": {
+    "aWins": 3,
+    "bWins": 0
+  },
+  "bulgaria_vs_cyprus": {
+    "aWins": 0,
+    "bWins": 3
+  },
+  "cyprus_vs_bulgaria": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "tanzania_vs_canada": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "canada_vs_tanzania": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "timor_leste_vs_indonesia": {
+    "aWins": 0,
+    "bWins": 4
+  },
+  "timor_leste_vs_myanmar": {
+    "aWins": 0,
+    "bWins": 2
+  },
+  "myanmar_vs_timor_leste": {
+    "aWins": 2,
+    "bWins": 0
+  },
+  "qatar_vs_hong_kong": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "scotland_vs_tanzania": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "tanzania_vs_netherlands": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "thailand_vs_tanzania": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "tanzania_vs_united_arab_emirates": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "uganda_vs_netherlands": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "papua_new_guinea_vs_tanzania": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "thailand_vs_bahrain": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "zambia_vs_rwanda": {
+    "aWins": 1,
+    "bWins": 2
+  },
+  "zambia_vs_sierra_leone": {
+    "aWins": 2,
+    "bWins": 1
+  },
+  "malaysia_vs_philippines": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "thailand_vs_philippines": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "malaysia_vs_indonesia": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "philippines_vs_malaysia": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "qatar_vs_oman": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "bangladesh_vs_namibia": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "italy_vs_ireland": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "oman_vs_denmark": {
+    "aWins": 4,
+    "bWins": 0
+  },
+  "india_vs_united_states_of_america": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "england_vs_nepal": {
+    "aWins": 1,
+    "bWins": 0
+  },
+  "oman_vs_zimbabwe": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "united_arab_emirates_vs_new_zealand": {
+    "aWins": 0,
+    "bWins": 1
+  },
+  "pakistan_vs_united_states_of_america": {
+    "aWins": 1,
+    "bWins": 0
+  }
+}

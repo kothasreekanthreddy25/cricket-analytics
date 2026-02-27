@@ -1,0 +1,170 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  USER
+  TIPSTER
+  ADMIN
+}
+
+model User {
+  id            String     @id @default(cuid())
+  email         String     @unique
+  name          String?
+  password      String?
+  emailVerified Boolean    @default(false)
+  image         String?
+  role          UserRole   @default(USER)
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+  sessions      Session[]
+  accounts      Account[]
+  favorites     Favorite[]
+  tips          Tip[]
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// Cricket specific models
+model Match {
+  id          String     @id @default(cuid())
+  matchId     String     @unique
+  name        String
+  matchType   String
+  status      String
+  venue       String
+  date        DateTime
+  dateTimeGMT DateTime
+  teams       String[]
+  teamInfo    Json
+  score       Json?
+  seriesId    String?
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  favorites   Favorite[]
+  tips        Tip[]
+}
+
+model Team {
+  id        String   @id @default(cuid())
+  teamId    String   @unique
+  name      String
+  country   String
+  flag      String?
+  stats     Json?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Player {
+  id           String   @id @default(cuid())
+  playerId     String   @unique
+  name         String
+  country      String
+  role         String
+  battingStyle String?
+  bowlingStyle String?
+  stats        Json?
+  image        String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Favorite {
+  id        String   @id @default(cuid())
+  userId    String
+  matchId   String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  match     Match    @relation(fields: [matchId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([userId, matchId])
+}
+
+enum TipConfidence {
+  LOW
+  MEDIUM
+  HIGH
+  VERY_HIGH
+}
+
+model Tip {
+  id          String        @id @default(cuid())
+  tipsterId   String
+  matchId     String
+  prediction  String
+  odds        String?
+  confidence  TipConfidence @default(MEDIUM)
+  analysis    String?
+  result      String?
+  isPublished Boolean       @default(true)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  tipster     User          @relation(fields: [tipsterId], references: [id], onDelete: Cascade)
+  match       Match         @relation(fields: [matchId], references: [id], onDelete: Cascade)
+
+  @@index([tipsterId])
+  @@index([matchId])
+  @@index([createdAt])
+}
+
+model MatchAnalysis {
+  id              String   @id @default(cuid())
+  matchKey        String
+  teamA           String
+  teamB           String
+  winProbabilityA Float
+  winProbabilityB Float
+  confidence      String
+  tips            Json
+  playersToWatch  Json
+  conditions      Json
+  recentForm      Json
+  reasoning       String
+  rawData         Json?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([matchKey])
+}

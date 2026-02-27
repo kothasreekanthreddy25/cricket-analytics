@@ -1,0 +1,57 @@
+import { Shield } from 'lucide-react'
+
+export const metadata = {
+  title: 'Cricket Teams - Cricket Analytics',
+  description: 'Explore cricket team statistics and performance',
+}
+
+const TEAMS = [
+  { name: 'India', flag: '🇮🇳', ranking: 1 },
+  { name: 'Australia', flag: '🇦🇺', ranking: 2 },
+  { name: 'England', flag: '🏴󠁧󠁢󠁥󠁮󠁧󠁿', ranking: 3 },
+  { name: 'New Zealand', flag: '🇳🇿', ranking: 4 },
+  { name: 'Pakistan', flag: '🇵🇰', ranking: 5 },
+  { name: 'South Africa', flag: '🇿🇦', ranking: 6 },
+  { name: 'West Indies', flag: '🏴', ranking: 7 },
+  { name: 'Sri Lanka', flag: '🇱🇰', ranking: 8 },
+]
+
+export default function TeamsPage() {
+  return (
+    <div className="min-h-screen bg-gray-50 py-8">
+      <div className="max-w-7xl mx-auto px-4">
+        <div className="mb-8">
+          <h1 className="text-4xl font-bold text-gray-900 mb-2">
+            Cricket Teams
+          </h1>
+          <p className="text-gray-600">
+            Explore team statistics, rankings, and performance analytics
+          </p>
+        </div>
+
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {TEAMS.map((team) => (
+            <div
+              key={team.name}
+              className="bg-white rounded-lg shadow-md hover:shadow-xl transition-shadow p-6 border border-gray-100"
+            >
+              <div className="flex items-center justify-between mb-4">
+                <span className="text-4xl">{team.flag}</span>
+                <span className="text-sm font-semibold text-gray-500">
+                  Rank #{team.ranking}
+                </span>
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">
+                {team.name}
+              </h3>
+              <div className="flex items-center text-sm text-gray-600">
+                <Shield className="w-4 h-4 mr-2" />
+                <span>View Team Stats</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+}
