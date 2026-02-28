@@ -23,7 +23,7 @@ export default function RootLayout({
     <html lang="en">
       <body className={inter.className}>
         <Navbar />
-        <Suspense fallback={<div className="bg-gray-900 border-b border-gray-800 h-[72px]" />}>
+        <Suspense fallback={<div className="bg-gray-900 border-b border-gray-800 h-[60px]" />}>
           <LiveMatchesTicker />
         </Suspense>
         <main className="min-h-screen">
