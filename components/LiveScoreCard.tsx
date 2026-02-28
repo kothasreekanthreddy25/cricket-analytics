@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from 'react'
 import { useLiveScores } from '@/lib/use-live-scores'
+import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { Radio, Wifi, WifiOff, RefreshCw, TrendingUp } from 'lucide-react'
 
@@ -147,9 +148,12 @@ export default function LiveScoreCard() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [liveMatches.length, liveMatches.map((m) => m.matchKey).join(',')])
 
+  const searchParams = useSearchParams()
+  const seriesFilter = searchParams.get('series') || 'all'
+
   // No live matches — show upcoming matches as fallback
   if (liveMatches.length === 0) {
-    return <UpcomingMatchesFallback connected={connected} />
+    return <UpcomingMatchesFallback connected={connected} seriesFilter={seriesFilter} />
   }
 
   return (
@@ -238,20 +242,39 @@ export default function LiveScoreCard() {
 }
 
 // ── Fallback: show upcoming tournaments from Roanuz when no live data ──
-function UpcomingMatchesFallback({ connected }: { connected: boolean }) {
-  const [matches, setMatches] = useState<any[]>([])
+function UpcomingMatchesFallback({
+  connected,
+  seriesFilter,
+}: {
+  connected: boolean
+  seriesFilter: string
+}) {
+  const [allMatches, setAllMatches] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     fetch('/api/matches')
       .then((r) => r.json())
       .then((d) => {
-        const list = d.tournaments || d.matches || []
-        setMatches(list.slice(0, 6))
+        const list = d.tournaments || d.data?.data?.tournaments || d.matches || []
+        setAllMatches(list)
         setLoading(false)
       })
       .catch(() => setLoading(false))
   }, [])
+
+  // Filter by active series tab
+  const matches =
+    seriesFilter === 'all'
+      ? allMatches.slice(0, 6)
+      : allMatches
+          .filter(
+            (m: any) =>
+              m.key === seriesFilter ||
+              m.name?.toLowerCase().includes(seriesFilter.toLowerCase()) ||
+              m.short_name?.toLowerCase().includes(seriesFilter.toLowerCase())
+          )
+          .slice(0, 6)
 
   return (
     <div className="space-y-3">
@@ -272,7 +295,7 @@ function UpcomingMatchesFallback({ connected }: { connected: boolean }) {
           )}
         </span>
         <span className="text-[10px] text-gray-600 bg-gray-700/50 px-2 py-0.5 rounded">
-          No live matches right now
+          {seriesFilter === 'all' ? 'No live matches right now' : `Filtered: ${seriesFilter}`}
         </span>
       </div>
 
