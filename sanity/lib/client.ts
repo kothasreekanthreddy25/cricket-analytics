@@ -1,10 +1,15 @@
-import { createClient } from '@sanity/client'
-import { projectId, dataset, apiVersion } from '../env'
+import { createClient, type SanityClient } from '@sanity/client'
+import { dataset, apiVersion } from '../env'
 
-/** Read-only client — safe for browser & server components */
-export const client = createClient({
-  projectId,
-  dataset,
-  apiVersion,
-  useCdn: true,
+/** Read-only client — lazy initialized to avoid build-time errors */
+let _client: SanityClient | undefined
+
+export const client = new Proxy({} as SanityClient, {
+  get(_target, prop: string | symbol) {
+    if (!_client) {
+      const projectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID || ''
+      _client = createClient({ projectId, dataset, apiVersion, useCdn: true })
+    }
+    return (_client as any)[prop as string]
+  },
 })
