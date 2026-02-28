@@ -13,3 +13,9 @@ name = "cricket-analytics"
 [environments.production.variables]
 NODE_ENV = "production"
 PORT = "3000"
+
+[nixpacks]
+providers = ["node"]
+
+[nixpacks.variables]
+NODE_VERSION = "20"

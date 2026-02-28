@@ -3,6 +3,8 @@ import { prisma } from '@/lib/prisma'
 import Link from 'next/link'
 import TipsterForm from '@/components/TipsterForm'
 
+export const dynamic = 'force-dynamic'
+
 export default async function TipsterDashboard() {
   const user = await requireRole(['TIPSTER', 'ADMIN'])
 

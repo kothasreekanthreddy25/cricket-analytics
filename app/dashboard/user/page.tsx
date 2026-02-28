@@ -3,6 +3,8 @@ import { prisma } from '@/lib/prisma'
 import Link from 'next/link'
 import { Trophy, TrendingUp, Calendar } from 'lucide-react'
 
+export const dynamic = 'force-dynamic'
+
 export default async function UserDashboard() {
   const user = await requireRole(['USER', 'TIPSTER', 'ADMIN'])
 

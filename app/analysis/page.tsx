@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { ArrowLeft, Brain, Home, Handshake } from 'lucide-react'
@@ -128,7 +128,7 @@ function PlayerCard({ player, accent }: { player: Player; accent: 'blue' | 'red'
   )
 }
 
-export default function AnalysisPage() {
+function AnalysisContent() {
   const searchParams = useSearchParams()
   const [selectedMatch, setSelectedMatch] = useState<string>('')
   const [matchName, setMatchName] = useState<string>('')
@@ -530,5 +530,13 @@ export default function AnalysisPage() {
         )}
       </div>
     </div>
+  )
+}
+
+export default function AnalysisPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-gray-950 flex items-center justify-center text-white">Loading...</div>}>
+      <AnalysisContent />
+    </Suspense>
   )
 }
