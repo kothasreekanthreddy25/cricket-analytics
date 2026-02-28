@@ -30,13 +30,18 @@ export default function Home() {
         <div className="relative max-w-7xl mx-auto grid md:grid-cols-5 gap-8 items-center">
           {/* Left — Text */}
           <div className="md:col-span-3">
-            <span className="inline-flex items-center gap-2 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-3 py-1 rounded-full text-xs font-medium mb-4">
-              <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse" />
-              T20 World Cup 2026 Coverage
-            </span>
+            <div className="flex items-center gap-3 mb-4">
+              <span className="inline-flex items-center gap-2 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-3 py-1 rounded-full text-xs font-medium">
+                <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse" />
+                T20 World Cup 2026 Coverage
+              </span>
+              <span className="bg-amber-500 text-black text-xs font-extrabold px-2 py-0.5 rounded">
+                18+
+              </span>
+            </div>
 
             <h1 className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-white leading-tight">
-              Cricket Predictions{' '}
+              Cricket Analysis{' '}
               <br className="hidden sm:block" />
               Powered by{' '}
               <span className="bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent">
@@ -46,7 +51,8 @@ export default function Home() {
 
             <p className="text-base md:text-lg text-gray-400 max-w-xl mt-4">
               Real-time scores, TensorFlow.js match analysis, and data-driven
-              insights for every cricket match worldwide.
+              insights for every cricket match worldwide. For informational
+              purposes only — please gamble responsibly.
             </p>
 
             <div className="flex flex-wrap gap-3 mt-6">
@@ -260,8 +266,8 @@ export default function Home() {
             Ready to Get Smarter About Cricket?
           </h2>
           <p className="text-emerald-50 text-base mb-6 max-w-2xl mx-auto">
-            Join cricket fans using AI-powered analytics to stay ahead of
-            the game with real-time insights and predictions.
+            Join cricket fans using AI-powered analytics for real-time insights
+            and match analysis. For informational and entertainment purposes only.
           </p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <Link
