@@ -1,6 +1,7 @@
 [build]
 builder = "nixpacks"
-buildCommand = "npm install --legacy-peer-deps && npx prisma generate && npm run build"
+installCommand = "npm install --legacy-peer-deps"
+buildCommand = "npx prisma generate && npm run build"
 
 [deploy]
 startCommand = "node server.js"
@@ -18,4 +19,4 @@ PORT = "3000"
 providers = ["node"]
 
 [nixpacks.variables]
-NODE_VERSION = "22"
+NODE_VERSION = "22.14.0"
