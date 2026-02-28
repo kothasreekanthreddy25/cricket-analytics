@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server'
 import { client } from '@/sanity/lib/client'
 import { POSTS_QUERY, POST_BY_SLUG_QUERY } from '@/sanity/lib/queries'
 
+export const dynamic = 'force-dynamic'
+
 /**
  * GET /api/blog/posts?slug=xxx&limit=12
  *

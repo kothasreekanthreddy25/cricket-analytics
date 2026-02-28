@@ -3,6 +3,8 @@ import { writeClient } from '@/sanity/lib/write-client'
 import { client } from '@/sanity/lib/client'
 import { fetchAndUploadImage, resetImagePool } from '@/lib/image-fetcher'
 
+export const dynamic = 'force-dynamic'
+
 /**
  * POST /api/blog/add-images
  *

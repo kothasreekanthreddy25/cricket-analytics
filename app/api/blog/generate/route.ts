@@ -3,6 +3,8 @@ import { scrapeAllFeeds } from '@/lib/news-scraper'
 import { generateBlogPost } from '@/lib/blog-generator'
 import { fetchAndUploadImage, resetImagePool } from '@/lib/image-fetcher'
 import { writeClient } from '@/sanity/lib/write-client'
+
+export const dynamic = 'force-dynamic'
 import { client } from '@/sanity/lib/client'
 import { RECENT_TITLES_QUERY, CATEGORIES_QUERY } from '@/sanity/lib/queries'
 
