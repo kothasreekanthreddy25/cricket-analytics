@@ -47,3 +47,6 @@ nul
 
 # Reports (generated locally)
 docs/reports/
+
+# ML training data (large — thousands of JSON files, only needed locally to train)
+training-data/
