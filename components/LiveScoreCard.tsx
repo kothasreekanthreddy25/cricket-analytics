@@ -147,41 +147,9 @@ export default function LiveScoreCard() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [liveMatches.length, liveMatches.map((m) => m.matchKey).join(',')])
 
-  // No live matches — show compact "no live" message with connection status
+  // No live matches — show upcoming matches as fallback
   if (liveMatches.length === 0) {
-    return (
-      <div className="bg-gray-800/50 border border-gray-700/50 rounded-2xl p-6">
-        <div className="flex items-center justify-between mb-4">
-          <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
-            Live Scores
-          </span>
-          <span className="flex items-center gap-1.5 text-xs">
-            {connected ? (
-              <>
-                <Wifi className="w-3 h-3 text-emerald-400" />
-                <span className="text-emerald-400">Connected</span>
-                <span className="text-gray-600 mx-1">|</span>
-                <RefreshCw className="w-3 h-3 text-emerald-400/50 animate-spin" style={{ animationDuration: '5s' }} />
-                <span className="text-gray-500">Checking every 5s</span>
-              </>
-            ) : (
-              <>
-                <WifiOff className="w-3 h-3 text-gray-500" />
-                <span className="text-gray-500">Connecting...</span>
-              </>
-            )}
-          </span>
-        </div>
-        <p className="text-gray-500 text-sm">
-          No live matches right now. Scores will appear here automatically when a match starts.
-        </p>
-        {pollingStatus && (
-          <p className="text-gray-600 text-[10px] mt-2">
-            {pollingStatus.connectedClients} client(s) connected | Polling active
-          </p>
-        )}
-      </div>
-    )
+    return <UpcomingMatchesFallback connected={connected} />
   }
 
   return (
@@ -265,6 +233,86 @@ export default function LiveScoreCard() {
           </Link>
         )
       })}
+    </div>
+  )
+}
+
+// ── Fallback: show upcoming tournaments from Roanuz when no live data ──
+function UpcomingMatchesFallback({ connected }: { connected: boolean }) {
+  const [matches, setMatches] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    fetch('/api/matches')
+      .then((r) => r.json())
+      .then((d) => {
+        const list = d.tournaments || d.matches || []
+        setMatches(list.slice(0, 6))
+        setLoading(false)
+      })
+      .catch(() => setLoading(false))
+  }, [])
+
+  return (
+    <div className="space-y-3">
+      {/* Status bar */}
+      <div className="flex items-center justify-between bg-gray-800/50 border border-gray-700/50 rounded-xl px-4 py-2.5">
+        <span className="flex items-center gap-2 text-xs text-gray-400">
+          {connected ? (
+            <>
+              <Wifi className="w-3 h-3 text-emerald-400" />
+              <span className="text-emerald-400">Connected</span>
+              <span className="text-gray-600">— monitoring for live matches</span>
+            </>
+          ) : (
+            <>
+              <WifiOff className="w-3 h-3 text-gray-500" />
+              <span className="text-gray-500">Connecting to live scores...</span>
+            </>
+          )}
+        </span>
+        <span className="text-[10px] text-gray-600 bg-gray-700/50 px-2 py-0.5 rounded">
+          No live matches right now
+        </span>
+      </div>
+
+      {/* Upcoming tournaments */}
+      {loading ? (
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
+          {[...Array(6)].map((_, i) => (
+            <div key={i} className="bg-gray-800/50 rounded-xl p-3 animate-pulse h-20" />
+          ))}
+        </div>
+      ) : matches.length > 0 ? (
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
+          {matches.map((m: any, i: number) => (
+            <div
+              key={i}
+              className="bg-gray-800/50 border border-gray-700/50 rounded-xl p-3 hover:border-emerald-500/30 transition-colors"
+            >
+              <p className="text-white text-xs font-semibold leading-snug line-clamp-2">
+                {m.name || m.title || m.tournament_name || 'Upcoming Match'}
+              </p>
+              {(m.startDate || m.start_date || m.dateTimeGMT) && (
+                <p className="text-gray-500 text-[10px] mt-1">
+                  {new Date(m.startDate || m.start_date || m.dateTimeGMT).toLocaleDateString('en-GB', {
+                    day: 'numeric', month: 'short', year: 'numeric'
+                  })}
+                </p>
+              )}
+              {(m.format || m.matchType) && (
+                <span className="inline-block text-emerald-400 text-[10px] font-medium bg-emerald-500/10 px-1.5 py-0.5 rounded mt-1">
+                  {m.format || m.matchType}
+                </span>
+              )}
+            </div>
+          ))}
+        </div>
+      ) : (
+        <p className="text-gray-500 text-sm text-center py-4">
+          Live scores will appear here automatically when a match starts.
+        </p>
+      )}
     </div>
   )
 }
