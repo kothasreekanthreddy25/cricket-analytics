@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { Suspense } from 'react'
 import Link from 'next/link'
 import FeaturedMatchCards from '@/components/FeaturedMatchCards'
 import LiveScoreCard from '@/components/LiveScoreCard'
@@ -120,7 +120,9 @@ export default function Home() {
               </p>
             </div>
           </div>
-          <LiveScoreCard />
+          <Suspense fallback={<div className="bg-gray-800/50 rounded-2xl h-32 animate-pulse" />}>
+            <LiveScoreCard />
+          </Suspense>
         </div>
       </section>
 
