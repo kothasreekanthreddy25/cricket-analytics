@@ -32,7 +32,7 @@ export default function LiveMatchesTicker() {
   const pathname = usePathname()
   const router = useRouter()
   const searchParams = useSearchParams()
-  const activeTab = searchParams.get('series') || 'all'
+  const activeTab = searchParams?.get('series') || 'all'
 
   useEffect(() => {
     async function fetchData() {
@@ -89,7 +89,7 @@ export default function LiveMatchesTicker() {
   ]
 
   function handleTabClick(key: string) {
-    const params = new URLSearchParams(searchParams.toString())
+    const params = new URLSearchParams(searchParams?.toString() ?? '')
     if (key === 'all') {
       params.delete('series')
     } else {

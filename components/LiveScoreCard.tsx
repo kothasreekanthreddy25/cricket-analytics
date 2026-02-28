@@ -149,7 +149,7 @@ export default function LiveScoreCard() {
   }, [liveMatches.length, liveMatches.map((m) => m.matchKey).join(',')])
 
   const searchParams = useSearchParams()
-  const seriesFilter = searchParams.get('series') || 'all'
+  const seriesFilter = searchParams?.get('series') || 'all'
 
   // No live matches — show upcoming matches as fallback
   if (liveMatches.length === 0) {
