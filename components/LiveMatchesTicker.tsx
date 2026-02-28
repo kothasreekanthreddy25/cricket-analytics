@@ -16,6 +16,21 @@ interface Tournament {
   countries: { name: string; short_code: string }[]
 }
 
+interface TickerMatch {
+  key: string
+  id: string
+  name: string
+  teamA: string
+  teamB: string
+  matchType: string
+  status: 'live' | 'upcoming' | 'completed'
+  statusNote: string
+  scoreA: string | null
+  scoreB: string | null
+  date: string
+  dateTimeGMT: string
+}
+
 const NAV_LINKS = [
   { label: 'Live Scores', href: '/matches' },
   { label: 'News', href: '/blog' },
@@ -29,14 +44,17 @@ const NAV_LINKS = [
 
 export default function LiveMatchesTicker() {
   const [tournaments, setTournaments] = useState<Tournament[]>([])
+  const [liveMatches, setLiveMatches] = useState<TickerMatch[]>([])
+  const [upcomingMatches, setUpcomingMatches] = useState<TickerMatch[]>([])
   const [loading, setLoading] = useState(true)
   const pathname = usePathname()
   const router = useRouter()
   const searchParams = useSearchParams()
   const activeTab = searchParams?.get('series') || 'all'
 
+  // Fetch Roanuz tournament list (for Row 1 dropdowns)
   useEffect(() => {
-    async function fetchData() {
+    async function fetchTournaments() {
       try {
         const res = await fetch('/api/matches')
         const json = await res.json()
@@ -54,26 +72,46 @@ export default function LiveMatchesTicker() {
           setTournaments(relevant)
         }
       } catch {}
-      finally { setLoading(false) }
     }
-    fetchData()
-    const interval = setInterval(fetchData, 60000)
+    fetchTournaments()
+    const interval = setInterval(fetchTournaments, 60_000)
+    return () => clearInterval(interval)
+  }, [])
+
+  // Fetch actual live/upcoming match data from CricAPI (for Row 2 cards)
+  useEffect(() => {
+    async function fetchCurrentMatches() {
+      try {
+        const res = await fetch('/api/cricket/featured-matches')
+        const json = await res.json()
+        // CricAPI fallback returns { source: 'cricapi', matches: [...] }
+        const matches: TickerMatch[] = json.matches || []
+        setLiveMatches(matches.filter((m) => m.status === 'live'))
+        setUpcomingMatches(
+          matches.filter((m) => m.status === 'upcoming').slice(0, 8)
+        )
+      } catch {}
+      finally {
+        setLoading(false)
+      }
+    }
+    fetchCurrentMatches()
+    // Refresh every 5 minutes — keeps CricAPI quota usage low
+    const interval = setInterval(fetchCurrentMatches, 300_000)
     return () => clearInterval(interval)
   }, [])
 
   const now = Date.now() / 1000
-  const isLive = (t: Tournament) => now >= t.start_date && now <= t.last_scheduled_match_date
-  const isUpcoming = (t: Tournament) => t.start_date > now
+  const activeTournaments = tournaments.filter(
+    (t) => now >= t.start_date && now <= t.last_scheduled_match_date
+  )
+  const upcomingTournaments = tournaments.filter((t) => t.start_date > now)
 
-  const liveTournaments = tournaments.filter(isLive)
-  const upcomingTournaments = tournaments.filter(isUpcoming)
+  // Row 2: live matches first, then upcoming
+  const tickerCards = [...liveMatches, ...upcomingMatches].slice(0, 10)
 
-  // Score card tabs
-  const scoreTabs = [
-    { key: 'all', label: `ALL (${tournaments.length})`, isLive: false },
-    ...liveTournaments.slice(0, 6).map(t => ({ key: t.key, label: t.short_name || t.name, isLive: true })),
-    ...upcomingTournaments.slice(0, 4).map(t => ({ key: t.key, label: t.short_name || t.name, isLive: false })),
-  ]
+  // Fallback to tournament cards when CricAPI has no data
+  const useTournamentFallback = tickerCards.length === 0 && tournaments.length > 0
 
   function handleTabClick(key: string) {
     const params = new URLSearchParams(searchParams?.toString() ?? '')
@@ -95,16 +133,20 @@ export default function LiveMatchesTicker() {
             <span className="text-[11px] font-bold uppercase tracking-wider text-white">Live</span>
           </div>
 
-          {/* Dynamic tournament dropdowns */}
-          {!loading && liveTournaments.slice(0, 4).map(t => (
-            <TournamentDropdown key={t.key} label={t.short_name || t.name} live />
+          {/* Active tournament dropdowns — green if we have actual live matches */}
+          {!loading && activeTournaments.slice(0, 4).map((t) => (
+            <TournamentDropdown
+              key={t.key}
+              label={t.short_name || t.name}
+              live={liveMatches.length > 0}
+            />
           ))}
-          {!loading && upcomingTournaments.slice(0, 2).map(t => (
+          {!loading && upcomingTournaments.slice(0, 2).map((t) => (
             <TournamentDropdown key={t.key} label={t.short_name || t.name} live={false} />
           ))}
 
           {/* Static nav */}
-          {NAV_LINKS.map(link => (
+          {NAV_LINKS.map((link) => (
             <Link
               key={link.href + link.label}
               href={link.href}
@@ -120,10 +162,9 @@ export default function LiveMatchesTicker() {
         </div>
       </div>
 
-      {/* ── Row 2: Small Match Cards ── */}
-      {!loading && tournaments.length > 0 && (
+      {/* ── Row 2: Match Cards (CricAPI real data) ── */}
+      {!loading && tickerCards.length > 0 && (
         <div className="max-w-[1600px] mx-auto flex items-center gap-2 overflow-x-auto scrollbar-hide px-2 py-1.5">
-          {/* ALL filter pill */}
           <button
             onClick={() => handleTabClick('all')}
             className={`flex items-center gap-1 px-2.5 py-1 rounded text-[10px] font-bold uppercase tracking-wide whitespace-nowrap shrink-0 transition-all border ${
@@ -132,34 +173,47 @@ export default function LiveMatchesTicker() {
                 : 'border-gray-700 text-gray-400 hover:text-white hover:bg-gray-800'
             }`}
           >
+            ALL ({tickerCards.length})
+          </button>
+
+          {tickerCards.map((match) => (
+            <MatchCard key={match.key || match.id} match={match} />
+          ))}
+        </div>
+      )}
+
+      {/* ── Row 2 Fallback: Roanuz tournament cards when CricAPI has no data ── */}
+      {!loading && useTournamentFallback && (
+        <div className="max-w-[1600px] mx-auto flex items-center gap-2 overflow-x-auto scrollbar-hide px-2 py-1.5">
+          <button
+            onClick={() => handleTabClick('all')}
+            className="flex items-center gap-1 px-2.5 py-1 rounded text-[10px] font-bold uppercase tracking-wide whitespace-nowrap shrink-0 border border-gray-700 text-gray-400"
+          >
             ALL ({tournaments.length})
           </button>
 
-          {/* Small match cards */}
-          {tournaments.slice(0, 10).map(t => {
-            const live = isLive(t)
+          {tournaments.slice(0, 10).map((t) => {
+            const isLiveT = now >= t.start_date && now <= t.last_scheduled_match_date
             const startDate = new Date(t.start_date * 1000)
             const dateStr = startDate.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })
             const timeStr = startDate.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })
-            const teams = t.countries?.slice(0, 2).map(c => c.short_code || c.name) || []
-            const href = live ? `/live/${t.key}` : '/predictions'
+            const teams = t.countries?.slice(0, 2).map((c) => c.short_code || c.name) || []
 
             return (
               <Link
                 key={t.key}
-                href={href}
+                href={isLiveT ? '/matches' : '/predictions'}
                 className={`flex flex-col shrink-0 rounded-lg border px-2.5 py-1.5 min-w-[140px] max-w-[160px] transition-all cursor-pointer ${
-                  live
-                    ? 'border-green-600/60 bg-green-900/15 hover:border-green-500 hover:bg-green-900/25'
-                    : 'border-gray-700/50 bg-gray-800/40 hover:border-emerald-500/40 hover:bg-gray-800/70'
+                  isLiveT
+                    ? 'border-green-600/60 bg-green-900/15 hover:border-green-500'
+                    : 'border-gray-700/50 bg-gray-800/40 hover:border-emerald-500/40'
                 }`}
               >
-                {/* Status row */}
                 <div className="flex items-center justify-between mb-1">
-                  {live ? (
+                  {isLiveT ? (
                     <span className="flex items-center gap-1 text-green-400 text-[9px] font-bold uppercase">
                       <span className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse" />
-                      LIVE
+                      SERIES
                     </span>
                   ) : (
                     <span className="text-gray-500 text-[9px]">{dateStr} · {timeStr}</span>
@@ -168,22 +222,12 @@ export default function LiveMatchesTicker() {
                     {t.formats?.[0]?.toUpperCase() || 'T20'}
                   </span>
                 </div>
-
-                {/* Teams */}
                 <div className="text-white text-[11px] font-bold leading-tight truncate">
                   {teams.length >= 2 ? `${teams[0]} vs ${teams[1]}` : t.short_name || t.name}
                 </div>
-
-                {/* CTA */}
-                {live ? (
-                  <div className="text-green-400 text-[9px] font-semibold mt-1">
-                    Live Score + Commentary →
-                  </div>
-                ) : (
-                  <div className="text-emerald-400 text-[9px] font-medium mt-1">
-                    AI Prediction →
-                  </div>
-                )}
+                <div className={`text-[9px] font-medium mt-1 ${isLiveT ? 'text-green-400' : 'text-emerald-400'}`}>
+                  {isLiveT ? 'View Matches →' : 'AI Prediction →'}
+                </div>
               </Link>
             )
           })}
@@ -192,6 +236,92 @@ export default function LiveMatchesTicker() {
     </div>
   )
 }
+
+// ── Individual Match Card ─────────────────────────────────────────────────────
+
+function MatchCard({ match }: { match: TickerMatch }) {
+  const isLive = match.status === 'live'
+
+  const teamA = match.teamA || 'TBD'
+  const teamB = match.teamB || 'TBD'
+  // Shorten team names for the small card
+  const teamAShort = teamA.length > 12 ? teamA.slice(0, 10).trimEnd() + '…' : teamA
+  const teamBShort = teamB.length > 12 ? teamB.slice(0, 10).trimEnd() + '…' : teamB
+
+  // Date/time for upcoming matches
+  const matchDate = match.dateTimeGMT
+    ? new Date(match.dateTimeGMT)
+    : match.date
+    ? new Date(match.date)
+    : null
+  const dateStr = matchDate?.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) || ''
+  const timeStr = matchDate?.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }) || ''
+
+  const href = isLive ? `/live/${match.key || match.id}` : '/predictions'
+
+  return (
+    <Link
+      href={href}
+      className={`flex flex-col shrink-0 rounded-lg border px-2.5 py-1.5 min-w-[155px] max-w-[180px] transition-all cursor-pointer ${
+        isLive
+          ? 'border-green-600/60 bg-green-900/15 hover:border-green-500 hover:bg-green-900/25'
+          : 'border-gray-700/50 bg-gray-800/40 hover:border-emerald-500/40 hover:bg-gray-800/70'
+      }`}
+    >
+      {/* Status row */}
+      <div className="flex items-center justify-between mb-1">
+        {isLive ? (
+          <span className="flex items-center gap-1 text-green-400 text-[9px] font-bold uppercase">
+            <span className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse" />
+            LIVE
+          </span>
+        ) : (
+          <span className="text-gray-500 text-[9px]">
+            {dateStr}{timeStr ? ` · ${timeStr}` : ''}
+          </span>
+        )}
+        <span className="text-[9px] text-gray-600 bg-gray-700/40 px-1 rounded">
+          {match.matchType || 'T20'}
+        </span>
+      </div>
+
+      {/* Live: show actual scores per team */}
+      {isLive ? (
+        <div className="space-y-0.5">
+          <div className="flex items-center justify-between gap-1.5">
+            <span className="text-white text-[10px] font-bold truncate flex-1 min-w-0">{teamAShort}</span>
+            <span className="text-emerald-400 font-mono text-[10px] font-bold whitespace-nowrap shrink-0">
+              {match.scoreA || '—'}
+            </span>
+          </div>
+          <div className="flex items-center justify-between gap-1.5">
+            <span className="text-gray-300 text-[10px] font-semibold truncate flex-1 min-w-0">{teamBShort}</span>
+            <span className="text-gray-400 font-mono text-[10px] whitespace-nowrap shrink-0">
+              {match.scoreB || 'yet to bat'}
+            </span>
+          </div>
+        </div>
+      ) : (
+        /* Upcoming: show team names + AI Tips badge */
+        <div>
+          <div className="text-white text-[11px] font-bold leading-tight truncate">
+            {teamAShort} vs {teamBShort}
+          </div>
+          <span className="inline-block text-[9px] text-emerald-400 font-semibold bg-emerald-500/10 px-1.5 py-0.5 rounded mt-1">
+            AI Tips
+          </span>
+        </div>
+      )}
+
+      {/* Footer CTA */}
+      <div className={`text-[9px] font-semibold mt-1 ${isLive ? 'text-green-400' : 'text-emerald-400'}`}>
+        {isLive ? 'Ball by ball →' : 'View prediction →'}
+      </div>
+    </Link>
+  )
+}
+
+// ── Tournament Dropdown ───────────────────────────────────────────────────────
 
 function TournamentDropdown({ label, live }: { label: string; live: boolean }) {
   const [open, setOpen] = useState(false)
@@ -211,9 +341,12 @@ function TournamentDropdown({ label, live }: { label: string; live: boolean }) {
             { label: 'AI Predictions', href: '/analysis' },
             { label: 'Odds', href: '/odds' },
             { label: 'Teams', href: '/teams' },
-          ].map(item => (
-            <Link key={item.href + item.label} href={item.href}
-              className="flex items-center justify-between px-3 py-1.5 text-xs text-gray-300 hover:text-white hover:bg-gray-700 transition-colors">
+          ].map((item) => (
+            <Link
+              key={item.href + item.label}
+              href={item.href}
+              className="flex items-center justify-between px-3 py-1.5 text-xs text-gray-300 hover:text-white hover:bg-gray-700 transition-colors"
+            >
               {item.label} <ChevronRight className="w-3 h-3" />
             </Link>
           ))}
