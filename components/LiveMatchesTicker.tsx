@@ -79,24 +79,21 @@ export default function LiveMatchesTicker() {
   }, [])
 
   // Fetch actual live/upcoming match data from CricAPI (for Row 2 cards)
+  // Uses /api/cricket/ticker which has a 15-min server cache = max 96 calls/day (free plan safe)
   useEffect(() => {
     async function fetchCurrentMatches() {
       try {
-        const res = await fetch('/api/cricket/featured-matches')
+        const res = await fetch('/api/cricket/ticker')
         const json = await res.json()
-        // CricAPI fallback returns { source: 'cricapi', matches: [...] }
-        const matches: TickerMatch[] = json.matches || []
-        setLiveMatches(matches.filter((m) => m.status === 'live'))
-        setUpcomingMatches(
-          matches.filter((m) => m.status === 'upcoming').slice(0, 8)
-        )
+        setLiveMatches(json.live || [])
+        setUpcomingMatches(json.upcoming || [])
       } catch {}
       finally {
         setLoading(false)
       }
     }
     fetchCurrentMatches()
-    // Refresh every 5 minutes — keeps CricAPI quota usage low
+    // Refresh every 5 minutes client-side; server caches for 15 min
     const interval = setInterval(fetchCurrentMatches, 300_000)
     return () => clearInterval(interval)
   }, [])
@@ -223,11 +220,15 @@ export default function LiveMatchesTicker() {
                   </span>
                 </div>
                 <div className="text-white text-[11px] font-bold leading-tight truncate">
-                  {teams.length >= 2 ? `${teams[0]} vs ${teams[1]}` : t.short_name || t.name}
+                  {t.short_name || t.name}
                 </div>
-                <div className={`text-[9px] font-medium mt-1 ${isLiveT ? 'text-green-400' : 'text-emerald-400'}`}>
-                  {isLiveT ? 'View Matches →' : 'AI Prediction →'}
-                </div>
+                {isLiveT ? (
+                  <div className="text-green-400 text-[9px] font-semibold mt-1">View Live →</div>
+                ) : (
+                  <span className="inline-block text-[9px] text-emerald-400 font-semibold bg-emerald-500/10 px-1.5 py-0.5 rounded mt-1">
+                    AI Tips
+                  </span>
+                )}
               </Link>
             )
           })}
