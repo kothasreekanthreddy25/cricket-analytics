@@ -58,10 +58,86 @@ export async function roanuzGet(endpoint: string) {
   return response.data
 }
 
+// --- Normalizer ---
+
+export interface RoanuzMatch {
+  key: string
+  name: string
+  shortName: string
+  teamA: string
+  teamACode: string
+  teamB: string
+  teamBCode: string
+  matchType: string
+  status: 'live' | 'upcoming' | 'completed'
+  statusNote: string
+  scoreA: string | null
+  scoreB: string | null
+  venue: string
+  date: string
+  dateTimeGMT: string
+  tournament: string
+  tournamentKey: string
+}
+
+export function normalizeRoanuzMatch(m: any): RoanuzMatch | null {
+  if (!m || !m.key) return null
+
+  const status: 'live' | 'upcoming' | 'completed' =
+    m.status === 'live' || m.status === 'started' ? 'live'
+    : m.status === 'completed' ? 'completed'
+    : 'upcoming'
+
+  const teamA = m.teams?.a
+  const teamB = m.teams?.b
+
+  // Extract innings scores from play.innings
+  let scoreA: string | null = null
+  let scoreB: string | null = null
+  if (m.play?.innings) {
+    const aScores = Object.entries(m.play.innings)
+      .filter(([k]) => k.startsWith('a_'))
+      .map(([, v]: any) => v.score_str)
+      .filter(Boolean)
+    const bScores = Object.entries(m.play.innings)
+      .filter(([k]) => k.startsWith('b_'))
+      .map(([, v]: any) => v.score_str)
+      .filter(Boolean)
+    scoreA = aScores.join(' & ') || null
+    scoreB = bScores.join(' & ') || null
+  }
+
+  return {
+    key: m.key,
+    name: m.name || '',
+    shortName: m.short_name || '',
+    teamA: teamA?.name || 'TBD',
+    teamACode: teamA?.code || '',
+    teamB: teamB?.name || 'TBD',
+    teamBCode: teamB?.code || '',
+    matchType: m.format?.toUpperCase() || 'T20',
+    status,
+    statusNote: m.play?.result?.msg || '',
+    scoreA,
+    scoreB,
+    venue: m.venue?.name || '',
+    date: m.start_at ? new Date(m.start_at * 1000).toISOString().split('T')[0] : '',
+    dateTimeGMT: m.start_at ? new Date(m.start_at * 1000).toISOString() : '',
+    tournament: m.tournament?.name || '',
+    tournamentKey: m.tournament?.key || '',
+  }
+}
+
 // --- Match Endpoints ---
 
+/** featured-matches-2 — works on current plan (use instead of featured-matches/) */
+export async function getFeaturedMatches2() {
+  return roanuzGet('featured-matches-2/')
+}
+
+/** @deprecated use getFeaturedMatches2() */
 export async function getFeaturedMatches() {
-  return roanuzGet('featured-matches/')
+  return roanuzGet('featured-matches-2/')
 }
 
 export async function getMatchDetails(matchKey: string) {

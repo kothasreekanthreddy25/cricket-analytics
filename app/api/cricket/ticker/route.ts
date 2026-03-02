@@ -1,28 +1,23 @@
 /**
  * GET /api/cricket/ticker
  *
- * Lightweight endpoint for the nav ticker — returns live + upcoming matches.
- * Uses a 15-minute server cache so we stay within CricAPI free plan (100 calls/day).
- * 15-min cache = max 96 calls/day.
+ * Lightweight endpoint for the nav ticker.
+ * Primary: Roanuz featured-matches-2 (no quota limits)
+ * Fallback: CricAPI with 15-min cache (96 calls/day, fits free plan)
  */
 
 import { NextResponse } from 'next/server'
+import { getFeaturedMatches2, normalizeRoanuzMatch } from '@/lib/roanuz'
 
-const API_KEY = process.env.CRICKET_API_KEY || ''
-const BASE_URL = process.env.CRICKET_API_URL || 'https://api.cricapi.com/v1'
+const CRICAPI_KEY = process.env.CRICKET_API_KEY || ''
+const CRICAPI_URL = process.env.CRICKET_API_URL || 'https://api.cricapi.com/v1'
 
-function normalizeMatch(m: any) {
+function normalizeCricapiMatch(m: any) {
   if (!m || !m.id) return null
   const isLive = m.matchStarted === true && m.matchEnded !== true
   const isUpcoming = m.matchStarted !== true && m.matchEnded !== true
-
-  const scoreA = m.score?.[0]
-    ? `${m.score[0].r}/${m.score[0].w} (${m.score[0].o} ov)`
-    : null
-  const scoreB = m.score?.[1]
-    ? `${m.score[1].r}/${m.score[1].w} (${m.score[1].o} ov)`
-    : null
-
+  const scoreA = m.score?.[0] ? `${m.score[0].r}/${m.score[0].w} (${m.score[0].o} ov)` : null
+  const scoreB = m.score?.[1] ? `${m.score[1].r}/${m.score[1].w} (${m.score[1].o} ov)` : null
   return {
     key: m.id,
     id: m.id,
@@ -40,31 +35,36 @@ function normalizeMatch(m: any) {
 }
 
 export async function GET() {
+  // 1. Try Roanuz (primary — no quota)
   try {
-    const url = new URL(`${BASE_URL}/currentMatches`)
-    url.searchParams.set('apikey', API_KEY)
-    url.searchParams.set('offset', '0')
-
-    // 15-minute server cache — max 96 CricAPI calls/day (free plan allows 100)
-    const res = await fetch(url.toString(), { next: { revalidate: 900 } })
-
-    if (!res.ok) throw new Error(`CricAPI returned ${res.status}`)
-
-    const json = await res.json()
-    if (json.status !== 'success') {
-      throw new Error(json.reason || 'CricAPI error')
-    }
-
-    const all = (json.data || []).map(normalizeMatch).filter(Boolean)
+    const data = await getFeaturedMatches2()
+    const rawMatches = data?.data?.matches || []
+    const all = rawMatches.map(normalizeRoanuzMatch).filter(Boolean)
     const live = all.filter((m: any) => m.status === 'live')
     const upcoming = all.filter((m: any) => m.status === 'upcoming').slice(0, 8)
+    console.log(`[Ticker] Roanuz: ${live.length} live, ${upcoming.length} upcoming`)
+    return NextResponse.json({ success: true, source: 'roanuz', live, upcoming })
+  } catch (err: any) {
+    console.warn('[Ticker] Roanuz failed:', err.message)
+  }
 
-    return NextResponse.json({ success: true, live, upcoming })
-  } catch (error: any) {
-    console.warn('[Ticker] CricAPI failed:', error.message)
+  // 2. Fallback: CricAPI with 15-min cache
+  try {
+    const url = new URL(`${CRICAPI_URL}/currentMatches`)
+    url.searchParams.set('apikey', CRICAPI_KEY)
+    url.searchParams.set('offset', '0')
+    const res = await fetch(url.toString(), { next: { revalidate: 900 } })
+    if (!res.ok) throw new Error(`CricAPI ${res.status}`)
+    const json = await res.json()
+    if (json.status !== 'success') throw new Error(json.reason || 'CricAPI error')
+    const all = (json.data || []).map(normalizeCricapiMatch).filter(Boolean)
+    const live = all.filter((m: any) => m.status === 'live')
+    const upcoming = all.filter((m: any) => m.status === 'upcoming').slice(0, 8)
+    return NextResponse.json({ success: true, source: 'cricapi', live, upcoming })
+  } catch (err: any) {
+    console.warn('[Ticker] CricAPI also failed:', err.message)
     return NextResponse.json({ success: false, live: [], upcoming: [] })
   }
 }
 
-// 15-minute route-level cache
-export const revalidate = 900
+export const revalidate = 60

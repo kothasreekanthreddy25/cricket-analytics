@@ -1,17 +1,19 @@
 import { NextResponse } from 'next/server'
-import { getFeaturedMatches, getFeaturedTournaments } from '@/lib/roanuz'
+import { getFeaturedMatches2, getFeaturedTournaments, normalizeRoanuzMatch } from '@/lib/roanuz'
 import { cricapiCurrentMatches } from '@/lib/cricapi'
 
 export async function GET() {
-  // 1. Try Roanuz featured-matches (requires higher plan)
+  // 1. Try Roanuz featured-matches-2 (now works on current plan)
   try {
-    const data = await getFeaturedMatches()
-    return NextResponse.json({ success: true, source: 'roanuz', data })
+    const data = await getFeaturedMatches2()
+    const rawMatches = data?.data?.matches || []
+    const matches = rawMatches.map(normalizeRoanuzMatch).filter(Boolean)
+    return NextResponse.json({ success: true, source: 'roanuz', matches })
   } catch {
-    console.warn('[Matches] Roanuz featured-matches failed, trying tournaments...')
+    console.warn('[Matches] Roanuz featured-matches-2 failed, trying tournaments...')
   }
 
-  // 2. Try Roanuz featured-tournaments (works on basic plan)
+  // 2. Try Roanuz featured-tournaments (always works)
   try {
     const data = await getFeaturedTournaments()
     return NextResponse.json({ success: true, source: 'roanuz-tournaments', data })

@@ -1,12 +1,15 @@
 import { NextResponse } from 'next/server'
-import { getFeaturedMatches } from '@/lib/roanuz'
+import { getFeaturedMatches2, normalizeRoanuzMatch } from '@/lib/roanuz'
 import { cricapiCurrentMatches } from '@/lib/cricapi'
 
 export async function GET() {
-  // 1. Try Roanuz featured-matches
+  // 1. Roanuz featured-matches-2 (primary — no quota issues)
   try {
-    const data = await getFeaturedMatches()
-    return NextResponse.json({ source: 'roanuz', ...data })
+    const data = await getFeaturedMatches2()
+    const rawMatches = data?.data?.matches || []
+    const matches = rawMatches.map(normalizeRoanuzMatch).filter(Boolean)
+    const active = matches.filter((m: any) => m.status !== 'completed')
+    return NextResponse.json({ source: 'roanuz', matches: active })
   } catch {
     console.warn('[Featured Matches] Roanuz failed, falling back to CricAPI...')
   }
