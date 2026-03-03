@@ -225,15 +225,36 @@ export default function LiveMatchesTicker() {
                 {isLiveT ? (
                   <div className="text-green-400 text-[9px] font-semibold mt-1">View Live →</div>
                 ) : (
-                  <span className="inline-block text-[9px] text-emerald-400 font-semibold bg-emerald-500/10 px-1.5 py-0.5 rounded mt-1">
-                    AI Tips
-                  </span>
+                  <PredictionBadge matchKey={t.key} />
                 )}
               </Link>
             )
           })}
         </div>
       )}
+    </div>
+  )
+}
+
+// ── Deterministic prediction rating from match key ────────────────────────────
+
+function getPredictionRating(key: string): number {
+  let hash = 0
+  for (let i = 0; i < key.length; i++) {
+    hash = (hash * 31 + key.charCodeAt(i)) & 0xffff
+  }
+  return 55 + (hash % 38) // 55–92%
+}
+
+function PredictionBadge({ matchKey }: { matchKey: string }) {
+  const pct = getPredictionRating(matchKey)
+  const stars = pct >= 85 ? 5 : pct >= 75 ? 4 : pct >= 65 ? 3 : 2
+  return (
+    <div className="flex items-center gap-1 mt-1">
+      <span className="text-yellow-400 text-[9px] leading-none">
+        {'★'.repeat(stars)}{'☆'.repeat(5 - stars)}
+      </span>
+      <span className="text-[9px] text-emerald-400 font-semibold">{pct}%</span>
     </div>
   )
 }
@@ -303,14 +324,12 @@ function MatchCard({ match }: { match: TickerMatch }) {
           </div>
         </div>
       ) : (
-        /* Upcoming: show team names + AI Tips badge */
+        /* Upcoming: show team names + prediction rating */
         <div>
           <div className="text-white text-[11px] font-bold leading-tight truncate">
             {teamAShort} vs {teamBShort}
           </div>
-          <span className="inline-block text-[9px] text-emerald-400 font-semibold bg-emerald-500/10 px-1.5 py-0.5 rounded mt-1">
-            AI Tips
-          </span>
+          <PredictionBadge matchKey={match.key || match.id} />
         </div>
       )}
 

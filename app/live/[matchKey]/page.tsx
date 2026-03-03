@@ -12,12 +12,12 @@ import {
   BarChart3,
   Zap,
   Target,
-  Clock,
   MapPin,
   ChevronDown,
   ChevronUp,
   Wifi,
 } from 'lucide-react'
+import YouTubePlayer from '@/components/YouTubePlayer'
 import {
   AreaChart,
   Area,
@@ -993,6 +993,15 @@ export default function LiveMatchPage() {
           <div>
             <WinProbabilitySection probability={probability} />
           </div>
+        </div>
+
+        {/* YouTube Live Player — shown when a broadcast is active */}
+        <div className="mb-6">
+          <YouTubePlayer
+            matchKey={matchKey}
+            teamA={match.teams.a?.name}
+            teamB={match.teams.b?.name}
+          />
         </div>
 
         {/* AI Insights */}

@@ -22,6 +22,7 @@
     "better-auth": "^1.4.17",
     "clsx": "^2.1.1",
     "dotenv": "^17.2.4",
+    "googleapis": "^171.4.0",
     "lucide-react": "^0.400.0",
     "next": "^14.2.0",
     "next-sanity": "^9.12.3",
