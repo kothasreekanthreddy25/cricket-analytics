@@ -29,6 +29,9 @@ interface TickerMatch {
   scoreB: string | null
   date: string
   dateTimeGMT: string
+  winProbabilityA: number | null
+  winProbabilityB: number | null
+  predictionConfidence: string | null
 }
 
 const NAV_LINKS = [
@@ -225,7 +228,11 @@ export default function LiveMatchesTicker() {
                 {isLiveT ? (
                   <div className="text-green-400 text-[9px] font-semibold mt-1">View Live →</div>
                 ) : (
-                  <PredictionBadge matchKey={t.key} />
+                  <PredictionBadge
+                    matchKey={t.key}
+                    teamA={teams[0] || 'Team A'}
+                    teamB={teams[1] || 'Team B'}
+                  />
                 )}
               </Link>
             )
@@ -246,15 +253,36 @@ function getPredictionRating(key: string): number {
   return 55 + (hash % 38) // 55–92%
 }
 
-function PredictionBadge({ matchKey }: { matchKey: string }) {
-  const pct = getPredictionRating(matchKey)
-  const stars = pct >= 85 ? 5 : pct >= 75 ? 4 : pct >= 65 ? 3 : 2
+function PredictionBadge({
+  matchKey,
+  teamA = 'Team A',
+  teamB = 'Team B',
+  winProbabilityA,
+  winProbabilityB,
+}: {
+  matchKey: string
+  teamA?: string
+  teamB?: string
+  winProbabilityA?: number | null
+  winProbabilityB?: number | null
+}) {
+  // Use real DB prediction if available, otherwise fall back to deterministic hash
+  const pctA = winProbabilityA != null ? Math.round(winProbabilityA) : getPredictionRating(matchKey)
+  const pctB = winProbabilityB != null ? Math.round(winProbabilityB) : 100 - pctA
+  const isReal = winProbabilityA != null
   return (
-    <div className="flex items-center gap-1 mt-1">
-      <span className="text-yellow-400 text-[9px] leading-none">
-        {'★'.repeat(stars)}{'☆'.repeat(5 - stars)}
-      </span>
-      <span className="text-[9px] text-emerald-400 font-semibold">{pct}%</span>
+    <div className="mt-0.5 space-y-0.5">
+      <div className="flex items-center justify-between gap-1.5">
+        <span className="text-[10px] text-white font-bold truncate flex-1 min-w-0">{teamA}</span>
+        <span className="text-[10px] text-emerald-400 font-bold shrink-0">{pctA}%</span>
+      </div>
+      <div className="flex items-center justify-between gap-1.5">
+        <span className="text-[10px] text-gray-400 font-semibold truncate flex-1 min-w-0">{teamB}</span>
+        <span className="text-[10px] text-gray-400 font-bold shrink-0">{pctB}%</span>
+      </div>
+      {isReal && (
+        <div className="text-[8px] text-yellow-500/70">AI prediction</div>
+      )}
     </div>
   )
 }
@@ -324,13 +352,14 @@ function MatchCard({ match }: { match: TickerMatch }) {
           </div>
         </div>
       ) : (
-        /* Upcoming: show team names + prediction rating */
-        <div>
-          <div className="text-white text-[11px] font-bold leading-tight truncate">
-            {teamAShort} vs {teamBShort}
-          </div>
-          <PredictionBadge matchKey={match.key || match.id} />
-        </div>
+        /* Upcoming: show per-team win probability */
+        <PredictionBadge
+          matchKey={match.key || match.id}
+          teamA={teamAShort}
+          teamB={teamBShort}
+          winProbabilityA={match.winProbabilityA}
+          winProbabilityB={match.winProbabilityB}
+        />
       )}
 
       {/* Footer CTA */}
