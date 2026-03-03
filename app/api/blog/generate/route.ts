@@ -187,6 +187,23 @@ async function runPipeline(maxPosts: number) {
         generated++
         results.push({ title: post.title, status: 'published', slug: post.slug })
         console.log(`[Generate] Published: ${post.slug}`)
+
+        // Trigger YouTube video generation on Hetzner VPS (fire-and-forget)
+        const streamingUrl = process.env.STREAMING_SERVICE_URL
+        if (streamingUrl) {
+          fetch(`${streamingUrl}/video/news`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              title: post.title,
+              excerpt: post.excerpt || '',
+              slug: post.slug,
+              keywords: post.seoKeywords || [],
+            }),
+          }).catch((e: any) =>
+            console.warn('[Generate] Video trigger failed (non-fatal):', e.message)
+          )
+        }
       } catch (err: any) {
         console.error(`[Generate] Error processing article:`, err.message)
         results.push({ title: article.title, status: `error: ${err.message}` })

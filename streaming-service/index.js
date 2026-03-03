@@ -12,6 +12,7 @@ const express = require('express')
 const { getBallByBall, getScoreText } = require('./roanuz')
 const { generateCommentary } = require('./commentary')
 const { textToSpeech, cleanupOldAudio } = require('./tts')
+const { createNewsVideo } = require('./news-video')
 const {
   initFiles,
   updateScore,
@@ -192,6 +193,46 @@ app.get('/stream/status', (req, res) => {
 
 app.get('/health', (req, res) => {
   res.json({ status: 'ok', service: 'crickettips-stream', version: '1.0.0' })
+})
+
+// ─── News Video API ───────────────────────────────────────────────────────────
+//
+//  POST /video/news  { title, excerpt, slug, keywords[] }
+//
+//  Generates a 90-second news recap video and uploads it to YouTube.
+//  Returns immediately with { queued: true } — actual upload runs in background.
+
+const videoQueue = []
+let videoJobRunning = false
+
+async function processVideoQueue() {
+  if (videoJobRunning || videoQueue.length === 0) return
+  videoJobRunning = true
+  const job = videoQueue.shift()
+  try {
+    const result = await createNewsVideo(job)
+    console.log(`[VideoQueue] Done: ${result.success ? result.url : result.error}`)
+  } catch (err) {
+    console.error('[VideoQueue] Unexpected error:', err.message)
+  } finally {
+    videoJobRunning = false
+    if (videoQueue.length > 0) processVideoQueue()
+  }
+}
+
+app.post('/video/news', (req, res) => {
+  const { title, excerpt, slug, keywords } = req.body
+  if (!title || !slug) {
+    return res.status(400).json({ error: 'title and slug are required' })
+  }
+  videoQueue.push({ title, excerpt: excerpt || title, slug, keywords: keywords || [] })
+  console.log(`[VideoQueue] Queued: "${title.slice(0, 50)}" (queue length: ${videoQueue.length})`)
+  processVideoQueue()
+  res.json({ queued: true, queueLength: videoQueue.length, slug })
+})
+
+app.get('/video/status', (req, res) => {
+  res.json({ running: videoJobRunning, queued: videoQueue.length })
 })
 
 // ─── Start Server ─────────────────────────────────────────────────────────────
