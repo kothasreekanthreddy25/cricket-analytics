@@ -1,8 +1,21 @@
 import { Shield } from 'lucide-react'
 
 export const metadata = {
-  title: 'Cricket Teams - Cricket Analytics',
-  description: 'Explore cricket team statistics and performance',
+  title: 'Cricket Teams – Rankings, Stats & T20 World Cup 2026 Squads',
+  description:
+    'Explore ICC cricket team rankings, squad information, win rates, and performance stats. T20 World Cup 2026 team analysis including India, Australia, England, Pakistan, and more.',
+  keywords: [
+    'cricket teams', 'cricket team rankings', 'ICC T20 rankings', 'cricket squad',
+    'T20 WC 2026 teams', 'India cricket team', 'Australia cricket team',
+    'cricket team stats', 'cricket team performance', 'cricket world cup squads',
+    'cricket team analysis', 'Pakistan cricket team',
+  ],
+  openGraph: {
+    title: 'Cricket Teams & Rankings | CricketTips.ai',
+    description: 'ICC cricket team rankings, squad info, and performance stats for T20 WC 2026.',
+    url: 'https://crickettips.ai/teams',
+  },
+  alternates: { canonical: 'https://crickettips.ai/teams' },
 }
 
 const TEAMS = [

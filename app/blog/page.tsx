@@ -4,23 +4,23 @@ import { POSTS_QUERY, CATEGORIES_QUERY } from '@/sanity/lib/queries'
 import BlogList from './BlogList'
 
 export const metadata = {
-  title: 'Cricket News & Blog | Cricket Analytics',
+  title: 'Cricket News & Blog – AI-Generated Match Updates & Analysis',
   description:
-    'Latest cricket news, match updates, player analysis, and tournament insights — updated daily with AI-powered coverage.',
+    'Latest cricket news, match previews, player analysis, and tournament insights — updated daily with AI-generated coverage. T20 World Cup 2026, IPL, and international cricket.',
   keywords: [
-    'cricket news',
-    'cricket blog',
-    'IPL news',
-    'T20 World Cup updates',
-    'cricket analysis',
-    'match predictions',
-    'cricket player news',
+    'cricket news', 'cricket blog', 'cricket news today', 'cricket match updates',
+    'IPL news', 'T20 World Cup 2026 news', 'cricket analysis articles',
+    'cricket match preview', 'cricket player news', 'cricket tournament news',
+    'AI cricket news', 'cricket insights', 'cricket match report',
+    'cricket betting news', 'cricket tips blog',
   ],
   openGraph: {
-    title: 'Cricket News & Blog | Cricket Analytics',
-    description: 'Daily cricket news updates with AI-powered analysis.',
+    title: 'Cricket News & Blog | CricketTips.ai',
+    description: 'Daily AI-generated cricket news, match previews, and analysis for T20 WC 2026 & IPL.',
+    url: 'https://crickettips.ai/blog',
     type: 'website',
   },
+  alternates: { canonical: 'https://crickettips.ai/blog' },
 }
 
 interface Post {

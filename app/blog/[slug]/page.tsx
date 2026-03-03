@@ -39,7 +39,7 @@ export async function generateMetadata({
   const title = post.seoTitle || post.title
   const description =
     post.seoDescription || post.excerpt || `Read ${post.title} on Cricket Analytics`
-  const url = `https://cricketanalytics.com/blog/${post.slug.current}`
+  const url = `https://crickettips.ai/blog/${post.slug.current}`
 
   return {
     title: `${title} | Cricket Analytics`,
@@ -138,7 +138,7 @@ export default async function BlogPostPage({
     author: { '@type': 'Organization', name: 'Cricket Analytics' },
     publisher: { '@type': 'Organization', name: 'Cricket Analytics' },
     ...(post.imageUrl && { image: post.imageUrl }),
-    mainEntityOfPage: `https://cricketanalytics.com/blog/${post.slug.current}`,
+    mainEntityOfPage: `https://crickettips.ai/blog/${post.slug.current}`,
     keywords: post.seoKeywords?.join(', '),
   }
 

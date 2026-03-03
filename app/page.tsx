@@ -1,5 +1,44 @@
 import React, { Suspense } from 'react'
+import type { Metadata } from 'next'
 import Link from 'next/link'
+
+export const metadata: Metadata = {
+  title: 'CricketTips.ai – Free AI Cricket Predictions, Live Scores & T20 WC 2026 Tips',
+  description:
+    'Get free AI-powered cricket predictions for T20 World Cup 2026, IPL, and all international matches. Live scores, win probability, ball-by-ball commentary, pitch analysis, and betting tips. 18+ Gamble responsibly.',
+  alternates: { canonical: 'https://crickettips.ai' },
+  openGraph: {
+    title: 'CricketTips.ai – Free AI Cricket Predictions & Live Scores',
+    description:
+      'Free AI cricket predictions for T20 WC 2026 & IPL. Live scores, win probability, tips. 18+ Gamble responsibly.',
+    url: 'https://crickettips.ai',
+  },
+}
+
+// JSON-LD structured data for homepage
+const websiteJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  name: 'CricketTips.ai',
+  url: 'https://crickettips.ai',
+  description: 'AI-powered cricket predictions, live scores, and match analysis',
+  potentialAction: {
+    '@type': 'SearchAction',
+    target: 'https://crickettips.ai/analysis?match={search_term_string}',
+    'query-input': 'required name=search_term_string',
+  },
+}
+
+const orgJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  name: 'CricketTips.ai',
+  url: 'https://crickettips.ai',
+  logo: 'https://crickettips.ai/logo.png',
+  sameAs: [
+    'https://youtube.com/channel/UCOj7_rLFFhCzX7-VdTLg-eA',
+  ],
+}
 import FeaturedMatchCards from '@/components/FeaturedMatchCards'
 import LiveScoreCard from '@/components/LiveScoreCard'
 import PredictionStatsWidget from '@/components/PredictionStatsWidget'
@@ -22,6 +61,10 @@ import {
 export default function Home() {
   return (
     <div className="min-h-screen">
+      {/* JSON-LD Structured Data */}
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(orgJsonLd) }} />
+
       {/* ── Section 1: Hero ── */}
       <section className="relative bg-gradient-to-br from-gray-950 via-gray-900 to-gray-950 py-10 md:py-14 px-4 overflow-hidden">
         <div className="absolute top-0 right-0 w-96 h-96 bg-emerald-500/5 rounded-full blur-3xl" />

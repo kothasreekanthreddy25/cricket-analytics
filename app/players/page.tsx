@@ -1,8 +1,21 @@
 import { User } from 'lucide-react'
 
 export const metadata = {
-  title: 'Cricket Players - Cricket Analytics',
-  description: 'Explore cricket player statistics and performance',
+  title: 'Cricket Players – Stats, Rankings & T20 World Cup 2026 Stars',
+  description:
+    'In-depth cricket player profiles, career stats, T20 rankings, and match performance data. Find the best batsmen, bowlers, and all-rounders for T20 World Cup 2026 and IPL.',
+  keywords: [
+    'cricket players', 'cricket player stats', 'T20 player rankings', 'best cricket players',
+    'Virat Kohli stats', 'Babar Azam', 'cricket batsmen', 'cricket bowlers',
+    'cricket all-rounders', 'cricket player analysis', 'T20 WC 2026 players',
+    'IPL players', 'cricket fantasy players', 'players to watch cricket',
+  ],
+  openGraph: {
+    title: 'Cricket Players & Stats | CricketTips.ai',
+    description: 'Cricket player profiles, career stats, and T20 WC 2026 rankings.',
+    url: 'https://crickettips.ai/players',
+  },
+  alternates: { canonical: 'https://crickettips.ai/players' },
 }
 
 const FEATURED_PLAYERS = [
