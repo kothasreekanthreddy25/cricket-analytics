@@ -1,11 +1,70 @@
 /**
  * Roanuz API — Live match data for streaming service
+ * Falls back to CricAPI for live scores when Roanuz match endpoints return 403.
  */
 const axios = require('axios')
 
 const BASE_URL    = process.env.ROANUZ_BASE_URL    || 'https://api.sports.roanuz.com/v5'
 const PROJECT_KEY = process.env.ROANUZ_PROJECT_KEY || ''
 const API_KEY     = process.env.ROANUZ_API_KEY     || ''
+
+// CricAPI fallback — used when Roanuz match endpoints return 403
+const CRICAPI_BASE = 'https://api.cricapi.com/v1'
+const CRICAPI_KEY  = process.env.CRICKET_API_KEY || ''
+
+async function getScoreFromCricAPI(teamA, teamB) {
+  if (!CRICAPI_KEY) return null
+  try {
+    const res = await axios.get(`${CRICAPI_BASE}/currentMatches`, {
+      params: { apikey: CRICAPI_KEY, offset: 0 },
+      timeout: 8000,
+    })
+    const matches = res.data?.data || []
+
+    // Find match by first word of team name (e.g. "England" in "England vs India")
+    const aWord = (teamA || '').split(' ')[0].toLowerCase()
+    const bWord = (teamB || '').split(' ')[0].toLowerCase()
+    const match = matches.find(m => {
+      const name = (m.name || '').toLowerCase()
+      return name.includes(aWord) || name.includes(bWord)
+    })
+    if (!match) return null
+
+    const scores = match.score || []
+    const scoreText = scores.length > 0
+      ? scores.map(s => `${s.inning?.replace(' Innings', '') || 'Team'}: ${s.r}/${s.w} in ${s.o}`).join('  |  ')
+      : `${match.teams?.[0] || teamA} vs ${match.teams?.[1] || teamB}`
+
+    // Build innings context from CricAPI score array
+    let contextText = match.status || 'Match in progress'
+    if (scores.length === 2) {
+      const first = scores[0], second = scores[1]
+      const target = (first.r || 0) + 1
+      const need   = Math.max(0, target - (second.r || 0))
+      const ballsLeft = Math.round(Math.max(0, 20 - (second.o || 0)) * 6)
+      const rrr = ballsLeft > 0 ? (need / (ballsLeft / 6)).toFixed(1) : '0.0'
+      contextText = `TARGET ${target}  |  NEED ${need} off ${ballsLeft}b  |  RRR ${rrr}`
+    } else if (scores.length === 1) {
+      const s = scores[0], crr = (s.o || 0) > 0 ? ((s.r || 0) / s.o).toFixed(2) : '0.00'
+      contextText = `1st INN — CRR ${crr}`
+    }
+
+    return {
+      scoreText,
+      contextText,
+      teamA: match.teams?.[0] || teamA,
+      teamB: match.teams?.[1] || teamB,
+      status: match.matchEnded ? 'completed' : 'live',
+      matchEnded: match.matchEnded || false,
+      tournamentKey: null,
+      striker: null, nonStriker: null, bowler: null,
+      rawScores: scores.map((s, i) => ({ r: s.r || 0, w: s.w || 0, inning: i === 0 ? 'a_1' : 'b_1' })),
+    }
+  } catch (err) {
+    console.warn('[CricAPI] Score fetch failed:', err.message)
+    return null
+  }
+}
 
 let cachedToken = null
 let tokenExpiry = 0
@@ -53,7 +112,7 @@ async function getBallByBall(matchKey) {
  *   tournamentKey  — tournament key (for tournament stats)
  *   status         — match status
  */
-async function getScoreText(matchKey) {
+async function getScoreText(matchKey, teamA = '', teamB = '') {
   try {
     const data = await getMatchData(matchKey)
     const match = data?.match || data
@@ -134,9 +193,17 @@ async function getScoreText(matchKey) {
     }
   } catch (err) {
     console.error('[Roanuz] Score fetch failed:', err.message)
+    // Try CricAPI as fallback when Roanuz match endpoints are unavailable
+    if (teamA || teamB) {
+      const cricapiData = await getScoreFromCricAPI(teamA, teamB)
+      if (cricapiData) {
+        console.log('[Roanuz→CricAPI] Using CricAPI fallback for live scores')
+        return cricapiData
+      }
+    }
     return {
       scoreText: 'Live Cricket', contextText: 'Match in progress',
-      teamA: 'Team A', teamB: 'Team B', status: 'live', matchEnded: false,
+      teamA: teamA || 'Team A', teamB: teamB || 'Team B', status: 'live', matchEnded: false,
       tournamentKey: null, striker: null, nonStriker: null, bowler: null, rawScores: [],
     }
   }

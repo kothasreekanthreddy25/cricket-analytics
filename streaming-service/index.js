@@ -164,7 +164,7 @@ async function checkIfMatchStarted(matchKey, teamA, teamB) {
 async function pollForNewBalls(matchKey, teamA, teamB) {
   try {
     // Update score + current players (single API call)
-    const scoreData = await getScoreText(matchKey)
+    const scoreData = await getScoreText(matchKey, teamA, teamB)
     updateScore(scoreData.scoreText)
     updateInningsContext(scoreData.contextText)
     updateCurrentPlayers(scoreData.striker, scoreData.nonStriker, scoreData.bowler)
@@ -182,8 +182,11 @@ async function pollForNewBalls(matchKey, teamA, teamB) {
     }
 
     // ── Ball-by-ball commentary (primary) ─────────────────────────────────
-    const bbbData = await getBallByBall(matchKey)
-    const balls   = extractBalls(bbbData)
+    let bbbData = null
+    try { bbbData = await getBallByBall(matchKey) } catch (bbbErr) {
+      console.warn('[Poll] Ball-by-ball unavailable:', bbbErr.message)
+    }
+    const balls = extractBalls(bbbData)
 
     if (balls.length > 0) {
       const latestBall = balls[0]
