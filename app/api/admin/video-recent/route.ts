@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server'
 import { requireRole } from '@/lib/auth-helpers'
 
+export const dynamic = 'force-dynamic'
+
 export async function GET() {
   await requireRole(['ADMIN'])
   const url = process.env.STREAMING_SERVICE_URL
