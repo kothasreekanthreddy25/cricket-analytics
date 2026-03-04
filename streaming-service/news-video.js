@@ -24,6 +24,7 @@ const axios = require('axios')
 const OpenAI = require('openai').default
 const { textToSpeech } = require('./tts')
 const { uploadToYouTube } = require('./youtube-upload')
+const { generateHeyGenVideo } = require('./heygen')
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
 const TMP_DIR = '/tmp/crickettips-videos'
@@ -353,6 +354,66 @@ async function buildVideo(script, audioPath, outputPath, duration, themeOrImage,
   })
 }
 
+// ─── Text overlay on HeyGen video ────────────────────────────────────────────
+// Adds branding + title + key points over a HeyGen MP4
+
+async function addTextOverlays(script, inputPath, outputPath) {
+  const id = Date.now()
+  const titleFile  = path.join(TMP_DIR, `title-${id}.txt`)
+  const pointsFile = path.join(TMP_DIR, `points-${id}.txt`)
+
+  fs.writeFileSync(titleFile,  wrapText(script.title || '', 40))
+  fs.writeFileSync(pointsFile, script.points.map((p, i) => `${i + 1}. ${wrapText(p, 44)}`).join('\n\n'))
+
+  // Get duration of HeyGen video
+  const duration = await getAudioDuration(inputPath)
+  const titleEnd  = Math.min(8, duration * 0.15)
+  const pointsEnd = Math.max(duration - 6, titleEnd + 12)
+
+  const vf = [
+    // Top green bar + logo
+    `drawbox=x=0:y=0:w=iw:h=5:color=0x10b981:t=fill`,
+    `drawtext=fontfile=${FONT_BOLD}:text='CricketTips.ai':fontsize=28:fontcolor=0x10b981:x=20:y=16`,
+    `drawtext=fontfile=${FONT_REG}:text='${new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}':fontsize=14:fontcolor=0xd1d5db:x=1020:y=20`,
+    // Bottom bar
+    `drawbox=x=0:y=696:w=iw:h=24:color=black@0.7:t=fill`,
+    `drawtext=fontfile=${FONT_REG}:text='crickettips.ai  •  AI cricket predictions':fontsize=15:fontcolor=0x9ca3af:x=20:y=700`,
+    // Title slide
+    `drawbox=x=0:y=630:w=iw:h=62:color=black@0.75:t=fill:enable='between(t\\,0\\,${titleEnd})'`,
+    `drawbox=x=0:y=630:w=8:h=62:color=0xef4444:t=fill:enable='between(t\\,0\\,${titleEnd})'`,
+    `drawtext=fontfile=${FONT_BOLD}:textfile=${titleFile}:fontsize=22:fontcolor=white:x=20:y=638:line_spacing=8:enable='between(t\\,0\\,${titleEnd})'`,
+    // Key points lower-third
+    `drawbox=x=0:y=560:w=iw:h=132:color=black@0.75:t=fill:enable='between(t\\,${titleEnd}\\,${pointsEnd})'`,
+    `drawbox=x=0:y=560:w=8:h=132:color=0x10b981:t=fill:enable='between(t\\,${titleEnd}\\,${pointsEnd})'`,
+    `drawtext=fontfile=${FONT_BOLD}:text='KEY POINTS':fontsize=14:fontcolor=0x10b981:x=20:y=564:enable='between(t\\,${titleEnd}\\,${pointsEnd})'`,
+    `drawtext=fontfile=${FONT_REG}:textfile=${pointsFile}:fontsize=18:fontcolor=white:x=20:y=584:line_spacing=10:enable='between(t\\,${titleEnd}\\,${pointsEnd})'`,
+    // CTA
+    `drawbox=x=0:y=630:w=iw:h=62:color=black@0.75:t=fill:enable='gte(t\\,${pointsEnd})'`,
+    `drawbox=x=0:y=630:w=8:h=62:color=0xfbbf24:t=fill:enable='gte(t\\,${pointsEnd})'`,
+    `drawtext=fontfile=${FONT_BOLD}:text='Subscribe for AI cricket predictions at crickettips.ai':fontsize=20:fontcolor=white:x=20:y=646:enable='gte(t\\,${pointsEnd})'`,
+  ].join(',')
+
+  return new Promise((resolve, reject) => {
+    const proc = spawn('ffmpeg', [
+      '-i', inputPath,
+      '-vf', vf,
+      '-c:v', 'libx264', '-preset', 'veryfast', '-b:v', '2500k',
+      '-c:a', 'aac', '-b:a', '128k',
+      '-y', outputPath,
+    ], { stdio: ['pipe', 'pipe', 'pipe'] })
+
+    proc.stderr.on('data', d => {
+      const msg = d.toString()
+      if (msg.toLowerCase().includes('error')) console.error('[FFmpeg overlay]', msg.trim())
+    })
+    proc.on('close', code => {
+      ;[titleFile, pointsFile].forEach(f => { try { fs.unlinkSync(f) } catch {} })
+      if (code === 0) resolve(outputPath)
+      else reject(new Error(`FFmpeg overlay exited with code ${code}`))
+    })
+  })
+}
+
 // ─── Main export ──────────────────────────────────────────────────────────────
 
 async function createNewsVideo({ title, excerpt, slug, keywords = [] }) {
@@ -367,26 +428,47 @@ async function createNewsVideo({ title, excerpt, slug, keywords = [] }) {
     script.title = title
     console.log('[VideoGen] Script ready —', script.points.length, 'points')
 
-    // 2. Fetch Pexels cricket image (copyright-safe) — falls back to gradient if not available
-    const bgImagePath = await fetchPexelsImage(title, keywords)
-    const background = bgImagePath || pickTheme(title, keywords)
+    // 2. Try HeyGen first (real talking avatar presenter — $29/month unlimited)
+    let usedHeyGen = false
+    if (process.env.HEYGEN_API_KEY) {
+      const heygenPath = path.join(TMP_DIR, `heygen-${ts}.mp4`)
+      const heygenResult = await generateHeyGenVideo(script.narration, heygenPath)
+      if (heygenResult) {
+        usedHeyGen = true
+        console.log('[VideoGen] HeyGen avatar video ready — adding text overlays...')
+        // Add text overlays (title, key points, logo) on top of HeyGen video
+        await addTextOverlays(script, heygenResult, videoPath)
+        console.log('[VideoGen] Video ready:', videoPath)
+        try { fs.unlinkSync(heygenResult) } catch {}
+      }
+    }
 
-    // 3. Ensure AI presenter image exists (generated once, reused forever)
-    const presenterPath = await ensurePresenterImage()
+    if (!usedHeyGen) {
+      // Fallback: Pexels background + DALL-E static presenter + TTS audio
+      console.log('[VideoGen] Using fallback: Pexels + TTS + AI photo presenter')
 
-    // 4. TTS narration (Indian accent via Google Cloud TTS)
-    const ttsPath = await textToSpeech(script.narration, `narration-${ts}.mp3`)
-    if (!ttsPath) throw new Error('TTS generation failed')
+      // Fetch Pexels cricket image (copyright-safe)
+      const bgImagePath = await fetchPexelsImage(title, keywords)
+      const background = bgImagePath || pickTheme(title, keywords)
 
-    // 5. Audio duration
-    const duration = await getAudioDuration(ttsPath)
-    console.log(`[VideoGen] Audio: ${duration.toFixed(1)}s`)
+      // Ensure AI presenter image exists (generated once, reused forever)
+      const presenterPath = await ensurePresenterImage()
 
-    // 6. Render video with background + AI presenter overlay
-    await buildVideo(script, ttsPath, videoPath, duration, background, presenterPath)
-    console.log('[VideoGen] Video rendered:', videoPath)
+      // TTS narration
+      const ttsPath = await textToSpeech(script.narration, `narration-${ts}.mp3`)
+      if (!ttsPath) throw new Error('TTS generation failed')
 
-    // 6. Upload to YouTube
+      const duration = await getAudioDuration(ttsPath)
+      console.log(`[VideoGen] Audio: ${duration.toFixed(1)}s`)
+
+      await buildVideo(script, ttsPath, videoPath, duration, background, presenterPath)
+      console.log('[VideoGen] Video rendered:', videoPath)
+
+      try { fs.unlinkSync(ttsPath) } catch {}
+      if (bgImagePath) try { fs.unlinkSync(bgImagePath) } catch {}
+    }
+
+    // Upload to YouTube
     const articleUrl = `https://crickettips.ai/blog/${slug}`
     const description = [
       excerpt || title,
@@ -408,11 +490,9 @@ async function createNewsVideo({ title, excerpt, slug, keywords = [] }) {
     })
 
     console.log(`[VideoGen] YouTube upload done: https://youtube.com/watch?v=${videoId}`)
+    try { fs.unlinkSync(videoPath) } catch {}
 
-    // Cleanup
-    ;[ttsPath, videoPath, bgImagePath].forEach(f => { if (f) try { fs.unlinkSync(f) } catch {} })
-
-    return { success: true, videoId, url: `https://youtube.com/watch?v=${videoId}` }
+    return { success: true, videoId, url: `https://youtube.com/watch?v=${videoId}`, presenter: usedHeyGen ? 'heygen' : 'photo' }
   } catch (err) {
     console.error('[VideoGen] Failed:', err.message)
     ;[audioPath, videoPath].forEach(f => { if (f) try { fs.unlinkSync(f) } catch {} })
