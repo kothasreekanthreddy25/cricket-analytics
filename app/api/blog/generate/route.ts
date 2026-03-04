@@ -200,9 +200,17 @@ async function runPipeline(maxPosts: number) {
               slug: post.slug,
               keywords: post.seoKeywords || [],
             }),
-          }).catch((e: any) =>
-            console.warn('[Generate] Video trigger failed (non-fatal):', e.message)
-          )
+            signal: AbortSignal.timeout(10000),
+          })
+            .then(async (r) => {
+              const body = await r.json().catch(() => ({}))
+              console.log(`[Generate] Video queued for "${post.slug}":`, body)
+            })
+            .catch((e: any) =>
+              console.warn('[Generate] Video trigger failed — check STREAMING_SERVICE_URL or service is down:', e.message)
+            )
+        } else {
+          console.warn('[Generate] STREAMING_SERVICE_URL not set — YouTube video generation skipped')
         }
       } catch (err: any) {
         console.error(`[Generate] Error processing article:`, err.message)

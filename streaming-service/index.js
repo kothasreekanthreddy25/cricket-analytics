@@ -701,23 +701,44 @@ app.get('/stream/auto-mode', (req, res) => {
 
 // ─── News Video API ───────────────────────────────────────────────────────────
 //
-//  POST /video/news  { title, excerpt, slug, keywords[] }
-//
-//  Generates a 90-second news recap video and uploads it to YouTube.
-//  Returns immediately with { queued: true } — actual upload runs in background.
+//  POST /video/news    { title, excerpt, slug, keywords[] }  — queue a video job
+//  POST /video/test    { }  — queue a test video with dummy content
+//  GET  /video/status  — current queue status
+//  GET  /video/recent  — last 20 completed job results
+//  GET  /video/diagnose — check all required env vars + tools
 
 const videoQueue = []
 let videoJobRunning = false
+const recentVideoJobs = []  // stores last 20 results
+
+function recordJobResult(job, result) {
+  recentVideoJobs.unshift({
+    slug: job.slug,
+    title: job.title?.slice(0, 80),
+    success: result.success,
+    url: result.url || null,
+    error: result.error || null,
+    at: new Date().toISOString(),
+  })
+  if (recentVideoJobs.length > 20) recentVideoJobs.pop()
+}
 
 async function processVideoQueue() {
   if (videoJobRunning || videoQueue.length === 0) return
   videoJobRunning = true
   const job = videoQueue.shift()
+  console.log(`[VideoQueue] Processing: "${job.title?.slice(0, 60)}"`)
   try {
     const result = await createNewsVideo(job)
-    console.log(`[VideoQueue] Done: ${result.success ? result.url : result.error}`)
+    recordJobResult(job, result)
+    if (result.success) {
+      console.log(`[VideoQueue] ✓ Done: ${result.url}`)
+    } else {
+      console.error(`[VideoQueue] ✗ Failed: ${result.error}`)
+    }
   } catch (err) {
     console.error('[VideoQueue] Unexpected error:', err.message)
+    recordJobResult(job, { success: false, error: err.message })
   } finally {
     videoJobRunning = false
     if (videoQueue.length > 0) processVideoQueue()
@@ -735,8 +756,70 @@ app.post('/video/news', (req, res) => {
   res.json({ queued: true, queueLength: videoQueue.length, slug })
 })
 
+// Manual test — creates a short test video with dummy cricket content
+app.post('/video/test', (req, res) => {
+  const testJob = {
+    title: 'Test: CricketTips.ai News Video Generation',
+    excerpt: 'This is an automated test of the YouTube news video pipeline for CricketTips.ai. The pipeline converts blog posts into short YouTube videos.',
+    slug: `test-video-${Date.now()}`,
+    keywords: ['cricket', 'test', 'crickettips'],
+  }
+  videoQueue.push(testJob)
+  console.log('[VideoQueue] Test video queued')
+  processVideoQueue()
+  res.json({ queued: true, message: 'Test video job queued — check /video/recent in a few minutes' })
+})
+
 app.get('/video/status', (req, res) => {
-  res.json({ running: videoJobRunning, queued: videoQueue.length })
+  res.json({
+    running: videoJobRunning,
+    queued: videoQueue.length,
+    queuedJobs: videoQueue.map(j => ({ slug: j.slug, title: j.title?.slice(0, 60) })),
+  })
+})
+
+app.get('/video/recent', (req, res) => {
+  res.json({ jobs: recentVideoJobs })
+})
+
+// Diagnose: check env vars and tools needed for video generation
+app.get('/video/diagnose', async (req, res) => {
+  const { execSync } = require('child_process')
+
+  const checks = {
+    env: {
+      OPENAI_API_KEY: !!process.env.OPENAI_API_KEY,
+      GOOGLE_TTS_API_KEY: !!process.env.GOOGLE_TTS_API_KEY,
+      YOUTUBE_CLIENT_ID: !!process.env.YOUTUBE_CLIENT_ID,
+      YOUTUBE_CLIENT_SECRET: !!process.env.YOUTUBE_CLIENT_SECRET,
+      YOUTUBE_REFRESH_TOKEN: !!process.env.YOUTUBE_REFRESH_TOKEN,
+    },
+    tools: {},
+    ready: false,
+  }
+
+  // Check ffmpeg
+  try {
+    execSync('ffmpeg -version', { stdio: 'pipe' })
+    checks.tools.ffmpeg = true
+  } catch {
+    checks.tools.ffmpeg = false
+  }
+  // Check ffprobe
+  try {
+    execSync('ffprobe -version', { stdio: 'pipe' })
+    checks.tools.ffprobe = true
+  } catch {
+    checks.tools.ffprobe = false
+  }
+
+  checks.ready = (checks.env.OPENAI_API_KEY || checks.env.GOOGLE_TTS_API_KEY) &&
+    checks.env.YOUTUBE_CLIENT_ID &&
+    checks.env.YOUTUBE_CLIENT_SECRET &&
+    checks.env.YOUTUBE_REFRESH_TOKEN &&
+    checks.tools.ffmpeg
+
+  res.json(checks)
 })
 
 // ─── Start Server ─────────────────────────────────────────────────────────────

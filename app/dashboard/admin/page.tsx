@@ -121,6 +121,17 @@ export default async function AdminDashboard() {
             </div>
             <p className="text-sm text-red-600">Start AI-powered live cricket stream</p>
           </Link>
+
+          <Link
+            href="/dashboard/admin/videos"
+            className="bg-purple-50 rounded-lg shadow p-6 hover:shadow-lg transition-shadow border border-purple-100"
+          >
+            <div className="flex items-center gap-2 mb-2">
+              <Youtube className="h-5 w-5 text-purple-600" />
+              <h3 className="text-lg font-semibold text-purple-700">News Videos</h3>
+            </div>
+            <p className="text-sm text-purple-600">Auto-generated blog post videos</p>
+          </Link>
         </div>
 
         {/* Recent Tips */}
