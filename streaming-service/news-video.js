@@ -221,116 +221,106 @@ async function buildVideo(script, audioPath, outputPath, duration, themeOrImage,
   const pointsFile = path.join(TMP_DIR, `points-${id}.txt`)
   const ctaFile    = path.join(TMP_DIR, `cta-${id}.txt`)
 
-  const wrappedTitle = wrapText(script.title || '', 36)
-  const wrappedPoints = script.points
-    .map((p, i) => `${i + 1}. ${wrapText(p, 42)}`)
-    .join('\n\n')
-
-  fs.writeFileSync(titleFile,  wrappedTitle)
-  fs.writeFileSync(pointsFile, wrappedPoints)
+  fs.writeFileSync(titleFile,  wrapText(script.title || '', 36))
+  fs.writeFileSync(pointsFile, script.points.map((p, i) => `${i + 1}. ${wrapText(p, 42)}`).join('\n\n'))
   fs.writeFileSync(ctaFile,    'Visit crickettips.ai for daily AI cricket predictions\nSubscribe for more cricket news and tips!')
 
   const titleEnd  = Math.min(7, duration * 0.1)
   const pointsEnd = Math.max(duration - 5, titleEnd + 10)
 
-  // Determine if we have a real image path or a gradient theme object
-  const useImage = typeof themeOrImage === 'string' && fs.existsSync(themeOrImage)
-  const theme    = useImage ? null : (themeOrImage || BG_THEMES[0])
+  const useImage    = typeof themeOrImage === 'string' && fs.existsSync(themeOrImage)
+  const theme       = useImage ? null : (themeOrImage || BG_THEMES[0])
+  const hasPresenter = !!(presenterImagePath && fs.existsSync(presenterImagePath))
 
-  const overlayFilters = [
-    // ── Semi-transparent dark panel over image for readability ──
+  // Presenter placed bottom-right: x=870, y=330, 380x300px → bottom edge = y=630
+  // Name bar goes below the image at y=634 (630 + 4px gap)
+  const PRES_X = 870, PRES_Y = 330, PRES_W = 380, PRES_H = 300
+  const NAME_Y = PRES_Y + PRES_H + 4   // y=634
+
+  // Text content width: narrower when presenter shown to avoid overlap
+  const textMaxX = hasPresenter ? 840 : 1240
+
+  const textFilters = [
+    // ── Semi-transparent dark panel over Pexels image for readability ──
     ...(useImage ? [`drawbox=x=0:y=0:w=iw:h=ih:color=black@0.52:t=fill`] : []),
-
     // ── Green accent bar at top ──
     `drawbox=x=0:y=0:w=iw:h=5:color=0x10b981:t=fill`,
-
     // ── Bottom bar ──
     `drawbox=x=0:y=696:w=iw:h=24:color=black@0.7:t=fill`,
-
-    // ── Always visible: logo + date + footer ──
+    // ── Logo + date + footer ──
     `drawtext=fontfile=${FONT_BOLD}:text='CricketTips.ai':fontsize=30:fontcolor=0x10b981:x=40:y=18`,
     `drawtext=fontfile=${FONT_REG}:text='${new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}':fontsize=15:fontcolor=0xd1d5db:x=1020:y=24`,
     `drawtext=fontfile=${FONT_REG}:text='AI-powered cricket analysis  •  crickettips.ai':fontsize=16:fontcolor=0x9ca3af:x=40:y=700`,
-
-    // ── Title slide (0 → titleEnd) ──
-    `drawbox=x=30:y=68:w=iw-60:h=3:color=0xef4444:t=fill:enable='between(t\\,0\\,${titleEnd})'`,
+    // ── Title slide ──
+    `drawbox=x=30:y=68:w=${textMaxX - 30}:h=3:color=0xef4444:t=fill:enable='between(t\\,0\\,${titleEnd})'`,
     `drawtext=fontfile=${FONT_BOLD}:text='BREAKING NEWS':fontsize=18:fontcolor=0xef4444:x=40:y=78:enable='between(t\\,0\\,${titleEnd})'`,
     `drawtext=fontfile=${FONT_BOLD}:textfile=${titleFile}:fontsize=42:fontcolor=white:x=40:y=122:line_spacing=12:enable='between(t\\,0\\,${titleEnd})'`,
-
-    // ── Key points slide (titleEnd → pointsEnd) ──
-    `drawbox=x=30:y=68:w=iw-60:h=3:color=0x10b981:t=fill:enable='between(t\\,${titleEnd}\\,${pointsEnd})'`,
+    // ── Key points slide ──
+    `drawbox=x=30:y=68:w=${textMaxX - 30}:h=3:color=0x10b981:t=fill:enable='between(t\\,${titleEnd}\\,${pointsEnd})'`,
     `drawtext=fontfile=${FONT_BOLD}:text='KEY POINTS':fontsize=18:fontcolor=0x10b981:x=40:y=78:enable='between(t\\,${titleEnd}\\,${pointsEnd})'`,
     `drawtext=fontfile=${FONT_REG}:textfile=${pointsFile}:fontsize=27:fontcolor=white:x=40:y=122:line_spacing=14:enable='between(t\\,${titleEnd}\\,${pointsEnd})'`,
-
-    // ── CTA slide (pointsEnd → end) ──
-    `drawbox=x=30:y=68:w=iw-60:h=3:color=0xfbbf24:t=fill:enable='gte(t\\,${pointsEnd})'`,
+    // ── CTA slide ──
+    `drawbox=x=30:y=68:w=${textMaxX - 30}:h=3:color=0xfbbf24:t=fill:enable='gte(t\\,${pointsEnd})'`,
     `drawtext=fontfile=${FONT_BOLD}:text='SUBSCRIBE FOR MORE':fontsize=24:fontcolor=0xfbbf24:x=40:y=230:enable='gte(t\\,${pointsEnd})'`,
     `drawtext=fontfile=${FONT_REG}:textfile=${ctaFile}:fontsize=28:fontcolor=white:x=40:y=295:line_spacing=14:enable='gte(t\\,${pointsEnd})'`,
+    // ── Presenter name bar — below image (image ends at PRES_Y+PRES_H=630) ──
+    ...(hasPresenter ? [
+      `drawbox=x=${PRES_X - 10}:y=${NAME_Y}:w=${PRES_W + 10}:h=34:color=0x10b981@0.92:t=fill`,
+      `drawtext=fontfile=${FONT_BOLD}:text='Priya Sharma  |  CricketTips.ai':fontsize=15:fontcolor=white:x=${PRES_X}:y=${NAME_Y + 9}`,
+    ] : []),
   ]
 
-  // ── Presenter lower-third (name bar below the anchor image) ──
-  // Placed bottom-right: image at x=870, y=340, size 380x320
-  const hasPresenter = presenterImagePath && fs.existsSync(presenterImagePath)
-  if (hasPresenter) {
-    overlayFilters.push(
-      // Dark panel behind presenter
-      `drawbox=x=858:y=338:w=404:h=344:color=black@0.6:t=fill`,
-      // Lower-third name bar
-      `drawbox=x=858:y=644:w=404:h=38:color=0x10b981@0.92:t=fill`,
-      `drawtext=fontfile=${FONT_BOLD}:text='Priya Sharma':fontsize=16:fontcolor=white:x=870:y=652`,
-      `drawtext=fontfile=${FONT_REG}:text='CricketTips.ai Anchor':fontsize=13:fontcolor=0xd1fae5:x=870:y=670`
-    )
-  }
-
-  const overlays = overlayFilters.join(',')
-
-  // Build base video filter
-  let baseVf
-  if (useImage) {
-    baseVf = `scale=1280:720:force_original_aspect_ratio=increase,crop=1280:720,${overlays}`
-  } else {
-    const c1 = theme.color1, c2 = theme.color2
+  // Build gradient expression for non-image backgrounds
+  function gradientFilter(c1, c2) {
     const c1r = parseInt(c1.slice(2,4),16), c1g = parseInt(c1.slice(4,6),16), c1b = parseInt(c1.slice(6,8),16)
     const c2r = parseInt(c2.slice(2,4),16), c2g = parseInt(c2.slice(4,6),16), c2b = parseInt(c2.slice(6,8),16)
-    const gradBg = `geq=r='${c1r}+(${c2r-c1r})*Y/H':g='${c1g}+(${c2g-c1g})*Y/H':b='${c1b}+(${c2b-c1b})*Y/H'`
-    baseVf = `${gradBg},${overlays}`
+    return `geq=r='${c1r}+(${c2r-c1r})*Y/H':g='${c1g}+(${c2g-c1g})*Y/H':b='${c1b}+(${c2b-c1b})*Y/H'`
   }
 
   let args
-  if (hasPresenter) {
-    // 3 inputs: background, audio, presenter image
-    // filter_complex: [0:v] background processing → [bg]; [2:v] presenter scaling → [anchor]; overlay
-    const bgInput = useImage
-      ? `[0:v]scale=1280:720:force_original_aspect_ratio=increase,crop=1280:720,${overlays}[bg]`
-      : (() => {
-          const c1 = theme.color1, c2 = theme.color2
-          const c1r = parseInt(c1.slice(2,4),16), c1g = parseInt(c1.slice(4,6),16), c1b = parseInt(c1.slice(6,8),16)
-          const c2r = parseInt(c2.slice(2,4),16), c2g = parseInt(c2.slice(4,6),16), c2b = parseInt(c2.slice(6,8),16)
-          return `[0:v]geq=r='${c1r}+(${c2r-c1r})*Y/H':g='${c1g}+(${c2g-c1g})*Y/H':b='${c1b}+(${c2b-c1b})*Y/H',${overlays}[bg]`
-        })()
-    const presenterInput = useImage
-      ? `[2:v]scale=380:320[anchor]`
-      : `[2:v]scale=380:320[anchor]`
-    const filterComplex = `${bgInput};${presenterInput};[bg][anchor]overlay=x=870:y=340`
 
-    const bgArgs = useImage ? ['-loop', '1', '-i', themeOrImage] : ['-f', 'lavfi', '-i', `color=c=black:s=1280x720:r=25`]
+  if (hasPresenter) {
+    // ── 3 inputs: [0]=bg, [1]=audio, [2]=presenter image ──
+    // filter_complex: background + text overlays → [bg]; scale presenter → [anchor]; overlay → [out]
+    const bgChain = useImage
+      ? `[0:v]scale=1280:720:force_original_aspect_ratio=increase,crop=1280:720,${textFilters.join(',')}`
+      : `[0:v]${gradientFilter(theme.color1, theme.color2)},${textFilters.filter(f => !f.startsWith('drawbox=x=0:y=0:w=iw:h=ih')).join(',')}`
+
+    const filterComplex = [
+      `${bgChain}[bg]`,
+      `[2:v]scale=${PRES_W}:${PRES_H}[anchor]`,
+      `[bg][anchor]overlay=x=${PRES_X}:y=${PRES_Y}[out]`,
+    ].join(';')
+
+    const bgInput = useImage
+      ? ['-loop', '1', '-i', themeOrImage]
+      : ['-f', 'lavfi', '-i', `color=c=black:s=1280x720:r=25`]
+
     args = [
-      ...bgArgs,
+      ...bgInput,
       '-i', audioPath,
       '-loop', '1', '-i', presenterImagePath,
       '-filter_complex', filterComplex,
+      '-map', '[out]',   // ← correct: map the filter_complex output
+      '-map', '1:a',
       '-c:v', 'libx264', '-preset', 'veryfast', '-b:v', '2000k', '-g', '50',
       '-c:a', 'aac', '-b:a', '128k', '-ar', '44100',
-      '-map', '0:v', '-map', '1:a',
       '-t', String(Math.ceil(duration) + 1), '-shortest', '-y', outputPath,
     ]
   } else {
-    // No presenter — simple single-input render
-    const bgArgs = useImage ? ['-loop', '1', '-i', themeOrImage] : ['-f', 'lavfi', '-i', `color=c=black:s=1280x720:r=25`]
+    // ── 2 inputs: [0]=bg, [1]=audio — simple -vf pipeline ──
+    const vfChain = useImage
+      ? textFilters.join(',')
+      : `${gradientFilter(theme.color1, theme.color2)},${textFilters.filter(f => !f.startsWith('drawbox=x=0:y=0:w=iw:h=ih')).join(',')}`
+
+    const bgInput = useImage
+      ? ['-loop', '1', '-i', themeOrImage]
+      : ['-f', 'lavfi', '-i', `color=c=black:s=1280x720:r=25`]
+
     args = [
-      ...bgArgs,
+      ...bgInput,
       '-i', audioPath,
-      '-vf', baseVf,
+      '-vf', vfChain,
       '-c:v', 'libx264', '-preset', 'veryfast', '-b:v', '2000k', '-g', '50',
       '-c:a', 'aac', '-b:a', '128k', '-ar', '44100',
       '-t', String(Math.ceil(duration) + 1), '-shortest', '-y', outputPath,
@@ -338,7 +328,7 @@ async function buildVideo(script, audioPath, outputPath, duration, themeOrImage,
   }
 
   return new Promise((resolve, reject) => {
-    console.log(`[VideoGen] Rendering — bg: ${useImage ? 'Pexels' : 'gradient'}, presenter: ${hasPresenter ? 'Priya Sharma' : 'none'} ...`)
+    console.log(`[VideoGen] Rendering — bg: ${useImage ? 'Pexels' : 'gradient'}, presenter: ${hasPresenter ? 'yes' : 'none'} ...`)
     const proc = spawn('ffmpeg', args, { stdio: ['pipe', 'pipe', 'pipe'] })
 
     proc.stderr.on('data', d => {
