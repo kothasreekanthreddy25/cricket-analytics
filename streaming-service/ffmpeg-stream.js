@@ -1,28 +1,27 @@
 /**
- * FFmpeg Stream Manager — 1280×720 Full Overlay
+ * FFmpeg Stream Manager — 854×480 Full Overlay
  *
  * Layout:
  *
  * ┌──────────────────────────────────────────────────────────────────────────────┐
- * │ TOP BAR: CricketTips.ai  ●LIVE  📱@crickettipsai  🔔SUBSCRIBE+LIKE          │ 0-65px
- * ├─────────────────────────────────────┬────────────────────────────────────────┤
- * │ LEFT PANEL (x 0-760)                │ RIGHT PANEL — LIVE CHAT (x 768-1275)   │
- * │  Score box                          │  💬 LIVE CHAT header                   │
- * │  1st-inn projected / 2nd-inn chase  │  User1: message...                     │
- * │  BATTING                            │  ────────────────────                  │
- * │    Striker  runs(balls) SR 4s 6s    │  User2: message...                     │
- * │    Tourn: runs | Avg | SR           │  ────────────────────                  │
- * │    Career T20I: Avg | SR            │  User3: message...                     │
- * │    Form: last 5 scores              │  ────────────────────                  │
- * │    Non-striker (same 3 lines)       │  User4: message...                     │
- * │  BOWLING  bowler stats              │                                        │
- * │  AI COMMENTARY                      │  ╔══════════════════╗                  │
- * │  TOURNAMENT STATS                   │  ║  SIX! / FOUR!    ║  (dynamic)       │
- * │                                     │  ║  WICKET!         ║                  │
- * │                                     │  ╚══════════════════╝                  │
- * ├─────────────────────────────────────┴────────────────────────────────────────┤
- * │ BOTTOM BAR: @crickettipsai on Telegram  |  🔔 SUBSCRIBE  👍 LIKE             │ 690-720px
+ * │ TOP BAR: AI Cricket Commentary  ●LIVE                   SUBSCRIBE + LIKE     │ 0-44px
+ * ├──────────────────────────────────────────────────────────────────────────────┤
+ * │ SCORE BOX                                                                    │ 47-97px
+ * │ INNINGS CONTEXT (CRR / TARGET / RRR)                                         │ 98-124px
+ * │ BATTING / BOWLING player stats                                               │ 128-218px
+ * │ AI COMMENTARY                                                                │ 224-262px
+ * │ PITCH REPORT banner (when set)                                               │ 266-292px
+ * │ ANNOUNCEMENT banner (when set, flashing)                                     │ 296-326px
+ * │ EVENT BANNER (SIX! / FOUR! / WICKET!)                                        │ 340-410px
+ * │                         (blank space)                                        │
+ * ├──────────────────────────────────────────────────────────────────────────────┤
+ * │ BOTTOM BAR                                                                   │ 454-480px
  * └──────────────────────────────────────────────────────────────────────────────┘
+ *
+ * Audio:
+ *   Named FIFO → single persistent write end (r+ flag, avoids blocking).
+ *   Only ONE writer at a time: silence loop OR TTS audio (never both).
+ *   Audio conversion uses -re flag to write at real-time speed (prevents deadlock).
  */
 
 const { spawn, execSync } = require('child_process')
@@ -34,16 +33,19 @@ const COMMENTARY_FILE     = '/tmp/crickettips-commentary.txt'
 const EVENT_FILE          = '/tmp/crickettips-event.txt'
 const FIELD_FILE          = '/tmp/crickettips-field.txt'
 const AUDIO_FIFO          = '/tmp/crickettips-audio.pipe'
-const CONTEXT_FILE        = '/tmp/crickettips-context.txt'    // projected score or chase info
-const BATSMAN1_FILE       = '/tmp/crickettips-batsman1.txt'   // striker match stats
-const BATSMAN1_TOURN_FILE = '/tmp/crickettips-bat1tourn.txt'  // striker tourn + career
-const BATSMAN1_CAREER_FILE= '/tmp/crickettips-bat1career.txt' // striker career T20I + form
-const BATSMAN2_FILE       = '/tmp/crickettips-batsman2.txt'   // non-striker match stats
-const BATSMAN2_TOURN_FILE = '/tmp/crickettips-bat2tourn.txt'  // non-striker tourn
-const BATSMAN2_CAREER_FILE= '/tmp/crickettips-bat2career.txt' // non-striker career + form
+const CONTEXT_FILE        = '/tmp/crickettips-context.txt'
+const BATSMAN1_FILE       = '/tmp/crickettips-batsman1.txt'
+const BATSMAN1_TOURN_FILE = '/tmp/crickettips-bat1tourn.txt'
+const BATSMAN1_CAREER_FILE= '/tmp/crickettips-bat1career.txt'
+const BATSMAN2_FILE       = '/tmp/crickettips-batsman2.txt'
+const BATSMAN2_TOURN_FILE = '/tmp/crickettips-bat2tourn.txt'
+const BATSMAN2_CAREER_FILE= '/tmp/crickettips-bat2career.txt'
 const BOWLER_STATS_FILE   = '/tmp/crickettips-bowler-stats.txt'
 const TOURN_RUNS_FILE     = '/tmp/crickettips-tourn-runs.txt'
 const TOURN_WKTS_FILE     = '/tmp/crickettips-tourn-wkts.txt'
+const PITCH_REPORT_FILE   = '/tmp/crickettips-pitch.txt'      // pitch conditions overlay
+const ANNOUNCE_FILE       = '/tmp/crickettips-announce.txt'   // custom announcement overlay
+
 // Chat message slots (4 slots, 2 files each: username + message)
 const CHAT1U = '/tmp/crickettips-c1u.txt'
 const CHAT1M = '/tmp/crickettips-c1m.txt'
@@ -64,6 +66,7 @@ let ffmpegProcess   = null
 let audioQueue      = []
 let isPlayingAudio  = false
 let eventClearTimer = null
+let announceTimer   = null   // auto-clear announcement after 30s
 
 // Chat ring buffer — oldest first, newest last
 const chatBuffer = []
@@ -73,11 +76,10 @@ const MAX_CHAT   = 4
 
 const cap = (v, len = 72) => String(v || ' ').slice(0, len) || ' '
 
-/** Strip characters that break FFmpeg drawtext when reading from a file */
 function sanitizeText(str) {
   return String(str || '')
-    .replace(/[\u0000-\u001F\u007F]/g, ' ')  // control chars
-    .replace(/[%\\]/g, ' ')                   // ffmpeg special chars
+    .replace(/[\u0000-\u001F\u007F]/g, ' ')
+    .replace(/[%\\]/g, ' ')
     .replace(/\s+/g, ' ')
     .trim() || ' '
 }
@@ -99,9 +101,9 @@ function initFiles(teamA, teamB) {
   fs.writeFileSync(BOWLER_STATS_FILE,   ' ')
   fs.writeFileSync(TOURN_RUNS_FILE,     ' ')
   fs.writeFileSync(TOURN_WKTS_FILE,     ' ')
+  fs.writeFileSync(PITCH_REPORT_FILE,   ' ')
+  fs.writeFileSync(ANNOUNCE_FILE,       ' ')
   for (const f of [...CHAT_USER_FILES, ...CHAT_MSG_FILES]) fs.writeFileSync(f, ' ')
-
-  // Audio via anullsrc (no FIFO needed)
 }
 
 // ─── Update functions ──────────────────────────────────────────────────────────
@@ -110,10 +112,6 @@ function updateScore(scoreText) {
   fs.writeFileSync(SCORE_FILE, cap(scoreText, 62))
 }
 
-/**
- * 1st innings: "PROJECTED TOTAL: 178-195  (CRR: 8.52)"
- * 2nd innings: "TARGET: 195  |  NEED 67 off 42 balls  |  RRR: 9.6"
- */
 function updateInningsContext(contextText) {
   fs.writeFileSync(CONTEXT_FILE, cap(contextText, 72))
 }
@@ -133,10 +131,37 @@ function updateEvent(text, field = '') {
 }
 
 /**
- * Update batting + bowling stat lines.
- * striker / nonStriker: { name, runs, balls, fours, sixes, strikeRate }
- * bowler:               { name, overs, runs, wickets, economy }
+ * Show a pitch report banner on the stream.
+ * Stays on screen until cleared or replaced.
+ * @param {string} text  e.g. "PITCH: Dry surface, good for spinners. Expected to assist turn."
  */
+function updatePitchReport(text) {
+  fs.writeFileSync(PITCH_REPORT_FILE, cap(sanitizeText(text), 90))
+}
+
+function clearPitchReport() {
+  fs.writeFileSync(PITCH_REPORT_FILE, ' ')
+}
+
+/**
+ * Show a custom announcement banner on the stream for 30 seconds (auto-clears).
+ * Also queued for TTS so it gets spoken on stream.
+ * @param {string} text  e.g. "NZ need 45 runs from 30 balls!"
+ */
+function updateAnnouncement(text) {
+  fs.writeFileSync(ANNOUNCE_FILE, cap(sanitizeText(text), 80))
+  if (announceTimer) clearTimeout(announceTimer)
+  announceTimer = setTimeout(() => {
+    fs.writeFileSync(ANNOUNCE_FILE, ' ')
+    announceTimer = null
+  }, 30000)
+}
+
+function clearAnnouncement() {
+  if (announceTimer) { clearTimeout(announceTimer); announceTimer = null }
+  fs.writeFileSync(ANNOUNCE_FILE, ' ')
+}
+
 function updateCurrentPlayers(striker, nonStriker, bowler) {
   if (striker?.name) {
     const sr = striker.strikeRate != null ? Number(striker.strikeRate).toFixed(1) : '-'
@@ -167,11 +192,6 @@ function updateCurrentPlayers(striker, nonStriker, bowler) {
   }
 }
 
-/**
- * Update tournament + career stats shown beneath each batsman.
- * @param {{ tourn: string, career: string }|null} strikerExtra
- * @param {{ tourn: string, career: string }|null} nonStrikerExtra
- */
 function updatePlayerExtras(strikerExtra, nonStrikerExtra) {
   fs.writeFileSync(BATSMAN1_TOURN_FILE,  cap(strikerExtra?.tourn  || ' ', 76))
   fs.writeFileSync(BATSMAN1_CAREER_FILE, cap(strikerExtra?.career || ' ', 76))
@@ -194,10 +214,6 @@ function updateTournamentStats(topScorers, topWicketTakers) {
   }
 }
 
-/**
- * Push new YouTube live chat messages into the 4-slot overlay.
- * @param {Array<{ username: string, message: string }>} messages  newest messages
- */
 function updateChat(messages) {
   if (!messages?.length) return
 
@@ -209,7 +225,6 @@ function updateChat(messages) {
     if (chatBuffer.length > MAX_CHAT) chatBuffer.shift()
   }
 
-  // Slot 1 = oldest visible, slot 4 = newest
   for (let i = 0; i < MAX_CHAT; i++) {
     const slot = chatBuffer[i]
     fs.writeFileSync(CHAT_USER_FILES[i], slot ? slot.username : ' ')
@@ -217,12 +232,129 @@ function updateChat(messages) {
   }
 }
 
+// ─── Audio FIFO ─────────────────────────────────────────────────────────────────
+//
+// Architecture:
+//   fifoWriteStream — persistent write handle (r+ = O_RDWR, non-blocking on FIFO)
+//   silenceProc     — FFmpeg generating silence, stdout piped to fifoWriteStream
+//   audioConvProc   — FFmpeg converting TTS file, stdout piped to fifoWriteStream
+//
+//   Rule: only ONE of silenceProc / audioConvProc runs at a time.
+//   When audio is queued: kill silenceProc → start audioConvProc → when done → restart silence.
+//   The -re flag on audioConvProc ensures it outputs at real-time speed → prevents FIFO overflow.
+
+let fifoWriteStream = null
+let silenceProc     = null
+let audioConvProc   = null
+let _isWritingAudio = false
+
+function _pipeTo(proc) {
+  proc.stdout.on('data', (chunk) => {
+    if (fifoWriteStream && !fifoWriteStream.destroyed) {
+      if (!fifoWriteStream.write(chunk)) {
+        proc.stdout.pause()
+        fifoWriteStream.once('drain', () => proc.stdout.resume())
+      }
+    }
+  })
+}
+
+function _writeSilence() {
+  if (!ffmpegProcess || _isWritingAudio) return
+  if (silenceProc) return   // already running
+
+  silenceProc = spawn('ffmpeg', [
+    '-f', 'lavfi', '-i', 'anullsrc=r=44100:cl=stereo',
+    '-t', '2',     // 2-second silence chunk
+    '-f', 's16le', '-ar', '44100', '-ac', '2',
+    'pipe:1',
+  ], { stdio: ['ignore', 'pipe', 'pipe'] })
+
+  _pipeTo(silenceProc)
+
+  silenceProc.on('close', () => {
+    silenceProc = null
+    if (!_isWritingAudio && ffmpegProcess) {
+      if (audioQueue.length > 0) _processNextAudio()
+      else _writeSilence()
+    }
+  })
+  silenceProc.on('error', (err) => {
+    console.warn('[Silence]', err.message)
+    silenceProc = null
+    if (!_isWritingAudio && ffmpegProcess) setTimeout(_writeSilence, 500)
+  })
+}
+
+function _processNextAudio() {
+  if (!ffmpegProcess) { isPlayingAudio = false; _isWritingAudio = false; return }
+
+  if (audioQueue.length === 0) {
+    _isWritingAudio = false
+    isPlayingAudio  = false
+    _writeSilence()
+    return
+  }
+
+  // Kill silence proc to ensure single writer
+  if (silenceProc) { silenceProc.kill('SIGKILL'); silenceProc = null }
+
+  const filePath = audioQueue.shift()
+  if (!filePath || !fs.existsSync(filePath)) {
+    // Skip missing files
+    _processNextAudio()
+    return
+  }
+
+  _isWritingAudio = true
+  isPlayingAudio  = true
+
+  audioConvProc = spawn('ffmpeg', [
+    '-re',          // CRITICAL: real-time output prevents FIFO overflow / deadlock
+    '-i', filePath,
+    '-f', 's16le', '-ar', '44100', '-ac', '2',
+    'pipe:1',
+  ], { stdio: ['ignore', 'pipe', 'pipe'] })
+
+  _pipeTo(audioConvProc)
+
+  audioConvProc.on('close', () => {
+    audioConvProc   = null
+    _isWritingAudio = false
+    isPlayingAudio  = false
+    // Brief pause so FIFO reader doesn't stall between clips (≤50ms is fine —
+    // kernel FIFO buffer holds ~370ms of audio at 44100 Hz stereo 16-bit)
+    setTimeout(_processNextAudio, 50)
+  })
+  audioConvProc.on('error', (err) => {
+    console.error('[AudioConv]', err.message)
+    audioConvProc   = null
+    _isWritingAudio = false
+    isPlayingAudio  = false
+    setTimeout(_processNextAudio, 500)
+  })
+}
+
+function _openAudioFIFO() {
+  try { execSync(`rm -f "${AUDIO_FIFO}" && mkfifo "${AUDIO_FIFO}"`) } catch (e) {
+    console.warn('[FIFO] setup:', e.message)
+  }
+  // r+ (O_RDWR) opens without blocking — no reader required at this point.
+  fifoWriteStream = fs.createWriteStream(AUDIO_FIFO, { flags: 'r+' })
+  fifoWriteStream.on('error', (err) => console.warn('[FIFO write]', err.message))
+}
+
 // ─── FFmpeg stream ─────────────────────────────────────────────────────────────
 
 function startFFmpeg(rtmpUrl) {
+  // Set up audio FIFO before starting FFmpeg so the write end is open
+  _openAudioFIFO()
+
   const args = [
+    // Video: solid dark background at 854×480 25fps, real-time
     '-re', '-f', 'lavfi', '-i', `color=c=0x0a0f1a:s=854x480:r=25`,
-    '-f', 'lavfi', '-i', 'anullsrc=channel_layout=stereo:sample_rate=44100',
+    // Audio: raw PCM from FIFO — one persistent writer (silence or TTS)
+    '-f', 's16le', '-ar', '44100', '-ac', '2', '-i', AUDIO_FIFO,
     '-vf', buildVideoFilter(),
     '-c:v', 'libx264', '-preset', 'ultrafast', '-tune', 'zerolatency', '-b:v', '800k', '-g', '25',
     '-c:a', 'aac', '-b:a', '128k', '-ar', '44100',
@@ -243,6 +375,9 @@ function startFFmpeg(rtmpUrl) {
     console.log(`[FFmpeg] Process exited with code ${code}`)
     ffmpegProcess = null
   })
+
+  // Start audio silence loop — FFmpeg will unblock reading from FIFO once it opens it
+  setTimeout(_writeSilence, 200)
 
   return ffmpegProcess
 }
@@ -287,15 +422,26 @@ function buildVideoFilter() {
   f.push(`drawbox=x=5:y=198:w=844:h=22:color=0xef4444@0.07:t=fill`)
   f.push(`drawtext=fontfile=${FONT_BOLD}:textfile=${BOWLER_STATS_FILE}:fontsize=12:fontcolor=white:x=10:y=203:reload=1`)
 
-  // AI COMMENTARY  y=224-260
+  // AI COMMENTARY  y=224-262
   f.push(`drawbox=x=5:y=224:w=844:h=38:color=0x0f172a:t=fill`)
   f.push(`drawbox=x=5:y=224:w=844:h=2:color=0xfbbf24:t=fill`)
   f.push(`drawtext=fontfile=${FONT_REG}:textfile=${COMMENTARY_FILE}:fontsize=13:fontcolor=0xfbbf24:x=10:y=234:reload=1`)
 
-  // EVENT BANNER (center)  y=270-340
-  f.push(`drawbox=x=200:y=270:w=454:h=70:color=0x0f172a@0.90:t=fill`)
-  f.push(`drawbox=x=200:y=270:w=454:h=3:color=0x10b981:t=fill`)
-  f.push(`drawtext=fontfile=${FONT_BOLD}:textfile=${EVENT_FILE}:fontsize=44:fontcolor=0xfbbf24:x=220:y=280:reload=1`)
+  // PITCH REPORT banner  y=266-290  (hidden when text is blank)
+  f.push(`drawbox=x=5:y=266:w=844:h=24:color=0x1e3a5f:t=fill`)
+  f.push(`drawbox=x=5:y=266:w=3:h=24:color=0x3b82f6:t=fill`)
+  f.push(`drawtext=fontfile=${FONT_BOLD}:textfile=${PITCH_REPORT_FILE}:fontsize=12:fontcolor=0x93c5fd:x=14:y=274:reload=1`)
+
+  // ANNOUNCEMENT banner  y=296-324  (highlighted, auto-clears after 30s)
+  f.push(`drawbox=x=5:y=296:w=844:h=28:color=0x422006:t=fill`)
+  f.push(`drawbox=x=5:y=296:w=3:h=28:color=0xfbbf24:t=fill`)
+  f.push(`drawtext=fontfile=${FONT_BOLD}:textfile=${ANNOUNCE_FILE}:fontsize=14:fontcolor=0xfde68a:x=14:y=306:reload=1`)
+
+  // EVENT BANNER (center)  y=340-410
+  f.push(`drawbox=x=200:y=340:w=454:h=70:color=0x0f172a@0.90:t=fill`)
+  f.push(`drawbox=x=200:y=340:w=454:h=3:color=0x10b981:t=fill`)
+  f.push(`drawtext=fontfile=${FONT_BOLD}:textfile=${EVENT_FILE}:fontsize=44:fontcolor=0xfbbf24:x=220:y=350:reload=1`)
+  f.push(`drawtext=fontfile=${FONT_REG}:textfile=${FIELD_FILE}:fontsize=13:fontcolor=0x6ee7b7:x=220:y=398:reload=1`)
 
   // BOTTOM BAR  y=454-480
   f.push(`drawbox=x=0:y=454:w=854:h=26:color=0x0f172a:t=fill`)
@@ -305,50 +451,32 @@ function buildVideoFilter() {
   return f.join(',')
 }
 
-// ─── Audio helpers ─────────────────────────────────────────────────────────────
-
-function startSilenceWriter() {
-  const SAMPLE_RATE = 44100
-  const CHANNELS    = 2
-  const CHUNK_MS    = 100
-  const SAMPLES     = Math.floor(SAMPLE_RATE * CHANNELS * (CHUNK_MS / 1000))
-  const silence     = Buffer.alloc(SAMPLES * 2)
-  const audioPipe   = fs.createWriteStream(AUDIO_FIFO)
-
-  function loop() {
-    if (!ffmpegProcess) return
-    if (!isPlayingAudio) {
-      if (!audioPipe.write(silence)) { audioPipe.once('drain', loop); return }
-    }
-    setTimeout(loop, CHUNK_MS)
-  }
-  loop()
-  return audioPipe
-}
+// ─── Audio helpers (public) ────────────────────────────────────────────────────
 
 async function playAudioFile(audioFilePath) {
   if (!audioFilePath || !fs.existsSync(audioFilePath)) return
   audioQueue.push(audioFilePath)
-  if (!isPlayingAudio) processAudioQueue()
-}
-
-function processAudioQueue() {
-  if (audioQueue.length === 0) { isPlayingAudio = false; return }
-  isPlayingAudio = true
-  const filePath = audioQueue.shift()
-  const convert = spawn('ffmpeg', [
-    '-i', filePath, '-f', 's16le', '-ar', '44100', '-ac', '2', AUDIO_FIFO,
-  ], { stdio: ['pipe', 'pipe', 'pipe'] })
-  convert.on('close',  () => setTimeout(processAudioQueue, 500))
-  convert.on('error', (err) => { console.error('[Audio]', err.message); setTimeout(processAudioQueue, 500) })
+  if (!isPlayingAudio && !_isWritingAudio) _processNextAudio()
 }
 
 function stopFFmpeg() {
   if (eventClearTimer) clearTimeout(eventClearTimer)
+  if (announceTimer)   { clearTimeout(announceTimer); announceTimer = null }
+
+  if (audioConvProc) { audioConvProc.kill('SIGKILL'); audioConvProc = null }
+  if (silenceProc)   { silenceProc.kill('SIGKILL');   silenceProc   = null }
+  if (fifoWriteStream && !fifoWriteStream.destroyed) {
+    fifoWriteStream.destroy()
+    fifoWriteStream = null
+  }
+
   if (ffmpegProcess) { ffmpegProcess.kill('SIGTERM'); ffmpegProcess = null }
-  audioQueue = []
-  isPlayingAudio = false
+
+  audioQueue      = []
+  isPlayingAudio  = false
+  _isWritingAudio = false
   chatBuffer.length = 0
+
   try { fs.unlinkSync(AUDIO_FIFO) } catch {}
   console.log('[FFmpeg] Stream stopped')
 }
@@ -359,5 +487,6 @@ module.exports = {
   initFiles,
   updateScore, updateInningsContext, updateCommentary, updateEvent,
   updateCurrentPlayers, updatePlayerExtras, updateTournamentStats, updateChat,
+  updatePitchReport, clearPitchReport, updateAnnouncement, clearAnnouncement,
   startFFmpeg, playAudioFile, stopFFmpeg, isStreaming,
 }

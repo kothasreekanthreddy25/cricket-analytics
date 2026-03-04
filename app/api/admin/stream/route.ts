@@ -106,6 +106,66 @@ export async function POST(request: NextRequest) {
     }
   }
 
+  if (action === 'announce') {
+    const { text } = body
+    if (!text) return NextResponse.json({ error: 'text is required' }, { status: 400 })
+    try {
+      const res = await fetch(`${STREAM_SERVICE_URL}/stream/announce`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text }),
+        signal: AbortSignal.timeout(30000), // may wait for TTS
+      })
+      const data = await res.json()
+      return NextResponse.json(data, { status: res.status })
+    } catch {
+      return NextResponse.json({ error: 'Streaming service unreachable' }, { status: 503 })
+    }
+  }
+
+  if (action === 'announce-clear') {
+    try {
+      const res = await fetch(`${STREAM_SERVICE_URL}/stream/announce`, {
+        method: 'DELETE',
+        signal: AbortSignal.timeout(5000),
+      })
+      const data = await res.json()
+      return NextResponse.json(data, { status: res.status })
+    } catch {
+      return NextResponse.json({ error: 'Streaming service unreachable' }, { status: 503 })
+    }
+  }
+
+  if (action === 'pitch-report') {
+    const { text } = body
+    if (!text) return NextResponse.json({ error: 'text is required' }, { status: 400 })
+    try {
+      const res = await fetch(`${STREAM_SERVICE_URL}/stream/pitch-report`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text }),
+        signal: AbortSignal.timeout(30000),
+      })
+      const data = await res.json()
+      return NextResponse.json(data, { status: res.status })
+    } catch {
+      return NextResponse.json({ error: 'Streaming service unreachable' }, { status: 503 })
+    }
+  }
+
+  if (action === 'pitch-report-clear') {
+    try {
+      const res = await fetch(`${STREAM_SERVICE_URL}/stream/pitch-report`, {
+        method: 'DELETE',
+        signal: AbortSignal.timeout(5000),
+      })
+      const data = await res.json()
+      return NextResponse.json(data, { status: res.status })
+    } catch {
+      return NextResponse.json({ error: 'Streaming service unreachable' }, { status: 503 })
+    }
+  }
+
   return NextResponse.json({ error: 'Invalid action.' }, { status: 400 })
 }
 

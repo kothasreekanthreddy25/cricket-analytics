@@ -18,7 +18,7 @@ const {
   getPlayerCareerStats, getPlayerRecentForm,
 } = require('./roanuz')
 const { generateCommentary } = require('./commentary')
-const { textToSpeech, cleanupOldAudio } = require('./tts')
+const { textToSpeech, cleanupOldAudio, preCacheEventSounds } = require('./tts')
 const { createNewsVideo } = require('./news-video')
 const { playCrowdSound } = require('./crowd-sounds')
 const { createLiveBroadcast, goLive, endLive, getWatchUrl, startChatPolling, stopChatPolling } = require('./youtube-live')
@@ -27,6 +27,7 @@ const {
   initFiles,
   updateScore, updateInningsContext, updateCommentary, updateEvent,
   updateCurrentPlayers, updatePlayerExtras, updateTournamentStats, updateChat,
+  updatePitchReport, clearPitchReport, updateAnnouncement, clearAnnouncement,
   startFFmpeg, playAudioFile, stopFFmpeg, isStreaming,
 } = require('./ffmpeg-stream')
 
@@ -60,6 +61,10 @@ let tournamentPlayerMap = {}
 // Cache of player career stats to avoid repeated API calls: playerKey → { careerLine, formLine }
 const playerCareerCache = {}
 
+// Pre-cached event sound files (generated on stream start, played instantly)
+// Keys: six | four | wicket | noball | wide  →  file path or null
+let eventSounds = {}
+
 // ─── Stream Orchestrator ──────────────────────────────────────────────────────
 
 /**
@@ -83,6 +88,13 @@ async function startStream(matchKey, rtmpUrl, teamA, teamB, opts = {}) {
 
   initFiles(teamA, teamB)
   startFFmpeg(rtmpUrl)
+
+  // Pre-cache event sounds in background (SIX! FOUR! WICKET!) for instant playback
+  preCacheEventSounds().then(sounds => {
+    eventSounds = sounds
+    const count = Object.keys(sounds).length
+    console.log(`[Stream] Event sounds ready: ${count} clips cached`)
+  }).catch(err => console.warn('[Stream] Event sound pre-cache failed:', err.message))
 
   if (isCountdownMode && opts.scheduledTime) {
     // ── Pre-match countdown mode ──────────────────────────────────────────
@@ -203,6 +215,12 @@ async function pollForNewBalls(matchKey, teamA, teamB) {
         playCrowdSound(event.soundType)
         if (event.display) updateEvent(event.display, event.field)
 
+        // Play pre-cached event sound IMMEDIATELY (same time as visual overlay)
+        // This ensures audio + screen are in sync — no TTS API delay for key events
+        if (event.soundType === 'six'      && eventSounds.six)     playAudioFile(eventSounds.six)
+        else if (event.soundType === 'boundary' && eventSounds.four)    playAudioFile(eventSounds.four)
+        else if (event.soundType === 'wicket'   && eventSounds.wicket)  playAudioFile(eventSounds.wicket)
+
         const commentaryText = await generateCommentary(
           { ...latestBall, teamA, teamB, scoreText: scoreData.scoreText, contextText: scoreData.contextText },
           {}
@@ -210,6 +228,7 @@ async function pollForNewBalls(matchKey, teamA, teamB) {
         console.log(`[Commentary] ${commentaryText}`)
         updateCommentary(commentaryText)
 
+        // Queue full TTS commentary after the event sound finishes
         const audioFile = await textToSpeech(commentaryText, `ball-${ballCount}-${Date.now()}.mp3`)
         if (audioFile) await playAudioFile(audioFile)
         if (ballCount % 20 === 0) cleanupOldAudio()
@@ -242,6 +261,11 @@ async function pollForNewBalls(matchKey, teamA, teamB) {
           : getBallEvent(syntheticBall)
         playCrowdSound(event.soundType)
         if (event.display) updateEvent(event.display, event.field)
+
+        // Instant event sound (pre-cached, no API delay)
+        if (event.soundType === 'six'      && eventSounds.six)     playAudioFile(eventSounds.six)
+        else if (event.soundType === 'boundary' && eventSounds.four)    playAudioFile(eventSounds.four)
+        else if (event.soundType === 'wicket'   && eventSounds.wicket)  playAudioFile(eventSounds.wicket)
 
         const commentaryText = await generateCommentary(syntheticBall, {})
         console.log(`[Commentary/ScoreChange] ${commentaryText}`)
@@ -665,6 +689,74 @@ app.post('/stream/start-auto', async (req, res) => {
 
 app.get('/health', (req, res) => {
   res.json({ status: 'ok', service: 'crickettips-stream', version: '1.0.0' })
+})
+
+// ─── Custom Announcement ───────────────────────────────────────────────────────
+//  POST /stream/announce         { text }  — show banner + speak on stream (30s auto-clear)
+//  DELETE /stream/announce                 — clear immediately
+
+app.post('/stream/announce', async (req, res) => {
+  const { text } = req.body
+  if (!text || typeof text !== 'string' || !text.trim()) {
+    return res.status(400).json({ error: 'text is required' })
+  }
+
+  if (!isStreaming()) {
+    return res.status(409).json({ error: 'No active stream' })
+  }
+
+  const cleaned = text.trim().slice(0, 200)
+  updateAnnouncement(cleaned)
+
+  // Speak the announcement via TTS (queued after any playing audio)
+  try {
+    const audioFile = await textToSpeech(cleaned, `announce-${Date.now()}.mp3`)
+    if (audioFile) await playAudioFile(audioFile)
+  } catch (err) {
+    console.warn('[Announce] TTS failed:', err.message)
+  }
+
+  res.json({ success: true, text: cleaned })
+})
+
+app.delete('/stream/announce', (req, res) => {
+  clearAnnouncement()
+  res.json({ success: true })
+})
+
+// ─── Pitch Report ──────────────────────────────────────────────────────────────
+//  POST /stream/pitch-report     { text }  — show pitch conditions on stream
+//  DELETE /stream/pitch-report             — clear pitch report
+
+app.post('/stream/pitch-report', async (req, res) => {
+  const { text } = req.body
+  if (!text || typeof text !== 'string' || !text.trim()) {
+    return res.status(400).json({ error: 'text is required' })
+  }
+
+  if (!isStreaming()) {
+    return res.status(409).json({ error: 'No active stream' })
+  }
+
+  const cleaned = text.trim().slice(0, 200)
+  // Prefix "PITCH: " if not already there
+  const display = cleaned.toUpperCase().startsWith('PITCH') ? cleaned : `PITCH: ${cleaned}`
+  updatePitchReport(display)
+
+  // Speak the pitch report once via TTS
+  try {
+    const audioFile = await textToSpeech(cleaned, `pitch-${Date.now()}.mp3`)
+    if (audioFile) await playAudioFile(audioFile)
+  } catch (err) {
+    console.warn('[PitchReport] TTS failed:', err.message)
+  }
+
+  res.json({ success: true, text: display })
+})
+
+app.delete('/stream/pitch-report', (req, res) => {
+  clearPitchReport()
+  res.json({ success: true })
 })
 
 // ─── Auto-Stream Mode ─────────────────────────────────────────────────────────

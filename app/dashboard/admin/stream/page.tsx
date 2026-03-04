@@ -16,7 +16,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import {
   Youtube, Radio, Square, RefreshCw, ExternalLink,
-  Wifi, WifiOff, Zap, ZapOff, Clock,
+  Wifi, WifiOff, Zap, ZapOff, Clock, Megaphone, Leaf, X,
 } from 'lucide-react'
 
 interface LiveMatch {
@@ -56,6 +56,12 @@ export default function StreamAdminPage() {
   const [loading, setLoading]                   = useState(false)
   const [message, setMessage]                   = useState<{ text: string; type: 'success' | 'error' | 'info' } | null>(null)
   const [serviceReachable, setServiceReachable] = useState<boolean | null>(null)
+
+  // Live stream controls
+  const [announceText, setAnnounceText]   = useState('')
+  const [pitchText, setPitchText]         = useState('')
+  const [ctrlLoading, setCtrlLoading]     = useState<string | null>(null)
+  const [ctrlMsg, setCtrlMsg]             = useState<string | null>(null)
 
   // ── Fetch status ──────────────────────────────────────────────────────────
 
@@ -152,6 +158,42 @@ export default function StreamAdminPage() {
   }
 
   const stopStream = () => postAction({ action: 'stop' }, 'Stream stopped.')
+
+  async function sendControl(action: string, extra?: object) {
+    setCtrlLoading(action)
+    setCtrlMsg(null)
+    try {
+      const res = await fetch('/api/admin/stream', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action, ...extra }),
+      })
+      const data = await res.json()
+      if (data.success) {
+        setCtrlMsg(`Done: ${action.replace('-', ' ')}`)
+      } else {
+        setCtrlMsg(`Error: ${data.error || 'Failed'}`)
+      }
+    } catch (err: any) {
+      setCtrlMsg(`Error: ${err.message}`)
+    } finally {
+      setCtrlLoading(null)
+    }
+  }
+
+  const sendAnnouncement = () => {
+    if (!announceText.trim()) return
+    sendControl('announce', { text: announceText.trim() }).then(() => setAnnounceText(''))
+  }
+
+  const clearAnnouncement = () => sendControl('announce-clear')
+
+  const setPitchReport = () => {
+    if (!pitchText.trim()) return
+    sendControl('pitch-report', { text: pitchText.trim() })
+  }
+
+  const clearPitchReport = () => sendControl('pitch-report-clear')
 
   // ── Derived ───────────────────────────────────────────────────────────────
 
@@ -283,6 +325,97 @@ export default function StreamAdminPage() {
               <Square className="w-5 h-5" />
               Stop Stream
             </button>
+          </div>
+        )}
+
+        {/* ══ LIVE CONTROLS (shown when streaming) ═════════════════════════════ */}
+        {isStreaming && (
+          <div className="mt-4 space-y-4">
+            <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wider flex items-center gap-2">
+              <Radio className="w-4 h-4 text-red-400 animate-pulse" />
+              Live Stream Controls
+            </h2>
+
+            {/* Announcement */}
+            <div className="bg-gray-900 rounded-2xl p-5 border border-amber-500/20">
+              <div className="flex items-center gap-2 mb-3">
+                <Megaphone className="w-4 h-4 text-amber-400" />
+                <span className="font-semibold text-amber-300 text-sm">Custom Announcement</span>
+                <span className="text-xs text-gray-500">(shows on screen + spoken aloud, auto-clears in 30s)</span>
+              </div>
+              <textarea
+                value={announceText}
+                onChange={(e) => setAnnounceText(e.target.value)}
+                maxLength={200}
+                rows={2}
+                placeholder="e.g. NZ need 45 runs from 30 balls! This is getting tense!"
+                className="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-amber-500 resize-none mb-2"
+              />
+              <div className="flex gap-2">
+                <button
+                  onClick={sendAnnouncement}
+                  disabled={!announceText.trim() || ctrlLoading === 'announce'}
+                  className="flex-1 flex items-center justify-center gap-2 bg-amber-600 hover:bg-amber-700 disabled:opacity-40 text-white font-semibold py-2 rounded-xl text-sm transition-colors"
+                >
+                  {ctrlLoading === 'announce'
+                    ? <><RefreshCw className="w-4 h-4 animate-spin" /> Sending…</>
+                    : <><Megaphone className="w-4 h-4" /> Send & Speak</>}
+                </button>
+                <button
+                  onClick={clearAnnouncement}
+                  disabled={ctrlLoading === 'announce-clear'}
+                  className="px-4 flex items-center gap-1 bg-gray-700 hover:bg-gray-600 disabled:opacity-40 text-gray-300 font-semibold py-2 rounded-xl text-sm transition-colors"
+                >
+                  <X className="w-4 h-4" /> Clear
+                </button>
+              </div>
+            </div>
+
+            {/* Pitch Report */}
+            <div className="bg-gray-900 rounded-2xl p-5 border border-blue-500/20">
+              <div className="flex items-center gap-2 mb-3">
+                <Leaf className="w-4 h-4 text-blue-400" />
+                <span className="font-semibold text-blue-300 text-sm">Pitch Report</span>
+                <span className="text-xs text-gray-500">(stays on screen until cleared or replaced)</span>
+              </div>
+              <textarea
+                value={pitchText}
+                onChange={(e) => setPitchText(e.target.value)}
+                maxLength={200}
+                rows={2}
+                placeholder="e.g. Good batting track. Pacers will get movement early, spinners expected in second half."
+                className="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 resize-none mb-2"
+              />
+              <div className="flex gap-2">
+                <button
+                  onClick={setPitchReport}
+                  disabled={!pitchText.trim() || ctrlLoading === 'pitch-report'}
+                  className="flex-1 flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-40 text-white font-semibold py-2 rounded-xl text-sm transition-colors"
+                >
+                  {ctrlLoading === 'pitch-report'
+                    ? <><RefreshCw className="w-4 h-4 animate-spin" /> Sending…</>
+                    : <><Leaf className="w-4 h-4" /> Set Pitch Report</>}
+                </button>
+                <button
+                  onClick={clearPitchReport}
+                  disabled={ctrlLoading === 'pitch-report-clear'}
+                  className="px-4 flex items-center gap-1 bg-gray-700 hover:bg-gray-600 disabled:opacity-40 text-gray-300 font-semibold py-2 rounded-xl text-sm transition-colors"
+                >
+                  <X className="w-4 h-4" /> Clear
+                </button>
+              </div>
+            </div>
+
+            {/* Control feedback */}
+            {ctrlMsg && (
+              <div className={`text-sm rounded-xl p-3 ${
+                ctrlMsg.startsWith('Error')
+                  ? 'bg-red-900/40 text-red-300 border border-red-500/30'
+                  : 'bg-emerald-900/40 text-emerald-300 border border-emerald-500/30'
+              }`}>
+                {ctrlMsg}
+              </div>
+            )}
           </div>
         )}
 

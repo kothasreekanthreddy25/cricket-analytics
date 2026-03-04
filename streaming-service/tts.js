@@ -99,6 +99,7 @@ function cleanupOldAudio() {
     const files = fs.readdirSync(TMP_DIR)
     const now = Date.now()
     for (const file of files) {
+      if (file.startsWith('event-')) continue  // keep pre-cached event sounds
       const filePath = path.join(TMP_DIR, file)
       const stat = fs.statSync(filePath)
       if (now - stat.mtimeMs > 10 * 60 * 1000) {
@@ -108,4 +109,49 @@ function cleanupOldAudio() {
   } catch {}
 }
 
-module.exports = { textToSpeech, cleanupOldAudio }
+/**
+ * Pre-cache short audio clips for common cricket events.
+ * Called once on stream startup so these play INSTANTLY (no API delay).
+ *
+ * Generated files:
+ *   event-six.mp3     — "SIX! What a shot!"
+ *   event-four.mp3    — "FOUR!"
+ *   event-wicket.mp3  — "OUT! He's been dismissed!"
+ *   event-dot.mp3     — (silence / skip)
+ *
+ * @returns {Object} map of event key → file path (or null if failed)
+ */
+async function preCacheEventSounds() {
+  const events = [
+    { key: 'six',     text: "SIX! What a magnificent shot! That's gone all the way!" },
+    { key: 'four',    text: "FOUR! Beautiful stroke, finds the boundary!" },
+    { key: 'wicket',  text: "OUT! He's been dismissed! Big wicket falls!" },
+    { key: 'noball',  text: "No ball called! Free hit coming up!" },
+    { key: 'wide',    text: "Wide ball, one extra to the batting side." },
+  ]
+
+  const cached = {}
+  console.log('[TTS] Pre-caching event sounds...')
+
+  for (const ev of events) {
+    const filePath = path.join(TMP_DIR, `event-${ev.key}.mp3`)
+    // Use cached file if already exists (avoid API calls on restart)
+    if (fs.existsSync(filePath)) {
+      cached[ev.key] = filePath
+      continue
+    }
+    try {
+      const ok = await googleTTS(ev.text, filePath) || await openaiTTS(ev.text, filePath)
+      if (ok) {
+        cached[ev.key] = filePath
+        console.log(`[TTS] Cached event sound: ${ev.key}`)
+      }
+    } catch (err) {
+      console.warn(`[TTS] Could not cache ${ev.key}:`, err.message)
+    }
+  }
+
+  return cached
+}
+
+module.exports = { textToSpeech, cleanupOldAudio, preCacheEventSounds }
