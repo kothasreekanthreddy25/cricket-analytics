@@ -1,14 +1,14 @@
-import axios from 'axios'
-
 const CRICKET_API_URL = process.env.CRICKET_API_URL || 'https://api.cricapi.com/v1'
 const CRICKET_API_KEY = process.env.CRICKET_API_KEY || ''
 
-const cricketApi = axios.create({
-  baseURL: CRICKET_API_URL,
-  params: {
-    apikey: CRICKET_API_KEY,
-  },
-})
+async function cricketApiGet(path: string, params: Record<string, string> = {}) {
+  const url = new URL(`${CRICKET_API_URL}${path}`)
+  url.searchParams.set('apikey', CRICKET_API_KEY)
+  for (const [k, v] of Object.entries(params)) url.searchParams.set(k, v)
+  const res = await fetch(url.toString(), { cache: 'no-store' })
+  if (!res.ok) throw new Error(`CricAPI ${path} returned ${res.status}`)
+  return res.json()
+}
 
 export interface MatchData {
   id: string
@@ -43,8 +43,8 @@ export interface TeamStats {
 // Get current matches
 export async function getCurrentMatches() {
   try {
-    const response = await cricketApi.get('/currentMatches')
-    return response.data.data || []
+    const data = await cricketApiGet('/currentMatches')
+    return data.data || []
   } catch (error) {
     console.error('Error fetching current matches:', error)
     return []
@@ -54,10 +54,8 @@ export async function getCurrentMatches() {
 // Get match info by ID
 export async function getMatchInfo(matchId: string) {
   try {
-    const response = await cricketApi.get('/match_info', {
-      params: { id: matchId },
-    })
-    return response.data.data
+    const data = await cricketApiGet('/match_info', { id: matchId })
+    return data.data
   } catch (error) {
     console.error('Error fetching match info:', error)
     return null
@@ -67,10 +65,8 @@ export async function getMatchInfo(matchId: string) {
 // Get match scorecard
 export async function getMatchScorecard(matchId: string) {
   try {
-    const response = await cricketApi.get('/match_scorecard', {
-      params: { id: matchId },
-    })
-    return response.data.data
+    const data = await cricketApiGet('/match_scorecard', { id: matchId })
+    return data.data
   } catch (error) {
     console.error('Error fetching match scorecard:', error)
     return null
@@ -80,10 +76,8 @@ export async function getMatchScorecard(matchId: string) {
 // Get player info
 export async function getPlayerInfo(playerId: string) {
   try {
-    const response = await cricketApi.get('/players_info', {
-      params: { id: playerId },
-    })
-    return response.data.data
+    const data = await cricketApiGet('/players_info', { id: playerId })
+    return data.data
   } catch (error) {
     console.error('Error fetching player info:', error)
     return null
@@ -93,14 +87,12 @@ export async function getPlayerInfo(playerId: string) {
 // Get series matches
 export async function getSeriesMatches(seriesId: string) {
   try {
-    const response = await cricketApi.get('/series_info', {
-      params: { id: seriesId },
-    })
-    return response.data.data
+    const data = await cricketApiGet('/series_info', { id: seriesId })
+    return data.data
   } catch (error) {
     console.error('Error fetching series matches:', error)
     return null
   }
 }
 
-export default cricketApi
+export default { getCurrentMatches, getMatchInfo, getMatchScorecard, getPlayerInfo, getSeriesMatches }

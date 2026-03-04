@@ -52,14 +52,17 @@ interface BallEvent {
   dismissedPlayer: string | null
   isFour: boolean
   isSix: boolean
+  milestone?: string | null  // e.g. "half-century", "century"
 }
 
 interface InningsData {
   key: string
+  teamSide: 'a' | 'b'
   battingTeam: string
   runs: number | null
   wickets: number | null
-  overs: number | null
+  overs: string | number | null
+  scoreStr: string | null
   runRate: number | null
   extras: number | null
 }
@@ -96,9 +99,34 @@ interface Probability {
   source: string
 }
 
+interface BatsmanInfo {
+  name: string
+  runs: number | null
+  balls: number | null
+  fours: number | null
+  sixes: number | null
+  strikeRate: number | null
+}
+
+interface BowlerInfo {
+  name: string
+  overs: number | null
+  runs: number | null
+  wickets: number | null
+  economy: number | null
+}
+
+interface CurrentPlayers {
+  liveInningKey: string | null
+  striker: BatsmanInfo | null
+  nonStriker: BatsmanInfo | null
+  bowler: BowlerInfo | null
+}
+
 interface LiveData {
   success: boolean
   match: MatchData
+  currentPlayers: CurrentPlayers
   ballByBall: BallEvent[]
   probability: Probability
   graphs: {
@@ -226,8 +254,9 @@ function Scorecard({
       <div className="space-y-3">
         {match.innings.length > 0 ? (
           match.innings.map((inn, i) => {
-            const team =
-              inn.battingTeam === teamA?.key ? teamA : teamB
+            // Use teamSide ('a'/'b') for reliable team lookup
+            const team = inn.teamSide === 'a' ? teamA : teamB
+            const wickets = inn.wickets ?? 0
             return (
               <div
                 key={inn.key}
@@ -240,11 +269,8 @@ function Scorecard({
                 </div>
                 <div className="text-right">
                   <span className={`text-2xl font-bold font-mono ${i === 0 ? 'text-emerald-400' : 'text-cyan-400'}`}>
-                    {inn.runs !== null ? `${inn.runs}/${inn.wickets}` : '—'}
+                    {inn.scoreStr || (inn.runs !== null ? `${inn.runs}/${wickets}` : '—')}
                   </span>
-                  {inn.overs !== null && (
-                    <span className="text-sm text-gray-500 ml-2">({inn.overs} ov)</span>
-                  )}
                   {inn.runRate !== null && (
                     <p className="text-[10px] text-gray-500 mt-0.5">
                       RR: {typeof inn.runRate === 'number' ? inn.runRate.toFixed(2) : inn.runRate}
@@ -363,6 +389,11 @@ function BallByBallCommentary({ balls }: { balls: BallEvent[] }) {
                 {ball.isFour && (
                   <span className="text-[10px] bg-blue-500/20 text-blue-400 px-1.5 py-0.5 rounded font-bold">
                     FOUR!
+                  </span>
+                )}
+                {ball.milestone && (
+                  <span className="text-[10px] bg-yellow-500/20 text-yellow-400 px-1.5 py-0.5 rounded font-bold uppercase">
+                    🏆 {ball.milestone.replace(/-/g, ' ')}
                   </span>
                 )}
               </div>
@@ -757,6 +788,107 @@ function ChartPlaceholder({
 }
 
 // ──────────────────────────────────────────────
+// Current Players at the Crease
+// ──────────────────────────────────────────────
+
+function CurrentPlayersPanel({ players }: { players: CurrentPlayers }) {
+  const { striker, nonStriker, bowler } = players
+
+  if (!striker && !nonStriker && !bowler) return null
+
+  const fmt = (v: number | null, dp = 0) =>
+    v !== null ? (dp ? v.toFixed(dp) : String(v)) : '—'
+
+  return (
+    <div className="bg-gray-800/60 border border-gray-700/50 rounded-2xl p-5">
+      <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wider flex items-center gap-2 mb-4">
+        <span className="text-lg leading-none">🏏</span>
+        At the Crease
+      </h3>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+        {/* Batsmen */}
+        <div className="space-y-2">
+          <p className="text-[10px] text-gray-500 uppercase tracking-wider mb-2">Batting</p>
+
+          {/* Striker */}
+          {striker && (
+            <div className="flex items-center justify-between bg-emerald-500/10 border border-emerald-500/20 rounded-xl px-4 py-3">
+              <div className="flex items-center gap-2">
+                {/* On strike indicator */}
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse flex-shrink-0" title="On strike" />
+                <div>
+                  <p className="text-white font-bold text-sm leading-tight">{striker.name || '—'}</p>
+                  <p className="text-[10px] text-emerald-400 mt-0.5">On Strike</p>
+                </div>
+              </div>
+              <div className="text-right">
+                <p className="text-emerald-400 font-mono font-bold text-xl leading-tight">
+                  {fmt(striker.runs)}<span className="text-gray-500 text-sm font-normal">({fmt(striker.balls)})</span>
+                </p>
+                <p className="text-[10px] text-gray-500 mt-0.5">
+                  SR: {fmt(striker.strikeRate, 1)}
+                  {striker.fours !== null && <span className="ml-2">4s: {striker.fours}</span>}
+                  {striker.sixes !== null && <span className="ml-1.5">6s: {striker.sixes}</span>}
+                </p>
+              </div>
+            </div>
+          )}
+
+          {/* Non-striker */}
+          {nonStriker && (
+            <div className="flex items-center justify-between bg-gray-900/50 border border-gray-700/40 rounded-xl px-4 py-3">
+              <div className="flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-gray-600 flex-shrink-0" />
+                <div>
+                  <p className="text-gray-200 font-semibold text-sm leading-tight">{nonStriker.name || '—'}</p>
+                  <p className="text-[10px] text-gray-500 mt-0.5">Non-striker</p>
+                </div>
+              </div>
+              <div className="text-right">
+                <p className="text-gray-300 font-mono font-bold text-xl leading-tight">
+                  {fmt(nonStriker.runs)}<span className="text-gray-600 text-sm font-normal">({fmt(nonStriker.balls)})</span>
+                </p>
+                <p className="text-[10px] text-gray-500 mt-0.5">
+                  SR: {fmt(nonStriker.strikeRate, 1)}
+                  {nonStriker.fours !== null && <span className="ml-2">4s: {nonStriker.fours}</span>}
+                  {nonStriker.sixes !== null && <span className="ml-1.5">6s: {nonStriker.sixes}</span>}
+                </p>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Bowler */}
+        {bowler && (
+          <div>
+            <p className="text-[10px] text-gray-500 uppercase tracking-wider mb-2">Bowling</p>
+            <div className="flex items-center justify-between bg-red-500/10 border border-red-500/20 rounded-xl px-4 py-3 h-[calc(100%-24px)]">
+              <div className="flex items-center gap-2">
+                <span className="text-red-400 text-lg leading-none flex-shrink-0">⚡</span>
+                <div>
+                  <p className="text-white font-bold text-sm leading-tight">{bowler.name || '—'}</p>
+                  <p className="text-[10px] text-red-400 mt-0.5">Current Bowler</p>
+                </div>
+              </div>
+              <div className="text-right">
+                <p className="text-red-400 font-mono font-bold text-xl leading-tight">
+                  {fmt(bowler.wickets)}/<span className="text-gray-300">{fmt(bowler.runs)}</span>
+                </p>
+                <p className="text-[10px] text-gray-500 mt-0.5">
+                  {fmt(bowler.overs)} ov
+                  {bowler.economy !== null && <span className="ml-2">Eco: {fmt(bowler.economy, 1)}</span>}
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
+// ──────────────────────────────────────────────
 // Live Match Insights
 // ──────────────────────────────────────────────
 
@@ -769,9 +901,10 @@ function MatchInsights({ match, probability }: { match: MatchData; probability: 
 
   if (innings.length >= 1 && innings[0].runs !== null) {
     const firstInnings = innings[0]
-    const rr = firstInnings.runRate || (firstInnings.runs && firstInnings.overs ? firstInnings.runs / firstInnings.overs : 0)
+    const oversNum = firstInnings.overs !== null ? parseFloat(String(firstInnings.overs)) : 0
+    const rr = firstInnings.runRate || (firstInnings.runs && oversNum ? firstInnings.runs / oversNum : 0)
     if (rr > 10) insights.push(`Explosive start! Run rate of ${typeof rr === 'number' ? rr.toFixed(1) : rr} in the ${firstInnings.battingTeam === match.teams.a?.key ? match.teams.a?.name : match.teams.b?.name} innings`)
-    if (firstInnings.wickets !== null && firstInnings.wickets >= 3 && firstInnings.overs !== null && firstInnings.overs <= 6) {
+    if (firstInnings.wickets !== null && firstInnings.wickets >= 3 && oversNum > 0 && oversNum <= 6) {
       insights.push(`Early wickets falling! ${firstInnings.wickets} wickets in the powerplay`)
     }
     if (firstInnings.runs !== null && firstInnings.runs > 180) {
@@ -782,7 +915,7 @@ function MatchInsights({ match, probability }: { match: MatchData; probability: 
   if (innings.length >= 2 && innings[1].runs !== null && innings[0].runs !== null) {
     const target = innings[0].runs + 1
     const chaseRuns = innings[1].runs
-    const chaseOvers = innings[1].overs || 0
+    const chaseOvers = innings[1].overs !== null ? parseFloat(String(innings[1].overs)) : 0
     const remaining = target - chaseRuns
     const oversLeft = 20 - chaseOvers
     const reqRR = oversLeft > 0 ? remaining / oversLeft : 0
@@ -919,7 +1052,7 @@ export default function LiveMatchPage() {
 
   if (!liveData) return null
 
-  const { match, ballByBall, probability, graphs } = liveData
+  const { match, currentPlayers, ballByBall, probability, graphs } = liveData
   const isLive =
     match.status === 'started' ||
     match.status === 'live' ||
@@ -1003,6 +1136,13 @@ export default function LiveMatchPage() {
             teamB={match.teams.b?.name}
           />
         </div>
+
+        {/* Current Players at the Crease */}
+        {currentPlayers && (
+          <div className="mb-6">
+            <CurrentPlayersPanel players={currentPlayers} />
+          </div>
+        )}
 
         {/* AI Insights */}
         <div className="mb-6">

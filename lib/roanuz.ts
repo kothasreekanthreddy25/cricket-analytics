@@ -1,5 +1,3 @@
-import axios from 'axios'
-
 const PROJECT_KEY = process.env.ROANUZ_PROJECT_KEY!
 const API_KEY = process.env.ROANUZ_API_KEY!
 const BASE_URL = process.env.ROANUZ_BASE_URL || 'https://api.sports.roanuz.com/v5'
@@ -14,19 +12,17 @@ async function getToken(): Promise<string> {
   }
 
   const url = `${BASE_URL}/core/${PROJECT_KEY}/auth/`
-  let data: any
-  try {
-    const response = await axios.post(url, { api_key: API_KEY })
-    data = response.data
-  } catch (err: any) {
-    // Roanuz may return error in response body even with non-200 status
-    if (err.response?.data) {
-      console.error('Roanuz auth error:', JSON.stringify(err.response.data, null, 2))
-    }
-    throw new Error(`Roanuz auth failed: ${err.response?.status} - ${JSON.stringify(err.response?.data?.error || err.message)}`)
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ api_key: API_KEY }),
+    cache: 'no-store',
+  })
+  if (!res.ok) {
+    const errBody = await res.text().catch(() => '')
+    throw new Error(`Roanuz auth failed: ${res.status} - ${errBody.slice(0, 200)}`)
   }
-
-  console.log('Roanuz auth response:', JSON.stringify(data, null, 2))
+  const data = await res.json()
 
   // Response format: { data: { token: "...", expires: 1234567890.123 } }
   cachedToken = data.data?.token || data.token
@@ -36,26 +32,32 @@ async function getToken(): Promise<string> {
   tokenExpiry = expires ? expires * 1000 : Date.now() + 23 * 60 * 60 * 1000
 
   if (!cachedToken) {
-    console.error('Could not find token in response:', data)
-    throw new Error('Failed to get Roanuz auth token')
+    throw new Error('Failed to get Roanuz auth token — no token in response')
   }
 
-  console.log('Roanuz token obtained successfully')
   return cachedToken
 }
 
 export async function roanuzGet(endpoint: string) {
   const token = await getToken()
   const url = `${BASE_URL}/cricket/${PROJECT_KEY}/${endpoint}`
-  const response = await axios.get(url, {
-    headers: { 'rs-token': token },
-    timeout: 8000, // 8s timeout — fail fast so CricAPI fallback kicks in quickly
-  })
-  // Treat 403 (plan restriction) as an error so fallback is triggered
-  if (response.data?.error?.http_status_code === 403) {
-    throw new Error(`Roanuz 403: ${response.data.error.msg}`)
+  const controller = new AbortController()
+  const timer = setTimeout(() => controller.abort(), 8000)
+  try {
+    const res = await fetch(url, {
+      headers: { 'rs-token': token },
+      signal: controller.signal,
+      cache: 'no-store',
+    })
+    const data = await res.json()
+    // Treat 403 (plan restriction) as an error so fallback is triggered
+    if (data?.error?.http_status_code === 403) {
+      throw new Error(`Roanuz 403: ${data.error.msg}`)
+    }
+    return data
+  } finally {
+    clearTimeout(timer)
   }
-  return response.data
 }
 
 // --- Normalizer ---

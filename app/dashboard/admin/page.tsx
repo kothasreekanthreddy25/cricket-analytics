@@ -2,7 +2,7 @@ import { redirect } from 'next/navigation'
 import { requireRole } from '@/lib/auth-helpers'
 import { prisma } from '@/lib/prisma'
 import Link from 'next/link'
-import { Users, Award, FileText, BarChart } from 'lucide-react'
+import { Users, Award, FileText, BarChart, Youtube } from 'lucide-react'
 
 export const dynamic = 'force-dynamic'
 
@@ -86,7 +86,7 @@ export default async function AdminDashboard() {
         </div>
 
         {/* Quick Links */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <Link
             href="/matches"
             className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow"
@@ -109,6 +109,17 @@ export default async function AdminDashboard() {
           >
             <h3 className="text-lg font-semibold text-gray-900 mb-2">Manage Players</h3>
             <p className="text-sm text-gray-600">View and manage cricket players</p>
+          </Link>
+
+          <Link
+            href="/dashboard/admin/stream"
+            className="bg-red-50 rounded-lg shadow p-6 hover:shadow-lg transition-shadow border border-red-100"
+          >
+            <div className="flex items-center gap-2 mb-2">
+              <Youtube className="h-5 w-5 text-red-600" />
+              <h3 className="text-lg font-semibold text-red-700">YouTube Live</h3>
+            </div>
+            <p className="text-sm text-red-600">Start AI-powered live cricket stream</p>
           </Link>
         </div>
 
