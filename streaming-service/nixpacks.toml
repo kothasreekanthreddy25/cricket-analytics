@@ -1,0 +1,8 @@
+# Railway / Nixpacks build config for CricketTips.ai streaming service
+# Installs FFmpeg + DejaVu fonts (required for FFmpeg drawtext overlays)
+
+[phases.setup]
+nixPkgs = ["ffmpeg", "dejavu_fonts", "fontconfig"]
+
+[start]
+cmd = "node index.js"
