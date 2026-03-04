@@ -4,9 +4,16 @@
  * Pipeline:
  *   1. GPT-4o-mini → 90-second script (hook + 5 key points + outro)
  *   2. Google Cloud TTS (en-IN) → MP3 narration with Indian accent
- *   3. Fetch cricket background image (Unsplash curated pool)
- *   4. FFmpeg → 1280x720 video with image background + text overlays
+ *   3. Pexels API → free cricket/stadium/ground image (no player closeups = no image rights issues)
+ *      Fallback: FFmpeg gradient background if Pexels unavailable
+ *   4. FFmpeg → 1280x720 video with image + text overlays
  *   5. YouTube API → upload as public video
+ *
+ * Image safety:
+ *   - Pexels License: free for commercial use, no attribution required
+ *   - Queries only fetch venues/equipment/grounds — NOT player closeups
+ *   - YouTube Content ID will NOT flag Pexels images
+ *   Set PEXELS_API_KEY in .env (free at pexels.com/api) — falls back to gradient if not set.
  */
 
 require('dotenv').config()
@@ -25,50 +32,84 @@ const FONT_REG  = '/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf'
 
 if (!fs.existsSync(TMP_DIR)) fs.mkdirSync(TMP_DIR, { recursive: true })
 
-// ─── Curated cricket background images (Unsplash, no API key needed) ──────────
+// ─── Pexels image fetch — copyright-safe cricket visuals ──────────────────────
+// Queries are carefully chosen to return venues/equipment, NOT player images.
+// Pexels License = free commercial use, no attribution, no Content ID risk.
 
-const CRICKET_IMAGES = [
-  { url: 'https://images.unsplash.com/photo-1531415074968-036ba1b575da?w=1280&q=80', tags: ['bat', 'equipment', 'general', 'test'] },
-  { url: 'https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?w=1280&q=80', tags: ['stadium', 'venue', 'match', 'night', 't20'] },
-  { url: 'https://images.unsplash.com/photo-1624526267942-ab0ff8a3e972?w=1280&q=80', tags: ['batting', 'player', 'action', 'match'] },
-  { url: 'https://images.unsplash.com/photo-1580674285054-bed31e145f59?w=1280&q=80', tags: ['ball', 'bowling', 'equipment', 'general'] },
-  { url: 'https://images.unsplash.com/photo-1612872087720-bb876e2e67d1?w=1280&q=80', tags: ['ground', 'aerial', 'stadium', 'venue'] },
-  { url: 'https://images.unsplash.com/photo-1606107557195-0e29a4b5b4aa?w=1280&q=80', tags: ['stumps', 'wicket', 'bowling', 'general'] },
-  { url: 'https://images.unsplash.com/photo-1595341888016-a392ef81b7de?w=1280&q=80', tags: ['match', 'playing', 'action', 'game'] },
-  { url: 'https://images.unsplash.com/photo-1554178286-db408c69256a?w=1280&q=80', tags: ['bowling', 'bowler', 'action', 'player'] },
-  { url: 'https://images.unsplash.com/photo-1593766788306-28561086694e?w=1280&q=80', tags: ['fans', 'crowd', 'stadium', 'tournament'] },
-  { url: 'https://images.unsplash.com/photo-1599058917212-d750089bc07e?w=1280&q=80', tags: ['pitch', 'ground', 'venue', 'test'] },
+const PEXELS_QUERIES = [
+  { q: 'cricket stadium aerial view',    tags: ['stadium', 'venue', 'ipl', 'tournament', 'general'] },
+  { q: 'cricket pitch green ground',     tags: ['pitch', 'ground', 'test', 'odi', 'field'] },
+  { q: 'cricket ball stumps close up',   tags: ['ball', 'stumps', 'wicket', 'bowling'] },
+  { q: 'cricket ground night lights',    tags: ['night', 't20', 'ipl', 'bbl'] },
+  { q: 'cricket bat equipment',          tags: ['bat', 'equipment', 'batting'] },
+  { q: 'sports stadium floodlights',     tags: ['final', 'result', 'win', 'record'] },
+  { q: 'cricket field oval top view',    tags: ['analysis', 'stats', 'prediction', 'ranking'] },
 ]
 
-function pickImageUrl(title, keywords) {
-  const terms = [...keywords, ...title.toLowerCase().split(/\s+/)].map(t => t.toLowerCase())
-  let bestIdx = 0, bestScore = -1
-  for (let i = 0; i < CRICKET_IMAGES.length; i++) {
-    let score = Math.random() * 0.5
-    for (const tag of CRICKET_IMAGES[i].tags) {
-      if (terms.some(t => t.includes(tag) || tag.includes(t))) score += 2
+function pickPexelsQuery(title, keywords) {
+  const terms = [...(keywords || []), ...title.toLowerCase().split(/\s+/)]
+  let best = PEXELS_QUERIES[0], bestScore = -1
+  for (const item of PEXELS_QUERIES) {
+    let score = Math.random() * 0.3
+    for (const tag of item.tags) {
+      if (terms.some(t => String(t).toLowerCase().includes(tag) || tag.includes(String(t).toLowerCase()))) score += 2
     }
-    if (score > bestScore) { bestScore = score; bestIdx = i }
+    if (score > bestScore) { bestScore = score; best = item }
   }
-  return CRICKET_IMAGES[bestIdx].url
+  return best.q
 }
 
-async function fetchBackgroundImage(title, keywords) {
+async function fetchPexelsImage(title, keywords) {
+  const apiKey = process.env.PEXELS_API_KEY
+  if (!apiKey) return null
+
   try {
-    const url = pickImageUrl(title, keywords)
-    const bgPath = path.join(TMP_DIR, `bg-${Date.now()}.jpg`)
-    const res = await axios.get(url, {
-      responseType: 'arraybuffer',
-      timeout: 12000,
-      headers: { 'User-Agent': 'CricketTips/1.0 (video-gen)' },
+    const query = pickPexelsQuery(title, keywords)
+    const res = await axios.get('https://api.pexels.com/v1/search', {
+      headers: { Authorization: apiKey },
+      params: { query, per_page: 10, orientation: 'landscape' },
+      timeout: 10000,
     })
-    fs.writeFileSync(bgPath, res.data)
-    console.log('[VideoGen] Background image downloaded')
+    const photos = res.data?.photos || []
+    if (!photos.length) return null
+
+    // Pick a random photo from results for variety
+    const photo = photos[Math.floor(Math.random() * photos.length)]
+    const imageUrl = photo.src?.large2x || photo.src?.large || photo.src?.original
+    if (!imageUrl) return null
+
+    const bgPath = path.join(TMP_DIR, `bg-${Date.now()}.jpg`)
+    const imgRes = await axios.get(imageUrl, { responseType: 'arraybuffer', timeout: 15000 })
+    fs.writeFileSync(bgPath, imgRes.data)
+    console.log(`[VideoGen] Pexels image: "${query}" — ${photo.photographer}`)
     return bgPath
   } catch (err) {
-    console.warn('[VideoGen] Background image fetch failed (using dark fallback):', err.message)
+    console.warn('[VideoGen] Pexels fetch failed (using gradient fallback):', err.message)
     return null
   }
+}
+
+// ─── Gradient fallback themes — used when PEXELS_API_KEY not set ──────────────
+
+const BG_THEMES = [
+  { color1: '0x0f172a', color2: '0x134e4a', tags: ['general', 'test', 'odi'] },
+  { color1: '0x052e16', color2: '0x166534', tags: ['pitch', 'ground', 'venue', 'field'] },
+  { color1: '0x0c0a3e', color2: '0x312e81', tags: ['night', 't20', 'ipl', 'bbl', 'tournament'] },
+  { color1: '0x450a0a', color2: '0x7f1d1d', tags: ['win', 'loss', 'result', 'final', 'record'] },
+  { color1: '0x0f172a', color2: '0x1e3a5f', tags: ['stats', 'analysis', 'prediction', 'ranking'] },
+]
+
+function pickTheme(title, keywords) {
+  const terms = [...(keywords || []), ...title.toLowerCase().split(/\s+/)]
+  let best = BG_THEMES[0], bestScore = -1
+  for (const theme of BG_THEMES) {
+    let score = Math.random() * 0.3
+    for (const tag of theme.tags) {
+      if (terms.some(t => String(t).toLowerCase().includes(tag) || tag.includes(String(t).toLowerCase()))) score += 2
+    }
+    if (score > bestScore) { bestScore = score; best = theme }
+  }
+  return best
 }
 
 // ─── Script generation ────────────────────────────────────────────────────────
@@ -137,7 +178,7 @@ function getAudioDuration(filePath) {
 
 // ─── FFmpeg video builder ─────────────────────────────────────────────────────
 
-async function buildVideo(script, audioPath, outputPath, duration, bgImagePath) {
+async function buildVideo(script, audioPath, outputPath, duration, themeOrImage) {
   const id = Date.now()
 
   const titleFile  = path.join(TMP_DIR, `title-${id}.txt`)
@@ -156,68 +197,70 @@ async function buildVideo(script, audioPath, outputPath, duration, bgImagePath) 
   const titleEnd  = Math.min(7, duration * 0.1)
   const pointsEnd = Math.max(duration - 5, titleEnd + 10)
 
+  // Determine if we have a real image path or a gradient theme object
+  const useImage = typeof themeOrImage === 'string' && fs.existsSync(themeOrImage)
+  const theme    = useImage ? null : (themeOrImage || BG_THEMES[0])
+
   const overlays = [
-    // ── Semi-transparent dark panel for readability ──
-    `drawbox=x=0:y=0:w=iw:h=ih:color=black@0.55:t=fill`,
+    // ── Semi-transparent dark panel over image for readability ──
+    ...(useImage ? [`drawbox=x=0:y=0:w=iw:h=ih:color=black@0.52:t=fill`] : []),
 
     // ── Green accent bar at top ──
     `drawbox=x=0:y=0:w=iw:h=5:color=0x10b981:t=fill`,
 
     // ── Bottom bar ──
-    `drawbox=x=0:y=696:w=iw:h=24:color=0x0f172a@0.92:t=fill`,
+    `drawbox=x=0:y=696:w=iw:h=24:color=black@0.7:t=fill`,
 
     // ── Always visible: logo + date + footer ──
-    `drawtext=fontfile=${FONT_BOLD}:text='CricketTips.ai':fontsize=30:fontcolor=0x10b981:x=40:y=20`,
-    `drawtext=fontfile=${FONT_REG}:text='${new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}':fontsize=15:fontcolor=0xd1d5db:x=1040:y=26`,
+    `drawtext=fontfile=${FONT_BOLD}:text='CricketTips.ai':fontsize=30:fontcolor=0x10b981:x=40:y=18`,
+    `drawtext=fontfile=${FONT_REG}:text='${new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}':fontsize=15:fontcolor=0xd1d5db:x=1020:y=24`,
     `drawtext=fontfile=${FONT_REG}:text='AI-powered cricket analysis  •  crickettips.ai':fontsize=16:fontcolor=0x9ca3af:x=40:y=700`,
 
     // ── Title slide (0 → titleEnd) ──
-    `drawbox=x=30:y=72:w=iw-60:h=3:color=0xef4444:t=fill:enable='between(t\\,0\\,${titleEnd})'`,
-    `drawtext=fontfile=${FONT_BOLD}:text='BREAKING NEWS':fontsize=18:fontcolor=0xef4444:x=40:y=82:enable='between(t\\,0\\,${titleEnd})'`,
-    `drawtext=fontfile=${FONT_BOLD}:textfile=${titleFile}:fontsize=42:fontcolor=white:x=40:y=126:line_spacing=12:enable='between(t\\,0\\,${titleEnd})'`,
+    `drawbox=x=30:y=68:w=iw-60:h=3:color=0xef4444:t=fill:enable='between(t\\,0\\,${titleEnd})'`,
+    `drawtext=fontfile=${FONT_BOLD}:text='BREAKING NEWS':fontsize=18:fontcolor=0xef4444:x=40:y=78:enable='between(t\\,0\\,${titleEnd})'`,
+    `drawtext=fontfile=${FONT_BOLD}:textfile=${titleFile}:fontsize=42:fontcolor=white:x=40:y=122:line_spacing=12:enable='between(t\\,0\\,${titleEnd})'`,
 
     // ── Key points slide (titleEnd → pointsEnd) ──
-    `drawbox=x=30:y=72:w=iw-60:h=3:color=0x10b981:t=fill:enable='between(t\\,${titleEnd}\\,${pointsEnd})'`,
-    `drawtext=fontfile=${FONT_BOLD}:text='KEY POINTS':fontsize=18:fontcolor=0x10b981:x=40:y=82:enable='between(t\\,${titleEnd}\\,${pointsEnd})'`,
-    `drawtext=fontfile=${FONT_REG}:textfile=${pointsFile}:fontsize=27:fontcolor=white:x=40:y=126:line_spacing=14:enable='between(t\\,${titleEnd}\\,${pointsEnd})'`,
+    `drawbox=x=30:y=68:w=iw-60:h=3:color=0x10b981:t=fill:enable='between(t\\,${titleEnd}\\,${pointsEnd})'`,
+    `drawtext=fontfile=${FONT_BOLD}:text='KEY POINTS':fontsize=18:fontcolor=0x10b981:x=40:y=78:enable='between(t\\,${titleEnd}\\,${pointsEnd})'`,
+    `drawtext=fontfile=${FONT_REG}:textfile=${pointsFile}:fontsize=27:fontcolor=white:x=40:y=122:line_spacing=14:enable='between(t\\,${titleEnd}\\,${pointsEnd})'`,
 
     // ── CTA slide (pointsEnd → end) ──
-    `drawbox=x=30:y=72:w=iw-60:h=3:color=0xfbbf24:t=fill:enable='gte(t\\,${pointsEnd})'`,
+    `drawbox=x=30:y=68:w=iw-60:h=3:color=0xfbbf24:t=fill:enable='gte(t\\,${pointsEnd})'`,
     `drawtext=fontfile=${FONT_BOLD}:text='SUBSCRIBE FOR MORE':fontsize=24:fontcolor=0xfbbf24:x=40:y=230:enable='gte(t\\,${pointsEnd})'`,
     `drawtext=fontfile=${FONT_REG}:textfile=${ctaFile}:fontsize=28:fontcolor=white:x=40:y=295:line_spacing=14:enable='gte(t\\,${pointsEnd})'`,
   ].join(',')
 
   let args
-
-  if (bgImagePath && fs.existsSync(bgImagePath)) {
-    // Cricket background image with dark overlay
-    const vf = `scale=1280:720:force_original_aspect_ratio=increase,crop=1280:720,${overlays}`
+  if (useImage) {
+    // Pexels image background with dark overlay
     args = [
-      '-loop', '1', '-i', bgImagePath,
+      '-loop', '1', '-i', themeOrImage,
       '-i', audioPath,
-      '-vf', vf,
+      '-vf', `scale=1280:720:force_original_aspect_ratio=increase,crop=1280:720,${overlays}`,
       '-c:v', 'libx264', '-preset', 'veryfast', '-b:v', '2000k', '-g', '50',
       '-c:a', 'aac', '-b:a', '128k', '-ar', '44100',
-      '-t', String(Math.ceil(duration) + 1),
-      '-shortest',
-      '-y', outputPath,
+      '-t', String(Math.ceil(duration) + 1), '-shortest', '-y', outputPath,
     ]
   } else {
-    // Fallback: plain dark background
+    // Gradient background fallback
+    const c1 = theme.color1, c2 = theme.color2
+    const c1r = parseInt(c1.slice(2,4),16), c1g = parseInt(c1.slice(4,6),16), c1b = parseInt(c1.slice(6,8),16)
+    const c2r = parseInt(c2.slice(2,4),16), c2g = parseInt(c2.slice(4,6),16), c2b = parseInt(c2.slice(6,8),16)
+    const gradBg = `geq=r='${c1r}+(${c2r-c1r})*Y/H':g='${c1g}+(${c2g-c1g})*Y/H':b='${c1b}+(${c2b-c1b})*Y/H'`
     args = [
-      '-f', 'lavfi', '-i', `color=c=0x0f172a:s=1280x720:r=25`,
+      '-f', 'lavfi', '-i', `color=c=black:s=1280x720:r=25`,
       '-i', audioPath,
-      '-vf', overlays,
+      '-vf', `${gradBg},${overlays}`,
       '-c:v', 'libx264', '-preset', 'veryfast', '-b:v', '2000k', '-g', '50',
       '-c:a', 'aac', '-b:a', '128k', '-ar', '44100',
-      '-t', String(Math.ceil(duration) + 1),
-      '-shortest',
-      '-y', outputPath,
+      '-t', String(Math.ceil(duration) + 1), '-shortest', '-y', outputPath,
     ]
   }
 
   return new Promise((resolve, reject) => {
-    console.log('[VideoGen] Rendering with', bgImagePath ? 'cricket background image' : 'dark background', '...')
+    console.log(`[VideoGen] Rendering with ${useImage ? 'Pexels image' : `gradient (${theme.color1}→${theme.color2})`} ...`)
     const proc = spawn('ffmpeg', args, { stdio: ['pipe', 'pipe', 'pipe'] })
 
     proc.stderr.on('data', d => {
@@ -240,7 +283,6 @@ async function createNewsVideo({ title, excerpt, slug, keywords = [] }) {
   const ts = Date.now()
   const audioPath = path.join(TMP_DIR, `narration-${ts}.mp3`)
   const videoPath = path.join(TMP_DIR, `news-${ts}.mp4`)
-  let bgImagePath = null
 
   try {
     // 1. Generate script
@@ -248,8 +290,9 @@ async function createNewsVideo({ title, excerpt, slug, keywords = [] }) {
     script.title = title
     console.log('[VideoGen] Script ready —', script.points.length, 'points')
 
-    // 2. Fetch cricket background image
-    bgImagePath = await fetchBackgroundImage(title, keywords)
+    // 2. Fetch Pexels cricket image (copyright-safe) — falls back to gradient if not available
+    const bgImagePath = await fetchPexelsImage(title, keywords)
+    const background = bgImagePath || pickTheme(title, keywords)
 
     // 3. TTS narration (Indian accent via Google Cloud TTS)
     const ttsPath = await textToSpeech(script.narration, `narration-${ts}.mp3`)
@@ -259,8 +302,8 @@ async function createNewsVideo({ title, excerpt, slug, keywords = [] }) {
     const duration = await getAudioDuration(ttsPath)
     console.log(`[VideoGen] Audio: ${duration.toFixed(1)}s`)
 
-    // 5. Render video with background image
-    await buildVideo(script, ttsPath, videoPath, duration, bgImagePath)
+    // 5. Render video
+    await buildVideo(script, ttsPath, videoPath, duration, background)
     console.log('[VideoGen] Video rendered:', videoPath)
 
     // 6. Upload to YouTube
@@ -292,7 +335,7 @@ async function createNewsVideo({ title, excerpt, slug, keywords = [] }) {
     return { success: true, videoId, url: `https://youtube.com/watch?v=${videoId}` }
   } catch (err) {
     console.error('[VideoGen] Failed:', err.message)
-    ;[audioPath, videoPath, bgImagePath].forEach(f => { if (f) try { fs.unlinkSync(f) } catch {} })
+    ;[audioPath, videoPath].forEach(f => { if (f) try { fs.unlinkSync(f) } catch {} })
     return { success: false, error: err.message }
   }
 }
