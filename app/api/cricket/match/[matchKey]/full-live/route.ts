@@ -387,10 +387,13 @@ export async function GET(
         },
         innings,
         messages: matchData.messages || [],
-        statusNote:
-          matchData.messages?.[0]?.value ||
-          (matchData.play_status === 'in_play' ? 'Match in progress' : matchData.play_status) ||
-          matchData.status,
+        statusNote: (() => {
+          const msgVal = matchData.messages?.[0]?.value
+          if (typeof msgVal === 'string' && msgVal) return msgVal
+          if (matchData.play_status === 'in_play') return 'Match in progress'
+          if (typeof matchData.play_status === 'string') return matchData.play_status
+          return typeof matchData.status === 'string' ? matchData.status : ''
+        })(),
       },
       currentPlayers,
       ballByBall: ballByBall.reverse(), // Most recent first

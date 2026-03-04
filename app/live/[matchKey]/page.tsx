@@ -269,11 +269,11 @@ function Scorecard({
                 </div>
                 <div className="text-right">
                   <span className={`text-2xl font-bold font-mono ${i === 0 ? 'text-emerald-400' : 'text-cyan-400'}`}>
-                    {inn.scoreStr || (inn.runs !== null ? `${inn.runs}/${wickets}` : '—')}
+                    {(typeof inn.scoreStr === 'string' && inn.scoreStr) || (inn.runs !== null ? `${inn.runs}/${wickets}` : '—')}
                   </span>
-                  {inn.runRate !== null && (
+                  {inn.runRate !== null && typeof inn.runRate === 'number' && (
                     <p className="text-[10px] text-gray-500 mt-0.5">
-                      RR: {typeof inn.runRate === 'number' ? inn.runRate.toFixed(2) : inn.runRate}
+                      RR: {inn.runRate.toFixed(2)}
                     </p>
                   )}
                 </div>
@@ -295,7 +295,7 @@ function Scorecard({
       </div>
 
       {/* Status note */}
-      {match.statusNote && (
+      {typeof match.statusNote === 'string' && match.statusNote && (
         <p className="mt-4 text-sm text-emerald-400 font-medium bg-emerald-500/10 px-3 py-2 rounded-lg">
           {match.statusNote}
         </p>
