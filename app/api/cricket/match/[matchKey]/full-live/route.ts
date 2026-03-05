@@ -250,20 +250,34 @@ export async function GET(
       //   Returns the CURRENT over only — fetch up to 2 previous overs to get ~18 balls
       if (bbbData.over) {
         // Parse current over
-        const { balls: currentBalls, prevKey: firstPrevKey } = parseBbbOverResponse(bbbData)
+        const { balls: currentBalls } = parseBbbOverResponse(bbbData)
         ballByBall.push(...currentBalls)
 
-        // Sequentially fetch up to 2 previous overs via the previous_over_key chain
-        // Endpoint: match/{matchKey}/ball-by-ball/{over_key}/ (path param, NOT query param)
-        let nextPrevKey: string | null = firstPrevKey
-        for (let i = 0; i < 2 && nextPrevKey; i++) {
-          try {
-            const prevRes = await roanuzGet(`match/${matchKey}/ball-by-ball/${nextPrevKey}/`)
-            const { balls: prevBalls, prevKey: newPrevKey } = parseBbbOverResponse(prevRes?.data)
-            ballByBall.push(...prevBalls)
-            nextPrevKey = newPrevKey
-          } catch {
-            break
+        // Derive current over number + innings key to construct previous over keys directly.
+        // DO NOT follow previous_over_key — the API skips overs (e.g. 9 → 5 → 4).
+        // Instead build keys: {innings}_{over_number-1}, {innings}_{over_number-2} ...
+        const curOverIndex = bbbData.over.index
+        const curOverNum: number =
+          (curOverIndex && typeof curOverIndex === 'object' && typeof curOverIndex.over_number === 'number')
+            ? curOverIndex.over_number
+            : (typeof curOverIndex === 'number' ? curOverIndex : 0)
+        const curInningsKey: string =
+          (curOverIndex && typeof curOverIndex === 'object' && typeof curOverIndex.innings === 'string')
+            ? curOverIndex.innings
+            : (bbbData.innings_key || '')
+
+        if (curInningsKey && curOverNum > 0) {
+          for (let i = 1; i <= 2; i++) {
+            const targetOver = curOverNum - i
+            if (targetOver < 0) break
+            const overKey = `${curInningsKey}_${targetOver}`
+            try {
+              const prevRes = await roanuzGet(`match/${matchKey}/ball-by-ball/${overKey}/`)
+              const { balls: prevBalls } = parseBbbOverResponse(prevRes?.data)
+              ballByBall.push(...prevBalls)
+            } catch {
+              break
+            }
           }
         }
       } else {
