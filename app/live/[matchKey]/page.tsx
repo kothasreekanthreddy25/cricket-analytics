@@ -463,13 +463,15 @@ function WormChart({ data, teams }: { data: any; teams: { a: TeamInfo | null; b:
         const overs = inningsVal?.overs || inningsVal?.graph || []
         if (Array.isArray(overs) && overs[over] !== undefined) {
           const teamSide = inningsKey.includes('a') ? 'a' : 'b'
-          point[teamSide] = typeof overs[over] === 'object' ? overs[over].runs : overs[over]
+          const raw = typeof overs[over] === 'object' ? overs[over].runs : overs[over]
+          const n = Number(raw); if (Number.isFinite(n)) point[teamSide] = n
         } else if (typeof overs === 'object' && !Array.isArray(overs)) {
           // Object with over keys
           const overData = overs[over] || overs[`${over}`]
           if (overData !== undefined) {
             const teamSide = inningsKey.includes('a') ? 'a' : 'b'
-            point[teamSide] = typeof overData === 'object' ? overData.runs || overData.cumulative_runs : overData
+            const raw = typeof overData === 'object' ? overData.runs || overData.cumulative_runs : overData
+            const n = Number(raw); if (Number.isFinite(n)) point[teamSide] = n
           }
         }
       }
@@ -579,12 +581,14 @@ function ManhattanChart({ data, teams }: { data: any; teams: { a: TeamInfo | nul
         if (Array.isArray(overs)) {
           const overData = overs[over - 1] || overs[over]
           if (overData !== undefined) {
-            point[teamSide] = typeof overData === 'object' ? overData.runs : overData
+            const raw = typeof overData === 'object' ? overData.runs : overData
+            const n = Number(raw); if (Number.isFinite(n)) point[teamSide] = n
           }
         } else if (typeof overs === 'object') {
           const overData = overs[over] || overs[`${over}`] || overs[over - 1]
           if (overData !== undefined) {
-            point[teamSide] = typeof overData === 'object' ? overData.runs : overData
+            const raw = typeof overData === 'object' ? overData.runs : overData
+            const n = Number(raw); if (Number.isFinite(n)) point[teamSide] = n
           }
         }
       }
@@ -681,16 +685,18 @@ function RunRateChart({ data, teams }: { data: any; teams: { a: TeamInfo | null;
         if (Array.isArray(overs)) {
           const overData = overs[over - 1] || overs[over]
           if (overData !== undefined) {
-            point[teamSide] = typeof overData === 'object'
+            const raw = typeof overData === 'object'
               ? overData.run_rate || overData.cumulative_run_rate
               : overData
+            const n = Number(raw); if (Number.isFinite(n)) point[teamSide] = n
           }
         } else if (typeof overs === 'object') {
           const overData = overs[over] || overs[`${over}`]
           if (overData !== undefined) {
-            point[teamSide] = typeof overData === 'object'
+            const raw = typeof overData === 'object'
               ? overData.run_rate || overData.cumulative_run_rate
               : overData
+            const n = Number(raw); if (Number.isFinite(n)) point[teamSide] = n
           }
         }
       }

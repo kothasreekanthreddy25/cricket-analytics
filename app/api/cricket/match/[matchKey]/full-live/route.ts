@@ -98,18 +98,28 @@ export async function GET(
     const ballByBall: any[] = []
 
     /**
-     * Format a Roanuz player_key into a display name.
-     * "t_seifert" → "T Seifert"  |  "finn_allen" → "Finn Allen"
+     * Extract a readable name from a Roanuz player_key.
+     * Roanuz v5 uses two formats:
+     *   Long:  "c__player__loren_tshuma__639fb"  → "Loren Tshuma"
+     *   Short: "w_ml_green"                       → "W Ml Green"
      */
-    function formatPlayerKey(key: string | undefined): string {
-      if (!key) return ''
+    function extractPlayerName(key: string | undefined): string {
+      if (!key || typeof key !== 'string') return ''
+      // Long format: segments separated by double-underscore
+      const dblParts = key.split('__')
+      if (dblParts.length >= 3) {
+        // 3rd segment is the name: "loren_tshuma" → "Loren Tshuma"
+        return dblParts[2].split('_').map((p: string) => p.charAt(0).toUpperCase() + p.slice(1)).join(' ')
+      }
+      // Short format: single underscores, capitalise each word
       return key.split('_').map((p: string) => p.charAt(0).toUpperCase() + p.slice(1)).join(' ')
     }
 
     /** Parse one ball object into our normalised BallEvent shape. */
-    function parseBall(ball: any, inningsKey: string, overNum: number): any {
+    function parseBall(ball: any, fallbackInnings: string, fallbackOver: number): any {
       // ── Runs ──────────────────────────────────────────────────────────────
-      // Confirmed Roanuz v5: bat runs live in ball.batsman.runs
+      // Roanuz v5: batsman runs in ball.batsman.runs
+      //            total ball runs (incl extras) in ball.team_score.runs
       let bRuns = 0
       if (ball.batsman && typeof ball.batsman.runs === 'number') {
         bRuns = ball.batsman.runs
@@ -122,73 +132,137 @@ export async function GET(
       }
       bRuns = Number(bRuns) || 0
 
-      const extras = Number(ball.extras ?? ball.runs?.extras ?? 0) || 0
-      const totalRuns = bRuns + extras
+      // Roanuz v5: extras are in team_score.extras
+      const extras = Number(ball.team_score?.extras ?? ball.extras ?? ball.runs?.extras ?? 0) || 0
+      // Use team_score.runs as total when available (includes extras)
+      const totalRuns = typeof ball.team_score?.runs === 'number'
+        ? ball.team_score.runs
+        : bRuns + extras
+
+      // ── Ball position ─────────────────────────────────────────────────────
+      // Roanuz v5: ball.overs = [over_number, ball_in_over]  e.g. [33, 6]
+      let ballOver = fallbackOver
+      let ballNum = 0
+      if (Array.isArray(ball.overs) && ball.overs.length >= 2) {
+        ballOver = Number(ball.overs[0]) || 0
+        ballNum  = Number(ball.overs[1]) || 0
+      } else {
+        // Legacy / other formats
+        let rawBallNum: any = ball.num ?? ball.ball_number ?? null
+        if (rawBallNum == null && (typeof ball.ball === 'number' || typeof ball.ball === 'string')) {
+          rawBallNum = ball.ball
+        }
+        if (rawBallNum == null && ball.ball_in_innings) {
+          const parts = String(ball.ball_in_innings).split('_')
+          rawBallNum = parseInt(parts[parts.length - 1], 10) || 0
+        }
+        ballNum = Number.isFinite(Number(rawBallNum)) ? Number(rawBallNum) : 0
+      }
+
+      // ── Innings key ───────────────────────────────────────────────────────
+      // Roanuz v5: ball.innings is the innings key directly on the ball
+      const inningsKey = typeof ball.innings === 'string' && ball.innings
+        ? ball.innings
+        : fallbackInnings
 
       // ── Players ───────────────────────────────────────────────────────────
-      // Confirmed Roanuz v5: names come from player_key ("t_seifert"), not .name
+      // Roanuz v5: player_key on batsman/bowler objects — use extractPlayerName()
       const batsman =
         ball.batsman?.name ||
-        ball.batsman?.player?.name ||
-        formatPlayerKey(ball.batsman?.player_key) ||
-        ball.batsman_key || ''
+        extractPlayerName(ball.batsman?.player_key) ||
+        extractPlayerName(ball.batsman_key) || ''
 
       const bowler =
         ball.bowler?.name ||
-        ball.bowler?.player?.name ||
-        formatPlayerKey(ball.bowler?.player_key) ||
-        ball.bowler_key || ''
+        extractPlayerName(ball.bowler?.player_key) ||
+        extractPlayerName(ball.bowler_key) || ''
 
       // ── Wicket ────────────────────────────────────────────────────────────
-      // Confirmed Roanuz v5: is_wicket is at ball level + ball.batsman.is_wicket
-      const isWicket = !!(ball.is_wicket || ball.batsman?.is_wicket || ball.wicket)
+      // Roanuz v5: team_score.is_wicket is most reliable; wicket.wicket_type for kind
+      const isWicket = !!(ball.team_score?.is_wicket || ball.is_wicket || ball.batsman?.is_wicket || ball.wicket)
       const wicketType =
-        ball.wicket?.kind || ball.wicket?.type || ball.wicket_type ||
+        ball.wicket?.wicket_type || ball.wicket?.kind || ball.wicket?.type || ball.wicket_type ||
         (isWicket ? 'OUT' : null)
       const dismissedPlayer =
+        extractPlayerName(ball.wicket?.player_key) ||
         ball.wicket?.batsman?.name ||
         ball.wicket?.player?.name ||
         ball.wicket?.player_out || null
 
-      // ── Ball position ─────────────────────────────────────────────────────
-      // ball.ball_in_innings = "b_1_0_1" → last segment = ball number in over
-      let ballNum = ball.num ?? ball.ball_number ?? ball.ball ?? null
-      if (ballNum == null && ball.ball_in_innings) {
-        const parts = String(ball.ball_in_innings).split('_')
-        ballNum = parseInt(parts[parts.length - 1], 10) || 0
-      }
-      ballNum = ballNum ?? 0
+      // ── 4s and 6s ────────────────────────────────────────────────────────
+      // Roanuz v5: ball.batsman.is_four / is_six are explicit booleans
+      const isFour = !!(ball.batsman?.is_four || bRuns === 4)
+      const isSix  = !!(ball.batsman?.is_six  || bRuns === 6)
+
+      // ── Commentary ────────────────────────────────────────────────────────
+      const rawComment = ball.comment || ball.commentary || ''
+      const safeCommentary = typeof rawComment === 'string'
+        ? rawComment.replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim()
+        : ''
 
       return {
-        innings: inningsKey,
-        over: overNum,
-        ball: ballNum,
-        runs: totalRuns,
-        batsmanRuns: bRuns,
-        extras,
-        batsman,
-        bowler,
-        // Roanuz comments can contain HTML like <b>...</b> — strip tags for clean display
-        commentary: (ball.comment || ball.commentary || '').replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim(),
-        isWicket,
-        wicketType,
-        dismissedPlayer,
-        isFour: bRuns === 4,
-        isSix: bRuns === 6,
-        milestone: ball.milestone?.type || null,
+        innings:          inningsKey,
+        over:             Number.isFinite(ballOver) ? ballOver : 0,
+        ball:             Number.isFinite(ballNum)  ? ballNum  : 0,
+        runs:             Number.isFinite(totalRuns) ? totalRuns : 0,
+        batsmanRuns:      Number.isFinite(bRuns) ? bRuns : 0,
+        extras:           Number.isFinite(extras) ? extras : 0,
+        batsman:          typeof batsman === 'string' ? batsman : '',
+        bowler:           typeof bowler  === 'string' ? bowler  : '',
+        commentary:       safeCommentary,
+        isWicket:         !!isWicket,
+        wicketType:       typeof wicketType === 'string' ? wicketType : (isWicket ? 'OUT' : null),
+        dismissedPlayer:  typeof dismissedPlayer === 'string' && dismissedPlayer ? dismissedPlayer : null,
+        isFour,
+        isSix,
+        milestone:        typeof ball.milestone?.type === 'string' ? ball.milestone.type : null,
       }
+    }
+
+    /**
+     * Parse one Roanuz bbb response shape and return its balls + next prevKey.
+     * Shape: { over: { index: {innings, over_number}, balls: [...] }, previous_over_key: "a_1_40" }
+     */
+    function parseBbbOverResponse(data: any): { balls: any[], prevKey: string | null } {
+      if (!data?.over) return { balls: [], prevKey: null }
+      const overIndex = data.over.index
+      const overNum: number =
+        (overIndex && typeof overIndex === 'object' && typeof overIndex.over_number === 'number')
+          ? overIndex.over_number
+          : (typeof overIndex === 'number' ? overIndex : (data.over.num ?? 0))
+      const inningsKey: string =
+        (overIndex && typeof overIndex === 'object' && typeof overIndex.innings === 'string')
+          ? overIndex.innings
+          : (data.innings_key || data.over.innings_key || '')
+      const rawBalls: any[] = data.over.balls || data.over.ball || []
+      const balls = Array.isArray(rawBalls)
+        ? rawBalls.map((b: any) => parseBall(b, inningsKey, overNum))
+        : []
+      const prevKey = typeof data.previous_over_key === 'string' ? data.previous_over_key : null
+      return { balls, prevKey }
     }
 
     if (bbbData) {
       // ── Roanuz v5 confirmed structure ──────────────────────────────────────
-      //   { over: { index: N, balls: [...] }, previous_over_key, next_over_key }
-      //   Returns the CURRENT over only (not all innings).
+      //   { over: { index: {innings, over_number} | N, balls: [...] }, previous_over_key: "a_1_40" }
+      //   Returns the CURRENT over only — fetch up to 2 previous overs to get ~18 balls
       if (bbbData.over) {
-        const overNum: number = bbbData.over.index ?? bbbData.over.num ?? 0
-        const balls: any[] = bbbData.over.balls || bbbData.over.ball || []
-        const inningsKey: string = bbbData.innings_key || bbbData.over.innings_key || ''
-        for (const ball of (Array.isArray(balls) ? balls : [])) {
-          ballByBall.push(parseBall(ball, inningsKey, overNum))
+        // Parse current over
+        const { balls: currentBalls, prevKey: firstPrevKey } = parseBbbOverResponse(bbbData)
+        ballByBall.push(...currentBalls)
+
+        // Sequentially fetch up to 2 previous overs via the previous_over_key chain
+        // Endpoint: match/{matchKey}/ball-by-ball/{over_key}/ (path param, NOT query param)
+        let nextPrevKey: string | null = firstPrevKey
+        for (let i = 0; i < 2 && nextPrevKey; i++) {
+          try {
+            const prevRes = await roanuzGet(`match/${matchKey}/ball-by-ball/${nextPrevKey}/`)
+            const { balls: prevBalls, prevKey: newPrevKey } = parseBbbOverResponse(prevRes?.data)
+            ballByBall.push(...prevBalls)
+            nextPrevKey = newPrevKey
+          } catch {
+            break
+          }
         }
       } else {
         // ── Fallback: full innings-based structure ─────────────────────────
@@ -302,19 +376,29 @@ export async function GET(
       }
 
       const teamKeys = Object.keys(teams)
-      if (teamKeys.length >= 2 && Object.keys(winPct).length >= 2) {
+      if (teamKeys.length >= 2 && Object.keys(winPct).length > 0) {
+        // winPct keys are actual Roanuz team keys (e.g. "a-rz--cricket--ZIMS"),
+        // NOT the positional 'a'/'b' keys — look up by teams[side].key
+        const actualKeyA = safeStr(teams[teamKeys[0]]?.key)
+        const actualKeyB = safeStr(teams[teamKeys[1]]?.key)
+        const winPctKeys = Object.keys(winPct)
+
+        // Try matching by actual team key; fall back to positional order within winPct
+        const pctA = winPct[actualKeyA] ?? winPct[winPctKeys[0]] ?? 50
+        const pctB = winPct[actualKeyB] ?? winPct[winPctKeys[1]] ?? (100 - pctA)
+
         probability = {
           teamA: {
             key: teamKeys[0],
             name: teams[teamKeys[0]]?.name || teamKeys[0],
             code: teams[teamKeys[0]]?.code || teamKeys[0].toUpperCase(),
-            pct: winPct[teamKeys[0]] ?? 50,
+            pct: pctA,
           },
           teamB: {
             key: teamKeys[1],
             name: teams[teamKeys[1]]?.name || teamKeys[1],
             code: teams[teamKeys[1]]?.code || teamKeys[1].toUpperCase(),
-            pct: winPct[teamKeys[1]] ?? 50,
+            pct: pctB,
           },
         }
       }
@@ -405,7 +489,11 @@ export async function GET(
         })(),
       },
       currentPlayers,
-      ballByBall: ballByBall.reverse(), // Most recent first
+      ballByBall: ballByBall.sort((a, b) => {
+        // Most recent ball first: descending over, then descending ball-in-over
+        if (b.over !== a.over) return b.over - a.over
+        return b.ball - a.ball
+      }),
       probability: {
         data: probability,
         source: oddsSource,
