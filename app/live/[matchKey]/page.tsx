@@ -264,7 +264,7 @@ function Scorecard({
               >
                 <div className="flex items-center gap-3">
                   <span className={`text-lg font-bold ${i === 0 ? 'text-emerald-400' : 'text-cyan-400'}`}>
-                    {team?.name || inn.battingTeam}
+                    {team?.name || (typeof inn.battingTeam === 'string' ? inn.battingTeam : '')}
                   </span>
                 </div>
                 <div className="text-right">
@@ -1072,7 +1072,7 @@ export default function LiveMatchPage() {
             </button>
             <div>
               <h1 className="text-sm font-bold text-white">{match.shortName || match.name}</h1>
-              <p className="text-[10px] text-gray-500">{match.subTitle}</p>
+              {match.subTitle && <p className="text-[10px] text-gray-500">{String(match.subTitle)}</p>}
             </div>
             {isLive && (
               <span className="flex items-center gap-1 text-[10px] font-bold text-red-400 bg-red-500/10 px-2 py-0.5 rounded-full">

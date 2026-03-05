@@ -45,6 +45,16 @@ export async function GET(
     const teams = matchData.teams || {}
     const play = matchData.play || {}
 
+    /** Coerce any value to a string, or return fallback if not a plain string */
+    const safeStr = (v: any, fallback = ''): string =>
+      typeof v === 'string' ? v : fallback
+
+    /** Coerce any value to a number, or null */
+    const safeNum = (v: any): number | null => {
+      const n = Number(v)
+      return typeof v === 'number' ? v : (isNaN(n) ? null : n)
+    }
+
     // Helper: parse Roanuz score_str formats:
     //   "68/3 in 13.0"  (Roanuz v5 format)
     //   "68/3 (13.0 ov)" (older format)
@@ -70,16 +80,15 @@ export async function GET(
         // score_str is the primary source — always parsed correctly
         const parsed = parseScoreStr(inningsData.score_str)
         innings.push({
-          key: inningsKey,
+          key: safeStr(inningsKey),
           teamSide,
-          battingTeam: inningsData.batting_team_key || teamSide,
-          // Use parsed values from score_str as primary (most reliable)
-          runs: parsed.runs ?? inningsData.runs ?? null,
-          wickets: parsed.wickets ?? inningsData.wickets ?? 0,
-          overs: parsed.overs ?? null,  // Only from score_str to avoid wrong raw values
-          scoreStr: inningsData.score_str || null,
-          runRate: inningsData.run_rate ?? null,
-          extras: inningsData.extras ?? null,
+          battingTeam: safeStr(inningsData.batting_team_key) || teamSide,
+          runs: parsed.runs ?? safeNum(inningsData.runs),
+          wickets: parsed.wickets ?? safeNum(inningsData.wickets) ?? 0,
+          overs: parsed.overs ?? null,
+          scoreStr: safeStr(inningsData.score_str) || null,
+          runRate: safeNum(inningsData.run_rate),
+          extras: safeNum(inningsData.extras),
         })
       }
     }
@@ -113,8 +122,8 @@ export async function GET(
       }
       bRuns = Number(bRuns) || 0
 
-      const extras = ball.extras ?? ball.runs?.extras ?? 0
-      const totalRuns = bRuns + (Number(extras) || 0)
+      const extras = Number(ball.extras ?? ball.runs?.extras ?? 0) || 0
+      const totalRuns = bRuns + extras
 
       // ── Players ───────────────────────────────────────────────────────────
       // Confirmed Roanuz v5: names come from player_key ("t_seifert"), not .name
@@ -358,31 +367,31 @@ export async function GET(
     return NextResponse.json({
       success: true,
       match: {
-        key: matchData.key,
-        name: matchData.name,
-        shortName: matchData.short_name,
-        subTitle: matchData.sub_title,
-        status: matchData.status,
-        playStatus: matchData.play_status,
-        format: matchData.format,
+        key: safeStr(matchData.key),
+        name: safeStr(matchData.name),
+        shortName: safeStr(matchData.short_name),
+        subTitle: safeStr(matchData.sub_title),
+        status: safeStr(matchData.status),
+        playStatus: safeStr(matchData.play_status),
+        format: safeStr(matchData.format),
         startAt: matchData.start_at
           ? new Date(matchData.start_at * 1000).toISOString()
           : null,
-        winner: matchData.winner,
+        winner: typeof matchData.winner === 'string' ? matchData.winner : null,
         toss: matchData.toss,
         venue: matchData.venue
           ? {
-              name: matchData.venue.name,
-              city: matchData.venue.city,
-              country: matchData.venue.country?.name,
+              name: safeStr(matchData.venue.name),
+              city: safeStr(matchData.venue.city),
+              country: safeStr(matchData.venue.country?.name),
             }
           : null,
         teams: {
           a: teams.a
-            ? { key: teams.a.key, name: teams.a.name, code: teams.a.code }
+            ? { key: safeStr(teams.a.key), name: safeStr(teams.a.name), code: safeStr(teams.a.code) }
             : null,
           b: teams.b
-            ? { key: teams.b.key, name: teams.b.name, code: teams.b.code }
+            ? { key: safeStr(teams.b.key), name: safeStr(teams.b.name), code: safeStr(teams.b.code) }
             : null,
         },
         innings,
