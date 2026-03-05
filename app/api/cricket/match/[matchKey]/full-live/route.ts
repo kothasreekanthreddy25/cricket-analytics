@@ -144,7 +144,9 @@ export async function GET(
       let ballOver = fallbackOver
       let ballNum = 0
       if (Array.isArray(ball.overs) && ball.overs.length >= 2) {
-        ballOver = Number(ball.overs[0]) || 0
+        // Use fallbackOver for the absolute over number — ball.overs[0] is a local
+        // index in previous-over fetches (always 0 or 1), NOT the actual over number
+        ballOver = fallbackOver
         ballNum  = Number(ball.overs[1]) || 0
       } else {
         // Legacy / other formats
