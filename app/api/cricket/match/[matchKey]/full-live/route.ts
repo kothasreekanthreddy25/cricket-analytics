@@ -373,7 +373,7 @@ export async function GET(
 
       if (prediction.percentage && Array.isArray(prediction.percentage)) {
         for (const item of prediction.percentage) {
-          winPct[item.team_key] = item.value
+          winPct[item.team_key] = Math.round(Number(item.value))
         }
       }
 
