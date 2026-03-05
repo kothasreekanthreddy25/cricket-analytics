@@ -279,7 +279,110 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── Section 8: Latest News ── */}
+      {/* ── Section 8: Mobile App CTA ── */}
+      <section className="bg-gray-950 py-10 px-4 border-t border-gray-800/50">
+        <div className="max-w-7xl mx-auto">
+          <div className="bg-gradient-to-r from-gray-900 via-gray-800/80 to-gray-900 border border-emerald-500/20 rounded-2xl p-8 md:p-10 flex flex-col md:flex-row items-center gap-8">
+            {/* Left */}
+            <div className="flex-1 text-center md:text-left">
+              <span className="inline-flex items-center gap-2 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-3 py-1 rounded-full text-xs font-medium mb-3">
+                <Zap className="w-3 h-3" />
+                New — Mobile App
+              </span>
+              <h2 className="text-2xl md:text-3xl font-bold text-white mt-2">
+                Cricket on the go
+              </h2>
+              <p className="text-gray-400 text-sm mt-3 max-w-md md:max-w-none">
+                Live scores, ball-by-ball, AI win probability and match predictions — all in
+                your pocket. Available now via Expo Go on Android &amp; iOS.
+              </p>
+              <ul className="mt-4 space-y-1.5">
+                {[
+                  'Real-time Socket.IO live scores',
+                  'AI win probability bars',
+                  'Ball-by-ball commentary',
+                  'Latest cricket news & blog',
+                ].map(f => (
+                  <li key={f} className="flex items-center gap-2 text-gray-300 text-sm justify-center md:justify-start">
+                    <Check className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                    {f}
+                  </li>
+                ))}
+              </ul>
+              <div className="mt-6 flex flex-col sm:flex-row gap-3 justify-center md:justify-start">
+                <a
+                  href="https://expo.dev/go"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white px-5 py-2.5 rounded-lg font-semibold text-sm transition-colors"
+                >
+                  <Activity className="w-4 h-4" />
+                  Get Expo Go
+                </a>
+                <a
+                  href="https://youtube.com/channel/UCOj7_rLFFhCzX7-VdTLg-eA"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 bg-red-600/20 hover:bg-red-600/30 text-red-400 border border-red-500/30 px-5 py-2.5 rounded-lg font-semibold text-sm transition-colors"
+                >
+                  <Radio className="w-4 h-4" />
+                  YouTube Live
+                </a>
+              </div>
+            </div>
+
+            {/* Right — Phone mockup placeholder */}
+            <div className="hidden md:flex flex-col items-center gap-3">
+              <div className="w-48 h-96 bg-gray-900 border-2 border-gray-700 rounded-3xl p-2 shadow-2xl shadow-emerald-500/10 relative overflow-hidden">
+                {/* Status bar */}
+                <div className="h-5 bg-gray-800 rounded-t-2xl flex items-center justify-center mb-1">
+                  <div className="w-12 h-1 bg-gray-700 rounded-full" />
+                </div>
+                {/* Screen content */}
+                <div className="bg-gray-950 rounded-2xl flex-1 h-[calc(100%-28px)] p-3 space-y-2 overflow-hidden">
+                  <div className="text-center text-white text-xs font-bold py-1">CricketTips</div>
+                  {/* Live card mock */}
+                  <div className="bg-gray-800/80 rounded-lg p-2 border border-emerald-500/20">
+                    <div className="flex justify-between items-center mb-1">
+                      <span className="text-[8px] text-red-400 font-bold">● LIVE</span>
+                      <span className="text-[8px] text-gray-500">T20</span>
+                    </div>
+                    <div className="flex justify-between text-[9px]">
+                      <span className="text-emerald-400 font-bold">IND</span>
+                      <span className="text-emerald-400 font-mono font-bold">186/4</span>
+                    </div>
+                    <div className="flex justify-between text-[9px]">
+                      <span className="text-cyan-400 font-bold">AUS</span>
+                      <span className="text-gray-400 font-mono">Yet to bat</span>
+                    </div>
+                    {/* Win prob bar */}
+                    <div className="mt-1.5 h-1.5 bg-gray-700 rounded-full overflow-hidden flex">
+                      <div className="h-full bg-emerald-500 w-[62%]" />
+                      <div className="h-full bg-cyan-500 flex-1" />
+                    </div>
+                    <div className="flex justify-between text-[7px] text-gray-500 mt-0.5">
+                      <span>62%</span>
+                      <span>38%</span>
+                    </div>
+                  </div>
+                  {/* Ball strip mock */}
+                  <div className="bg-gray-800/60 rounded-lg p-1.5">
+                    <div className="text-[7px] text-gray-500 mb-1">Over 18</div>
+                    <div className="flex gap-1">
+                      {['•','4','1','W','6','2'].map((b, i) => (
+                        <span key={i} className={`w-4 h-4 rounded-full flex items-center justify-center text-[6px] font-bold ${b === 'W' ? 'bg-red-500 text-white' : b === '6' ? 'bg-purple-500 text-white' : b === '4' ? 'bg-blue-500 text-white' : b === '•' ? 'bg-gray-700 text-gray-500' : 'bg-emerald-600 text-white'}`}>{b}</span>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <p className="text-[10px] text-gray-500">Scan QR in Expo Go</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Section 9: Latest News ── */}
       <section className="bg-gray-950 py-10 px-4">
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center justify-between mb-5">
@@ -304,7 +407,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── Section 9: Final CTA Banner ── */}
+      {/* ── Section 10: Final CTA Banner ── */}
       <section className="bg-gradient-to-r from-emerald-600 to-emerald-500 py-10 px-4">
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="text-2xl md:text-3xl font-bold text-white mb-3">

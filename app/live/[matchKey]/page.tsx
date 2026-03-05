@@ -222,6 +222,24 @@ function Scorecard({
   const teamA = match.teams.a
   const teamB = match.teams.b
 
+  // Required run rate in a chase
+  let chaseInfo: { target: number; needed: number; ballsLeft: number; reqRR: number } | null = null
+  if (isLive && match.innings.length === 2 && match.innings[1].runs !== null && match.innings[0].runs !== null) {
+    const target = match.innings[0].runs + 1
+    const chaseRuns = match.innings[1].runs
+    const chaseOversStr = String(match.innings[1].overs ?? '0')
+    const chaseOvers = parseFloat(chaseOversStr) || 0
+    const oversCompleted = Math.floor(chaseOvers)
+    const ballsCompleted = Math.round((chaseOvers - oversCompleted) * 10)
+    const ballsDone = oversCompleted * 6 + ballsCompleted
+    const ballsLeft = 120 - ballsDone
+    const needed = target - chaseRuns
+    const oversLeft = ballsLeft / 6
+    if (needed > 0 && oversLeft > 0) {
+      chaseInfo = { target, needed, ballsLeft, reqRR: needed / oversLeft }
+    }
+  }
+
   return (
     <div className="bg-gradient-to-br from-gray-800/80 to-gray-900/80 border border-emerald-500/30 rounded-2xl p-6 shadow-lg shadow-emerald-500/5">
       {/* Header */}
@@ -294,11 +312,91 @@ function Scorecard({
         )}
       </div>
 
+      {/* Chase Required Run Rate */}
+      {chaseInfo && (
+        <div className="mt-4 grid grid-cols-3 gap-2 text-center">
+          <div className="bg-gray-900/60 rounded-lg px-2 py-2">
+            <p className="text-[10px] text-gray-500 uppercase tracking-wider">Target</p>
+            <p className="text-lg font-bold text-white font-mono">{chaseInfo.target}</p>
+          </div>
+          <div className="bg-gray-900/60 rounded-lg px-2 py-2">
+            <p className="text-[10px] text-gray-500 uppercase tracking-wider">Need</p>
+            <p className="text-lg font-bold text-yellow-400 font-mono">{chaseInfo.needed} off {chaseInfo.ballsLeft}b</p>
+          </div>
+          <div className={`rounded-lg px-2 py-2 ${chaseInfo.reqRR > 12 ? 'bg-red-500/20' : chaseInfo.reqRR < 7 ? 'bg-emerald-500/20' : 'bg-gray-900/60'}`}>
+            <p className="text-[10px] text-gray-500 uppercase tracking-wider">Req RR</p>
+            <p className={`text-lg font-bold font-mono ${chaseInfo.reqRR > 12 ? 'text-red-400' : chaseInfo.reqRR < 7 ? 'text-emerald-400' : 'text-yellow-400'}`}>
+              {chaseInfo.reqRR.toFixed(2)}
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* Status note */}
       {typeof match.statusNote === 'string' && match.statusNote && (
         <p className="mt-4 text-sm text-emerald-400 font-medium bg-emerald-500/10 px-3 py-2 rounded-lg">
           {match.statusNote}
         </p>
+      )}
+    </div>
+  )
+}
+
+// ──────────────────────────────────────────────
+// Current Over Mini Strip
+// ──────────────────────────────────────────────
+
+function CurrentOverStrip({ balls }: { balls: BallEvent[] }) {
+  if (balls.length === 0) return null
+
+  // Current over = most recent over number in the sorted (descending) ball list
+  const currentOver = balls[0].over
+  const overBalls = balls
+    .filter(b => b.over === currentOver)
+    .sort((a, b) => a.ball - b.ball) // ascending for display
+
+  const getBallColor = (b: BallEvent) => {
+    if (b.isWicket) return { bg: 'bg-red-500', text: 'text-white', label: 'W' }
+    if (b.isSix) return { bg: 'bg-purple-500', text: 'text-white', label: '6' }
+    if (b.isFour) return { bg: 'bg-blue-500', text: 'text-white', label: '4' }
+    if (b.runs === 0) return { bg: 'bg-gray-700', text: 'text-gray-400', label: '•' }
+    return { bg: 'bg-emerald-600', text: 'text-white', label: String(b.runs) }
+  }
+
+  // Upcoming empty slots to reach 6 balls
+  const emptySlots = Math.max(0, 6 - overBalls.length)
+
+  return (
+    <div className="bg-gray-900/60 border border-gray-700/50 rounded-xl px-4 py-3 mb-4 flex items-center gap-3">
+      <span className="text-[10px] text-gray-500 uppercase tracking-wider font-medium whitespace-nowrap">
+        Over {currentOver}
+      </span>
+      <div className="flex items-center gap-1.5 flex-wrap">
+        {overBalls.map((b, i) => {
+          const { bg, text, label } = getBallColor(b)
+          return (
+            <span
+              key={i}
+              className={`inline-flex items-center justify-center w-7 h-7 rounded-full text-xs font-bold ${bg} ${text}`}
+              title={`${b.bowler} → ${b.batsman}: ${b.commentary || label}`}
+            >
+              {label}
+            </span>
+          )
+        })}
+        {Array.from({ length: emptySlots }).map((_, i) => (
+          <span
+            key={`empty-${i}`}
+            className="inline-flex items-center justify-center w-7 h-7 rounded-full border border-dashed border-gray-700 text-gray-700 text-xs"
+          >
+            ·
+          </span>
+        ))}
+      </div>
+      {overBalls.length > 0 && (
+        <span className="ml-auto text-xs text-gray-500 font-mono whitespace-nowrap">
+          {overBalls.reduce((s, b) => s + b.runs, 0)} runs
+        </span>
       )}
     </div>
   )
@@ -335,6 +433,8 @@ function BallByBallCommentary({ balls }: { balls: BallEvent[] }) {
         </h3>
         <span className="text-[10px] text-gray-500">{balls.length} deliveries</span>
       </div>
+
+      <CurrentOverStrip balls={balls} />
 
       <div className="space-y-1.5 max-h-[600px] overflow-y-auto pr-1 custom-scrollbar">
         {displayBalls.map((ball, idx) => (
@@ -1016,7 +1116,7 @@ export default function LiveMatchPage() {
     fetchData()
 
     if (autoRefresh) {
-      intervalRef.current = setInterval(fetchData, 10_000) // Every 10 seconds
+      intervalRef.current = setInterval(fetchData, 5_000) // Every 5 seconds
     }
 
     return () => {
@@ -1099,7 +1199,7 @@ export default function LiveMatchPage() {
               }`}
             >
               <Wifi className="w-3 h-3" />
-              {autoRefresh ? 'Auto (10s)' : 'Paused'}
+              {autoRefresh ? 'Auto (5s)' : 'Paused'}
             </button>
 
             {/* Manual refresh */}
