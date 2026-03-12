@@ -19,7 +19,7 @@ const {
 } = require('./roanuz')
 const { generateCommentary } = require('./commentary')
 const { textToSpeech, cleanupOldAudio, preCacheEventSounds } = require('./tts')
-const { createNewsVideo } = require('./news-video')
+const { createNewsVideo, createHighlightVideo } = require('./news-video')
 const { playCrowdSound } = require('./crowd-sounds')
 const { createLiveBroadcast, goLive, endLive, getWatchUrl, startChatPolling, stopChatPolling } = require('./youtube-live')
 const autoStream = require('./auto-stream')
@@ -822,9 +822,11 @@ async function processVideoQueue() {
   if (videoJobRunning || videoQueue.length === 0) return
   videoJobRunning = true
   const job = videoQueue.shift()
-  console.log(`[VideoQueue] Processing: "${job.title?.slice(0, 60)}"`)
+  console.log(`[VideoQueue] Processing: "${job.title?.slice(0, 60)}" (type: ${job._type || 'news'})`)
   try {
-    const result = await createNewsVideo(job)
+    const result = job._type === 'highlight'
+      ? await createHighlightVideo(job)
+      : await createNewsVideo(job)
     recordJobResult(job, result)
     if (result.success) {
       console.log(`[VideoQueue] ✓ Done: ${result.url}`)
@@ -849,6 +851,27 @@ app.post('/video/news', (req, res) => {
   console.log(`[VideoQueue] Queued: "${title.slice(0, 50)}" (queue length: ${videoQueue.length})`)
   processVideoQueue()
   res.json({ queued: true, queueLength: videoQueue.length, slug })
+})
+
+// POST /video/highlight { topic, stats?, type?, keywords? }
+app.post('/video/highlight', (req, res) => {
+  const { topic, stats, type, keywords } = req.body
+  if (!topic) return res.status(400).json({ error: 'topic is required' })
+  const validTypes = ['highlight', 'preview', 'analysis']
+  const videoType = validTypes.includes(type) ? type : 'highlight'
+  const job = {
+    _type: 'highlight',
+    topic,
+    stats: stats || '',
+    type: videoType,
+    keywords: keywords || [],
+    title: topic,
+    slug: `highlight-${Date.now()}`,
+  }
+  videoQueue.push(job)
+  console.log(`[VideoQueue] Highlight queued: "${topic}" (${videoType})`)
+  processVideoQueue()
+  res.json({ queued: true, queueLength: videoQueue.length, topic, type: videoType })
 })
 
 // Manual test — creates a short test video with dummy cricket content

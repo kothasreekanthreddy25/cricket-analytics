@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { ArrowLeft, Video, RefreshCw, CheckCircle, XCircle, Clock, Wrench, Play } from 'lucide-react'
+import { ArrowLeft, Video, RefreshCw, CheckCircle, XCircle, Clock, Wrench, Play, Zap } from 'lucide-react'
 
 interface VideoJob {
   slug: string
@@ -26,6 +26,13 @@ export default function AdminVideosPage() {
   const [loadingDiagnose, setLoadingDiagnose] = useState(false)
   const [testQueued, setTestQueued] = useState(false)
   const [error, setError] = useState<string | null>(null)
+
+  // Highlight video state
+  const [hlTopic, setHlTopic] = useState('')
+  const [hlStats, setHlStats] = useState('')
+  const [hlType, setHlType] = useState<'highlight' | 'preview' | 'analysis'>('highlight')
+  const [hlLoading, setHlLoading] = useState(false)
+  const [hlResult, setHlResult] = useState<{ success: boolean; message: string } | null>(null)
 
   async function fetchStatus() {
     try {
@@ -65,6 +72,32 @@ export default function AdminVideosPage() {
       }
     } catch (e: any) {
       setError(e.message)
+    }
+  }
+
+  async function generateHighlight() {
+    if (!hlTopic.trim()) return
+    setHlLoading(true)
+    setHlResult(null)
+    try {
+      const res = await fetch('/api/admin/video-highlight', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ topic: hlTopic, stats: hlStats, type: hlType }),
+      })
+      const data = await res.json()
+      if (data.queued) {
+        setHlResult({ success: true, message: `Queued! "${hlTopic}" — check Recent Jobs below in ~2 mins.` })
+        setHlTopic('')
+        setHlStats('')
+        fetchStatus()
+      } else {
+        setHlResult({ success: false, message: data.error || 'Failed to queue' })
+      }
+    } catch (e: any) {
+      setHlResult({ success: false, message: e.message })
+    } finally {
+      setHlLoading(false)
     }
   }
 
@@ -183,6 +216,77 @@ export default function AdminVideosPage() {
             )}
           </div>
         )}
+
+        {/* Generate Highlight Video */}
+        <div className="bg-white rounded-xl shadow-sm border p-6">
+          <h2 className="font-semibold text-gray-900 flex items-center gap-2 mb-4">
+            <Zap className="w-5 h-5 text-yellow-500" />
+            Generate Cricket Highlight Video
+          </h2>
+          <p className="text-sm text-gray-500 mb-4">
+            Enter a cricket topic and AI will write the script, narrate it, and upload to YouTube automatically.
+          </p>
+
+          <div className="space-y-3">
+            {/* Type selector */}
+            <div className="flex gap-2">
+              {(['highlight', 'preview', 'analysis'] as const).map(t => (
+                <button
+                  key={t}
+                  onClick={() => setHlType(t)}
+                  className={`px-3 py-1.5 rounded-lg text-sm font-medium capitalize transition-colors ${
+                    hlType === t
+                      ? 'bg-yellow-500 text-white'
+                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  }`}
+                >
+                  {t}
+                </button>
+              ))}
+            </div>
+
+            {/* Topic input */}
+            <input
+              type="text"
+              value={hlTopic}
+              onChange={e => setHlTopic(e.target.value)}
+              placeholder={
+                hlType === 'highlight' ? 'e.g. Kohli scores 50 against Pakistan' :
+                hlType === 'preview' ? 'e.g. India vs Australia T20 2026 Preview' :
+                'e.g. India wins series against England 3-1'
+              }
+              className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-yellow-400"
+              onKeyDown={e => e.key === 'Enter' && generateHighlight()}
+            />
+
+            {/* Optional stats */}
+            <textarea
+              value={hlStats}
+              onChange={e => setHlStats(e.target.value)}
+              placeholder="Optional: extra stats or context (e.g. Kohli: 50(45), 3 fours, 2 sixes. India: 168/4 in 18 overs)"
+              className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-yellow-400 resize-none"
+              rows={2}
+            />
+
+            <button
+              onClick={generateHighlight}
+              disabled={hlLoading || !hlTopic.trim()}
+              className="flex items-center gap-2 bg-yellow-500 hover:bg-yellow-600 disabled:bg-yellow-200 text-white px-5 py-2.5 rounded-lg text-sm font-medium transition-colors"
+            >
+              <Zap className="w-4 h-4" />
+              {hlLoading ? 'Queuing...' : 'Generate & Upload to YouTube'}
+            </button>
+
+            {hlResult && (
+              <div className={`rounded-lg p-3 text-sm flex items-center gap-2 ${
+                hlResult.success ? 'bg-green-50 text-green-700 border border-green-200' : 'bg-red-50 text-red-700 border border-red-200'
+              }`}>
+                {hlResult.success ? <CheckCircle className="w-4 h-4 shrink-0" /> : <XCircle className="w-4 h-4 shrink-0" />}
+                {hlResult.message}
+              </div>
+            )}
+          </div>
+        </div>
 
         {/* Recent Jobs */}
         <div className="bg-white rounded-xl shadow-sm border">

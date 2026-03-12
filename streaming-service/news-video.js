@@ -490,4 +490,141 @@ async function createNewsVideo({ title, excerpt, slug, keywords = [] }) {
   }
 }
 
-module.exports = { createNewsVideo }
+// ─── Highlight / Milestone Video ─────────────────────────────────────────────
+
+const VIDEO_TYPE_PROMPTS = {
+  highlight: `You are an energetic cricket sports commentator for CricketTips.ai.
+Create a punchy 60-second highlight video script for this cricket moment.
+
+Topic: {{topic}}
+Extra context: {{stats}}
+
+Return ONLY valid JSON:
+{
+  "headline": "Short punchy headline (max 8 words, ALL CAPS)",
+  "points": [
+    "Key fact 1 (max 10 words)",
+    "Key fact 2 (max 10 words)",
+    "Key fact 3 (max 10 words)",
+    "Key fact 4 (max 10 words)",
+    "Key fact 5 (max 10 words)"
+  ],
+  "narration": "Energetic 60-80 word spoken script. Start with a dramatic hook. Cover the highlights. End with: Follow CricketTips dot ai for AI cricket predictions and subscribe for more cricket highlights."
+}`,
+
+  preview: `You are a cricket analyst for CricketTips.ai.
+Create a 60-second match preview video script.
+
+Match: {{topic}}
+Context: {{stats}}
+
+Return ONLY valid JSON:
+{
+  "headline": "Short preview headline (max 8 words, ALL CAPS)",
+  "points": [
+    "Key match factor 1 (max 10 words)",
+    "Key match factor 2 (max 10 words)",
+    "Key match factor 3 (max 10 words)",
+    "Key match factor 4 (max 10 words)",
+    "Our prediction (max 10 words)"
+  ],
+  "narration": "Analytical 60-80 word script. Cover head-to-head, form, key players, pitch. End with: Get AI match predictions at CricketTips dot ai and subscribe for more cricket analysis."
+}`,
+
+  analysis: `You are a senior cricket analyst for CricketTips.ai.
+Create a 60-second post-match analysis video script.
+
+Topic: {{topic}}
+Stats: {{stats}}
+
+Return ONLY valid JSON:
+{
+  "headline": "Short analysis headline (max 8 words, ALL CAPS)",
+  "points": [
+    "Top performer highlight (max 10 words)",
+    "Match turning point (max 10 words)",
+    "Key stats insight (max 10 words)",
+    "Team performance note (max 10 words)",
+    "Series/tournament impact (max 10 words)"
+  ],
+  "narration": "Insightful 60-80 word analysis script. Cover match-winner, turning point, standout stats. End with: For daily AI cricket predictions visit CricketTips dot ai and don't forget to subscribe."
+}`,
+}
+
+async function generateHighlightScript(topic, stats, type = 'highlight') {
+  const prompt = (VIDEO_TYPE_PROMPTS[type] || VIDEO_TYPE_PROMPTS.highlight)
+    .replace('{{topic}}', topic)
+    .replace('{{stats}}', stats || 'No additional context provided')
+
+  const res = await openai.chat.completions.create({
+    model: 'gpt-4o-mini',
+    messages: [{ role: 'user', content: prompt }],
+    response_format: { type: 'json_object' },
+    temperature: 0.8,
+  })
+  return JSON.parse(res.choices[0].message.content)
+}
+
+async function createHighlightVideo({ topic, stats = '', type = 'highlight', keywords = [] }) {
+  console.log(`[HighlightVideo] Starting: "${topic}" (${type})`)
+  const ts = Date.now()
+  const videoPath = path.join(TMP_DIR, `highlight-${ts}.mp4`)
+
+  try {
+    const script = await generateHighlightScript(topic, stats, type)
+    script.title = script.headline || topic
+    console.log('[HighlightVideo] Script ready:', script.headline)
+
+    let usedHeyGen = false
+    if (process.env.HEYGEN_API_KEY) {
+      const heygenPath = path.join(TMP_DIR, `heygen-${ts}.mp4`)
+      const heygenResult = await generateHeyGenVideo(script.narration, heygenPath)
+      if (heygenResult) {
+        usedHeyGen = true
+        await addTextOverlays(script, heygenResult, videoPath)
+        try { fs.unlinkSync(heygenResult) } catch {}
+      }
+    }
+
+    if (!usedHeyGen) {
+      const allKeywords = [...keywords, ...topic.toLowerCase().split(/\s+/)]
+      const bgImagePath = await fetchPexelsImage(topic, allKeywords)
+      const background = bgImagePath || pickTheme(topic, allKeywords)
+      const presenterPath = await ensurePresenterImage()
+      const ttsPath = await textToSpeech(script.narration, `highlight-narration-${ts}.mp3`)
+      if (!ttsPath) throw new Error('TTS generation failed')
+      const duration = await getAudioDuration(ttsPath)
+      await buildVideo(script, ttsPath, videoPath, duration, background, presenterPath)
+      try { fs.unlinkSync(ttsPath) } catch {}
+      if (bgImagePath) try { fs.unlinkSync(bgImagePath) } catch {}
+    }
+
+    const typeLabel = { highlight: 'Highlights', preview: 'Match Preview', analysis: 'Analysis' }[type] || 'Highlights'
+    const ytTitle = `${topic} | ${typeLabel} | CricketTips.ai`.slice(0, 100)
+    const description = [
+      `${topic}${stats ? '\n\n' + stats : ''}`,
+      '',
+      '🏏 CricketTips.ai — AI-powered cricket predictions, live scores & analysis',
+      '🔔 Subscribe for daily cricket highlights and AI predictions!',
+      '',
+      '#cricket #cricketshorts #CricketTips ' + keywords.slice(0, 4).map(k => '#' + k.replace(/\s+/g, '')).join(' '),
+    ].join('\n')
+
+    const videoId = await uploadToYouTube({
+      videoPath,
+      title: ytTitle,
+      description,
+      tags: ['cricket', 'cricket highlights', 'cricket shorts', 'CricketTips.ai', ...keywords.slice(0, 10)],
+    })
+
+    console.log(`[HighlightVideo] Done: https://youtube.com/watch?v=${videoId}`)
+    try { fs.unlinkSync(videoPath) } catch {}
+    return { success: true, videoId, url: `https://youtube.com/watch?v=${videoId}`, presenter: usedHeyGen ? 'heygen' : 'photo' }
+  } catch (err) {
+    console.error('[HighlightVideo] Failed:', err.message)
+    try { fs.unlinkSync(videoPath) } catch {}
+    return { success: false, error: err.message }
+  }
+}
+
+module.exports = { createNewsVideo, createHighlightVideo }
