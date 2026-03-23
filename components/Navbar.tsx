@@ -37,21 +37,24 @@ export default function Navbar() {
             </span>
           </Link>
 
-          {/* Social — Desktop */}
-          <div className="hidden md:flex items-center gap-3 mr-2">
-            <a href="https://t.me/crickettipsai" target="_blank" rel="noopener noreferrer" title="Telegram" className="text-gray-500 hover:text-sky-400 transition-colors">
-              <Send className="w-4 h-4" />
-            </a>
-            <a href="https://instagram.com/crickettipsai" target="_blank" rel="noopener noreferrer" title="Instagram" className="text-gray-500 hover:text-pink-400 transition-colors">
-              <InstagramIcon className="w-4 h-4" />
-            </a>
-            <a href="https://x.com/aicrickettips" target="_blank" rel="noopener noreferrer" title="X (Twitter)" className="text-gray-500 hover:text-white transition-colors">
-              <XIcon className="w-4 h-4" />
-            </a>
-          </div>
-
-          {/* Auth — Desktop */}
-          <div className="hidden md:flex items-center gap-3">
+          {/* Auth + Social — Desktop */}
+          <div className="hidden md:flex items-center gap-4">
+            {/* Social icons */}
+            <div className="flex items-center gap-2.5">
+              <a href="https://t.me/crickettipsai" target="_blank" rel="noopener noreferrer" title="Telegram"
+                className="text-sky-400 hover:text-sky-300 transition-colors">
+                <Send className="w-4 h-4" />
+              </a>
+              <a href="https://instagram.com/crickettipsai" target="_blank" rel="noopener noreferrer" title="Instagram"
+                className="text-pink-400 hover:text-pink-300 transition-colors">
+                <InstagramIcon className="w-4 h-4" />
+              </a>
+              <a href="https://x.com/aicrickettips" target="_blank" rel="noopener noreferrer" title="X (Twitter)"
+                className="text-gray-200 hover:text-white transition-colors">
+                <XIcon className="w-4 h-4" />
+              </a>
+            </div>
+            <div className="w-px h-4 bg-gray-700" />
             {session ? (
               <>
                 <span className="text-xs text-gray-400 max-w-[180px] truncate">
