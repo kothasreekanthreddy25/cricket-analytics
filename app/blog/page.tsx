@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { client } from '@/sanity/lib/client'
 import { POSTS_QUERY, CATEGORIES_QUERY } from '@/sanity/lib/queries'
 import BlogList from './BlogList'
+import AffiliateBanner from '@/components/AffiliateBanner'
 
 export const metadata = {
   title: 'Cricket News & Blog – AI-Generated Match Updates & Analysis',
@@ -73,6 +74,9 @@ export default async function BlogPage() {
             Daily AI-powered cricket news — match updates, player insights & tournament analysis
           </p>
         </div>
+
+        {/* Affiliate Banner */}
+        <AffiliateBanner />
 
         {/* Client component handles filtering */}
         <BlogList posts={posts} categories={categories} />

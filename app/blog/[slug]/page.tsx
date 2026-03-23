@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation'
 import { PortableText } from '@portabletext/react'
 import { client } from '@/sanity/lib/client'
 import { POST_BY_SLUG_QUERY, POSTS_QUERY } from '@/sanity/lib/queries'
+import AffiliateBanner from '@/components/AffiliateBanner'
 
 interface Post {
   _id: string
@@ -249,6 +250,9 @@ export default async function BlogPostPage({
             </a>
           </p>
         )}
+
+        {/* Affiliate Banner */}
+        <AffiliateBanner />
       </article>
 
       {/* Related posts */}

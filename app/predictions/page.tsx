@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useMemo } from 'react'
 import Link from 'next/link'
+import AffiliateBanner from '@/components/AffiliateBanner'
 import {
   TrendingUp,
   TrendingDown,
@@ -422,6 +423,9 @@ export default function PredictionsPage() {
           <StatCard icon={<Clock className="w-5 h-5 text-amber-400" />} label="Pending" value={data.pending.toString()} sub="Upcoming matches" color="amber" />
           <StatCard icon={<Target className="w-5 h-5 text-purple-400" />} label="Confidence" value={settled > 0 ? (data.won >= data.lost ? 'Positive' : 'Improving') : 'N/A'} sub="Overall AI signal" color="purple" />
         </div>
+
+        {/* Affiliate Banner */}
+        <AffiliateBanner />
 
         {/* ── ₹10,000 Simulation ── */}
         <div className="bg-gray-900 border border-gray-800 rounded-2xl p-6">

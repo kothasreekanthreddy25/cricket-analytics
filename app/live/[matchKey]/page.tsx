@@ -18,6 +18,7 @@ import {
   Wifi,
 } from 'lucide-react'
 import YouTubePlayer from '@/components/YouTubePlayer'
+import AffiliateBanner from '@/components/AffiliateBanner'
 import {
   AreaChart,
   Area,
@@ -1303,6 +1304,9 @@ export default function LiveMatchPage() {
             </div>
           </div>
         )}
+
+        {/* Affiliate Banner */}
+        <AffiliateBanner />
 
         {/* Match Info Footer */}
         <div className="mt-8 bg-gray-800/30 border border-gray-700/30 rounded-2xl p-6">
