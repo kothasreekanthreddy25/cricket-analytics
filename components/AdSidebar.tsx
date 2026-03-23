@@ -5,7 +5,7 @@ import { ExternalLink, Star, Zap, Shield, Trophy } from 'lucide-react'
 // ── Affiliate config — update links here ─────────────────────────────────────
 const AFFILIATES = {
   onexbet: {
-    url: 'https://reffpa.com/L?tag=d_5312130m_1599c_&site=5312130&ad=1599',
+    url: 'https://reffpa.com/L?tag=d_5312130m_1236c_1x_4546809&site=5312130&ad=1236',
     name: '1xBet',
     tagline: 'World\'s #1 Betting Platform',
     bonus: '₹26,000 Welcome Bonus',
