@@ -36,6 +36,22 @@ const AFFILIATES = {
     logo: 'MB',
     logoBg: 'bg-blue-600 text-white',
   },
+  melbet: {
+    url: 'https://refpa3665.com/L?tag=d_5312608m_45415c_ml_2210043&site=5312608&ad=45415',
+    name: 'Melbet',
+    tagline: 'Huge Cricket Markets & Fast Payouts',
+    bonus: '₹10,400 Welcome Bonus',
+    bonusDetail: '130% on first deposit up to ₹10,400',
+    rating: 4.5,
+    features: ['500+ Cricket Markets', 'Live In-Play Betting', 'Same-Day Withdrawals'],
+    badge: 'NEW',
+    badgeColor: 'bg-emerald-500 text-white',
+    btnColor: 'bg-emerald-600 hover:bg-emerald-500 text-white',
+    accentColor: 'from-emerald-600/20 to-emerald-900/10',
+    borderColor: 'border-emerald-500/30',
+    logo: 'ML',
+    logoBg: 'bg-emerald-600 text-white',
+  },
 }
 
 function StarRating({ rating }: { rating: number }) {
@@ -127,6 +143,7 @@ export default function AdSidebar() {
 
       <AffiliateCard site={AFFILIATES.onexbet} />
       <AffiliateCard site={AFFILIATES.mostbet} />
+      <AffiliateCard site={AFFILIATES.melbet} />
 
       {/* Responsible gambling note */}
       <div className="rounded-xl bg-gray-900/50 border border-gray-800 p-3">

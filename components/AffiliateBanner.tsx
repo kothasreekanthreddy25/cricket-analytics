@@ -29,6 +29,20 @@ const OFFERS = [
     logo: 'MB',
     logoBg: 'bg-blue-600 text-white',
   },
+  {
+    name: 'Melbet',
+    tagline: 'Huge Cricket Markets & Fast Payouts',
+    bonus: '₹10,400 Welcome Bonus',
+    detail: '130% on first deposit',
+    url: 'https://refpa3665.com/L?tag=d_5312608m_45415c_ml_2217822&site=5312608&ad=45415',
+    badge: 'NEW',
+    badgeCls: 'bg-emerald-500 text-white',
+    btnCls: 'bg-emerald-600 hover:bg-emerald-500 text-white',
+    borderCls: 'border-emerald-500/30',
+    accentCls: 'from-emerald-600/10',
+    logo: 'ML',
+    logoBg: 'bg-emerald-600 text-white',
+  },
 ]
 
 export default function AffiliateBanner() {
@@ -44,7 +58,7 @@ export default function AffiliateBanner() {
       </div>
 
       {/* Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 divide-y sm:divide-y-0 sm:divide-x divide-gray-800">
+      <div className="grid grid-cols-1 sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x divide-gray-800">
         {OFFERS.map((o) => (
           <div key={o.name} className={`p-4 bg-gradient-to-br ${o.accentCls} to-transparent`}>
             <div className="flex items-center gap-3 mb-3">
