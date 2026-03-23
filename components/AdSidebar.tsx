@@ -21,7 +21,7 @@ const AFFILIATES = {
     logoBg: 'bg-amber-500 text-black',
   },
   mostbet: {
-    url: 'https://mostbet.com', // TODO: replace with your Mostbet affiliate link
+    url: 'https://mloz82mb.com/LIjU',
     name: 'Mostbet',
     tagline: 'Best Odds for Cricket',
     bonus: '₹25,000 Welcome Bonus',
