@@ -10,6 +10,7 @@ export default function SignUpPage() {
   const router = useRouter()
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
+  const [phone, setPhone] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [role, setRole] = useState<'USER' | 'TIPSTER'>('USER')
@@ -21,6 +22,12 @@ export default function SignUpPage() {
     setError('')
     setLoading(true)
 
+    if (!phone.trim()) {
+      setError('Mobile number is required')
+      setLoading(false)
+      return
+    }
+
     if (password.length < 8) {
       setError('Password must be at least 8 characters long')
       setLoading(false)
@@ -28,7 +35,7 @@ export default function SignUpPage() {
     }
 
     try {
-      const signUpResult = await signUp.email({ email, password, name })
+      const signUpResult = await signUp.email({ email, password, name, phone } as any)
 
       if (signUpResult.error) {
         throw new Error(signUpResult.error.message || 'Failed to create account')
@@ -102,6 +109,23 @@ export default function SignUpPage() {
                 onChange={(e) => setName(e.target.value)}
                 className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-white placeholder-gray-500 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500/50 transition"
                 placeholder="John Doe"
+              />
+            </div>
+
+            {/* Phone */}
+            <div>
+              <label htmlFor="phone" className="block text-sm font-medium text-gray-300 mb-1.5">
+                Mobile number <span className="text-red-400">*</span>
+              </label>
+              <input
+                id="phone"
+                type="tel"
+                autoComplete="tel"
+                required
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-white placeholder-gray-500 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500/50 transition"
+                placeholder="+91 9876543210"
               />
             </div>
 
