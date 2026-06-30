@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { Radio, ChevronDown, ChevronRight } from 'lucide-react'
+import { StakeAdTicker } from './StakeAdCard'
 
 interface Tournament {
   key: string
@@ -176,8 +177,11 @@ export default function LiveMatchesTicker() {
             ALL ({tickerCards.length})
           </button>
 
-          {tickerCards.map((match) => (
-            <MatchCard key={match.key || match.id} match={match} />
+          {tickerCards.map((match, i) => (
+            <>
+              <MatchCard key={match.key || match.id} match={match} />
+              {i === 2 && <StakeAdTicker key="stake-ad" />}
+            </>
           ))}
         </div>
       )}

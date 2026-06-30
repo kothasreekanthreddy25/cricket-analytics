@@ -3,6 +3,7 @@
 import { useEffect, useState, useRef } from 'react'
 import Link from 'next/link'
 import { Brain, ChevronLeft, ChevronRight, Trophy, MapPin, TrendingUp, Star } from 'lucide-react'
+import { StakeAdCarousel } from './StakeAdCard'
 
 interface Prediction {
   id: string
@@ -231,11 +232,15 @@ export default function TopPredictionsCarousel() {
         {loading
           ? Array.from({ length: 5 }).map((_, i) => <SkeletonCard key={i} />)
           : predictions.length > 0
-            ? predictions.map(p => (
-                <div key={p.id} style={{ scrollSnapAlign: 'start' }}>
-                  <PredictionCard pred={p} />
-                </div>
-              ))
+            ? predictions.flatMap((p, i) => {
+                const card = (
+                  <div key={p.id} style={{ scrollSnapAlign: 'start' }}>
+                    <PredictionCard pred={p} />
+                  </div>
+                )
+                if (i === 1) return [card, <StakeAdCarousel key="stake-ad" />]
+                return [card]
+              })
             : (
               <div className="flex-1 flex items-center justify-center py-12 text-gray-500 text-sm">
                 No predictions available this week yet.

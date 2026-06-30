@@ -3,6 +3,7 @@
 import { useEffect, useState, useRef } from 'react'
 import Link from 'next/link'
 import { Clock, ChevronLeft, ChevronRight, MapPin, Brain, Trophy, Calendar } from 'lucide-react'
+import { StakeAdCarousel } from './StakeAdCard'
 
 interface UpcomingMatch {
   key: string
@@ -284,11 +285,15 @@ export default function UpcomingFeaturedCarousel() {
         {loading
           ? Array.from({ length: 5 }).map((_, i) => <SkeletonCard key={i} />)
           : matches.length > 0
-            ? matches.map(m => (
-                <div key={m.key} style={{ scrollSnapAlign: 'start' }}>
-                  <MatchCard match={m} />
-                </div>
-              ))
+            ? matches.flatMap((m, i) => {
+                const card = (
+                  <div key={m.key} style={{ scrollSnapAlign: 'start' }}>
+                    <MatchCard match={m} />
+                  </div>
+                )
+                if (i === 1) return [card, <StakeAdCarousel key="stake-ad" />]
+                return [card]
+              })
             : (
               <div className="flex-1 flex items-center justify-center py-16 text-gray-500 text-sm">
                 No upcoming matches found.

@@ -1,4 +1,4 @@
-import React, { Suspense } from 'react'
+import React from 'react'
 import type { Metadata } from 'next'
 import Link from 'next/link'
 
@@ -40,11 +40,11 @@ const orgJsonLd = {
   ],
 }
 import FeaturedMatchCards from '@/components/FeaturedMatchCards'
-import LiveScoreCard from '@/components/LiveScoreCard'
 import PredictionStatsWidget from '@/components/PredictionStatsWidget'
 import LatestNews from '@/components/LatestNews'
 import TopPredictionsCarousel from '@/components/TopPredictionsCarousel'
 import UpcomingFeaturedCarousel from '@/components/UpcomingFeaturedCarousel'
+import RecentWinningPredictions from '@/components/RecentWinningPredictions'
 import {
   Activity,
   TrendingUp,
@@ -116,70 +116,27 @@ export default function Home() {
                 Live Matches
               </Link>
             </div>
+
           </div>
 
-          {/* Right — Real match prediction card */}
-          <div className="hidden md:block md:col-span-2">
-            <FeaturedMatchCards variant="hero" />
+          {/* Right — Recent winning predictions */}
+          <div className="md:col-span-2">
+            <RecentWinningPredictions variant="grid" />
           </div>
         </div>
       </section>
 
-      {/* ── Section 2: Upcoming Featured Matches ── */}
-      <section className="bg-gray-950 py-10 px-4 border-t border-gray-800">
-        <div className="max-w-7xl mx-auto">
-          <UpcomingFeaturedCarousel />
-        </div>
-      </section>
-
-      {/* ── Section 3: Live Scores ── */}
-      <section className="bg-gray-950 py-10 px-4">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex items-center justify-between mb-5">
-            <div>
-              <h2 className="text-xl md:text-2xl font-bold text-white flex items-center gap-2">
-                <Radio className="w-5 h-5 text-emerald-400 animate-pulse" />
-                Live Scores
-              </h2>
-              <p className="text-gray-400 text-sm mt-0.5">
-                Real-time updates every 5 seconds via Socket.IO
-              </p>
-            </div>
-          </div>
-          <Suspense fallback={<div className="bg-gray-800/50 rounded-2xl h-32 animate-pulse" />}>
-            <LiveScoreCard />
-          </Suspense>
-        </div>
-      </section>
-
-      {/* ── Section 4: Top Predictions This Week ── */}
+      {/* ── Section 2: Top Predictions This Week ── */}
       <section className="bg-gray-950 py-10 px-4 border-t border-gray-800">
         <div className="max-w-7xl mx-auto">
           <TopPredictionsCarousel />
         </div>
       </section>
 
-      {/* ── Section 5: Upcoming Matches ── */}
-      <section className="bg-gray-900 py-10 px-4">
+      {/* ── Section 3: Upcoming Featured Matches ── */}
+      <section className="bg-gray-950 py-10 px-4 border-t border-gray-800">
         <div className="max-w-7xl mx-auto">
-          <div className="flex items-center justify-between mb-5">
-            <div>
-              <h2 className="text-xl md:text-2xl font-bold text-white">
-                Upcoming Matches
-              </h2>
-              <p className="text-gray-400 text-sm mt-0.5">
-                Next 5 T20 World Cup 2026 matches with AI confidence levels
-              </p>
-            </div>
-            <Link
-              href="/analysis"
-              className="hidden sm:inline-flex items-center gap-1 text-emerald-400 hover:text-emerald-300 text-sm font-medium transition-colors"
-            >
-              Analyze All
-              <ArrowRight className="w-3.5 h-3.5" />
-            </Link>
-          </div>
-          <FeaturedMatchCards variant="carousel" />
+          <UpcomingFeaturedCarousel />
         </div>
       </section>
 
