@@ -183,3 +183,21 @@ model PredictionLead {
 
   @@index([createdAt])
 }
+
+model Subscription {
+  id                String   @id @default(cuid())
+  razorpayOrderId   String   @unique
+  razorpayPaymentId String?
+  plan              String   // pro, elite
+  amount            Int      // in paise
+  currency          String   @default("INR")
+  status            String   @default("created") // created, paid, failed
+  name              String?
+  email             String?
+  phone             String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@index([status])
+  @@index([createdAt])
+}

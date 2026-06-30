@@ -82,6 +82,12 @@ export default function Navbar() {
                   Sign In
                 </Link>
                 <Link
+                  href="/pricing"
+                  className="text-xs font-semibold text-emerald-400 hover:text-emerald-300 border border-emerald-500/30 hover:border-emerald-500/60 px-3 py-1.5 rounded-lg transition"
+                >
+                  Pricing
+                </Link>
+                <Link
                   href="/auth/signup"
                   className="bg-emerald-500 hover:bg-emerald-600 text-white px-3 py-1.5 rounded-lg text-xs font-semibold transition"
                 >
@@ -112,6 +118,7 @@ export default function Navbar() {
               { href: '/teams', label: 'Teams' },
               { href: '/players', label: 'Players' },
               { href: '/blog', label: 'News' },
+              { href: '/pricing', label: 'Pricing' },
             ].map((link) => (
               <Link
                 key={link.href}
