@@ -328,65 +328,78 @@ export async function GET(
         const histWinRateA = findWinRate(teamA.name)
         const histWinRateB = findWinRate(teamB.name)
 
-        // Live match state adjustment
+        // Live match state — primary driver of win probability
         const inn1 = innings[0]
         const inn2 = innings[1] ?? null
 
-        let liveAdjA = 0  // positive = team A favoured, negative = team B favoured
+        // History is only a small bias (15%) — live state drives 85%
+        const histBiasA = ((histWinRateA / (histWinRateA + histWinRateB)) - 0.5) * 15
+
+        let livePctA = 50  // start at 50/50, adjust from live state
 
         if (inn2 && inn1.runs !== null && inn2.runs !== null) {
-          // 2nd innings: chase in progress
+          // ── 2nd innings chase in progress ──
           const target = (inn1.runs ?? 0) + 1
           const chaseRuns = inn2.runs
           const chaseWickets = inn2.wickets ?? 0
           const chaseOversRaw = parseFloat(String(inn2.overs ?? '0')) || 0
           const ballsDone = Math.floor(chaseOversRaw) * 6 + Math.round((chaseOversRaw % 1) * 10)
-          const ballsLeft = 120 - ballsDone
+          const ballsLeft = Math.max(1, 120 - ballsDone)
           const needed = target - chaseRuns
           const wicketsLeft = 10 - chaseWickets
 
-          const difficulty = needed > 0 && ballsLeft > 0
-            ? (needed / ballsLeft) * 6  // required RR
-            : needed <= 0 ? 0 : 99
+          if (needed <= 0) {
+            // Chaser has won
+            livePctA = inn2.teamSide === 'a' ? 95 : 5
+          } else if (ballsLeft <= 0 || wicketsLeft <= 0) {
+            // Defender has won
+            livePctA = inn2.teamSide === 'a' ? 5 : 95
+          } else {
+            const reqRR = (needed / ballsLeft) * 6
+            const currentRR = ballsDone > 0 ? (chaseRuns / ballsDone) * 6 : reqRR
 
-          // Base adjustment from required run rate
-          let rrAdj = 0
-          if (needed <= 0) rrAdj = -35        // chaser won
-          else if (difficulty < 5) rrAdj = -25
-          else if (difficulty < 7) rrAdj = -15
-          else if (difficulty < 9) rrAdj = -5
-          else if (difficulty < 11) rrAdj = 8
-          else if (difficulty < 13) rrAdj = 18
-          else rrAdj = 28
+            // Resources remaining: balls * wickets (like D/L resource table)
+            // wicketsLeft weight: 10wkts=1.0, 5wkts=0.55, 2wkts=0.25, 1wkt=0.12
+            const wicketResource = [0, 0.05, 0.12, 0.22, 0.34, 0.47, 0.60, 0.72, 0.83, 0.92, 1.0][wicketsLeft] ?? 0.5
+            const ballResource = ballsLeft / 120
+            const resourcesLeft = wicketResource * 0.55 + ballResource * 0.45
 
-          // Wicket pressure: each wicket lost shifts advantage toward the defending team
-          // 0-2 wickets: small penalty, 3-5: moderate, 6-7: heavy, 8-9: very heavy
-          const wicketPenalty =
-            wicketsLeft >= 8 ? 0   :
-            wicketsLeft >= 6 ? 8   :
-            wicketsLeft >= 5 ? 14  :
-            wicketsLeft >= 4 ? 20  :
-            wicketsLeft >= 3 ? 27  :
-            wicketsLeft >= 2 ? 34  :
-            wicketsLeft >= 1 ? 40  : 45
+            // How hard is the chase given remaining resources?
+            // If reqRR is close to currentRR and resources are high → chaser wins
+            // reqRR vs average T20 scoring (~8 rpo baseline)
+            const rrRatio = reqRR / Math.max(currentRR, 5)  // how much harder than current pace
 
-          liveAdjA = rrAdj + wicketPenalty  // positive = defending team (A) favoured
+            // Chase win probability (0→1): high resources + low rrRatio = chaser wins
+            let chasePct = resourcesLeft * (1 / Math.max(rrRatio, 0.3)) * 100
+            // Scale: reqRR <7 → chaser dominant, >13 → defender dominant
+            if (reqRR < 6)  chasePct = Math.min(chasePct, 85)
+            if (reqRR > 14) chasePct = Math.min(chasePct, 25)
+            chasePct = Math.max(5, Math.min(92, chasePct))
 
-          // Flip if inn2 batting team is team A
-          if (inn2.teamSide === 'a') liveAdjA = -liveAdjA
+            // chasePct = probability that inn2 batting team wins
+            livePctA = inn2.teamSide === 'a' ? chasePct : (100 - chasePct)
+          }
+
         } else if (inn1 && inn1.runs !== null) {
-          // 1st innings in progress — batting team has slight edge if scoring well
+          // ── 1st innings in progress ──
           const oversRaw = parseFloat(String(inn1.overs ?? '0')) || 0
           const ballsDone = Math.floor(oversRaw) * 6 + Math.round((oversRaw % 1) * 10)
-          const currentRR = ballsDone > 0 ? (inn1.runs / ballsDone) * 6 : 0
+          const currentRR = ballsDone > 0 ? (inn1.runs / ballsDone) * 6 : 7.5
           const wickets = inn1.wickets ?? 0
-          // Score strength: high RR & low wickets = batting team favoured
-          const scoreStrength = (currentRR - 7.75) * 2 - wickets * 1.5
-          liveAdjA = inn1.teamSide === 'a' ? scoreStrength : -scoreStrength
+          const wicketsLeft = 10 - wickets
+          const ballsLeft = 120 - ballsDone
+
+          // Batting team strength: high RR + wickets in hand = on track for big score
+          const rrEdge = (currentRR - 7.75) * 3          // +/- based on run rate vs average
+          const wicketEdge = (wicketsLeft - 5) * 1.8     // wickets in hand bonus
+          const progressEdge = (ballsDone / 120) * 2     // later in innings = more certain
+          const batEdge = Math.max(-25, Math.min(25, rrEdge + wicketEdge + progressEdge))
+
+          livePctA = inn1.teamSide === 'a' ? 50 + batEdge : 50 - batEdge
         }
 
-        // Combine: 55% history base + 45% live adjustment
-        const rawA = (histWinRateA / (histWinRateA + histWinRateB)) * 100 * 0.55 + 50 * 0.45 + liveAdjA
+        // Blend: 85% live state + 15% history bias
+        const rawA = livePctA + histBiasA
         const pctA = Math.round(Math.max(5, Math.min(95, rawA)))
         const pctB = 100 - pctA
 
