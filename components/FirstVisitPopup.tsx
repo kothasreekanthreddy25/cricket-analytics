@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { X, Brain, MessageCircle, ChevronRight, CheckCircle2, Trophy, Zap } from 'lucide-react'
+import { Brain, MessageCircle, ChevronRight, CheckCircle2, Trophy, Zap } from 'lucide-react'
 
 const STORAGE_KEY = 'ct_popup_dismissed'
 
@@ -106,13 +106,6 @@ export default function FirstVisitPopup() {
         {/* Top accent bar */}
         <div className="h-1 w-full bg-gradient-to-r from-emerald-500 via-cyan-400 to-emerald-500" />
 
-        {/* Close button */}
-        <button
-          onClick={dismiss}
-          className="absolute top-3 right-3 w-7 h-7 flex items-center justify-center rounded-full bg-gray-800 hover:bg-gray-700 text-gray-400 hover:text-white transition-colors"
-        >
-          <X className="w-3.5 h-3.5" />
-        </button>
 
         {/* ── Step: choice ── */}
         {step === 'choice' && (
