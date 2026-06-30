@@ -44,6 +44,7 @@ import LiveScoreCard from '@/components/LiveScoreCard'
 import PredictionStatsWidget from '@/components/PredictionStatsWidget'
 import LatestNews from '@/components/LatestNews'
 import TopPredictionsCarousel from '@/components/TopPredictionsCarousel'
+import UpcomingFeaturedCarousel from '@/components/UpcomingFeaturedCarousel'
 import {
   Activity,
   TrendingUp,
@@ -124,29 +125,10 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── Section 2: Trust Stats Bar ── */}
-      <section className="bg-gray-900 border-y border-gray-800 py-5 px-4">
-        <div className="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
-          <StatCard
-            icon={<Brain className="w-5 h-5 text-emerald-400" />}
-            value="AI-Powered"
-            label="TensorFlow.js Predictions"
-          />
-          <StatCard
-            icon={<Zap className="w-5 h-5 text-emerald-400" />}
-            value="Live Updates"
-            label="Real-Time Score Tracking"
-          />
-          <StatCard
-            icon={<Trophy className="w-5 h-5 text-emerald-400" />}
-            value="T20 WC 2026"
-            label="Full Tournament Coverage"
-          />
-          <StatCard
-            icon={<Shield className="w-5 h-5 text-emerald-400" />}
-            value="Official Data"
-            label="Roanuz Cricket API"
-          />
+      {/* ── Section 2: Upcoming Featured Matches ── */}
+      <section className="bg-gray-950 py-10 px-4 border-t border-gray-800">
+        <div className="max-w-7xl mx-auto">
+          <UpcomingFeaturedCarousel />
         </div>
       </section>
 
@@ -412,6 +394,32 @@ export default function Home() {
             </Link>
           </div>
           <LatestNews />
+        </div>
+      </section>
+
+      {/* ── Trust Stats Bar ── */}
+      <section className="bg-gray-900 border-y border-gray-800 py-5 px-4">
+        <div className="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+          <StatCard
+            icon={<Brain className="w-5 h-5 text-emerald-400" />}
+            value="AI-Powered"
+            label="TensorFlow.js Predictions"
+          />
+          <StatCard
+            icon={<Zap className="w-5 h-5 text-emerald-400" />}
+            value="Live Updates"
+            label="Real-Time Score Tracking"
+          />
+          <StatCard
+            icon={<Trophy className="w-5 h-5 text-emerald-400" />}
+            value="T20 WC 2026"
+            label="Full Tournament Coverage"
+          />
+          <StatCard
+            icon={<Shield className="w-5 h-5 text-emerald-400" />}
+            value="Official Data"
+            label="Roanuz Cricket API"
+          />
         </div>
       </section>
 
