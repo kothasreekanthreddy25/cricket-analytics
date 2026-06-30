@@ -6,11 +6,43 @@ import { X, Brain, MessageCircle, ChevronRight, CheckCircle2, Trophy, Zap } from
 
 const STORAGE_KEY = 'ct_popup_dismissed'
 
+const COUNTRY_CODES = [
+  { code: '+91',  flag: '🇮🇳', name: 'India' },
+  { code: '+1',   flag: '🇺🇸', name: 'USA' },
+  { code: '+1',   flag: '🇨🇦', name: 'Canada' },
+  { code: '+44',  flag: '🇬🇧', name: 'UK' },
+  { code: '+61',  flag: '🇦🇺', name: 'Australia' },
+  { code: '+64',  flag: '🇳🇿', name: 'New Zealand' },
+  { code: '+94',  flag: '🇱🇰', name: 'Sri Lanka' },
+  { code: '+92',  flag: '🇵🇰', name: 'Pakistan' },
+  { code: '+880', flag: '🇧🇩', name: 'Bangladesh' },
+  { code: '+27',  flag: '🇿🇦', name: 'South Africa' },
+  { code: '+263', flag: '🇿🇼', name: 'Zimbabwe' },
+  { code: '+93',  flag: '🇦🇫', name: 'Afghanistan' },
+  { code: '+354', flag: '🇮🇪', name: 'Ireland' },
+  { code: '+31',  flag: '🇳🇱', name: 'Netherlands' },
+  { code: '+1',   flag: '🇼🇮', name: 'West Indies' },
+  { code: '+971', flag: '🇦🇪', name: 'UAE' },
+  { code: '+968', flag: '🇴🇲', name: 'Oman' },
+  { code: '+60',  flag: '🇲🇾', name: 'Malaysia' },
+  { code: '+65',  flag: '🇸🇬', name: 'Singapore' },
+  { code: '+49',  flag: '🇩🇪', name: 'Germany' },
+  { code: '+33',  flag: '🇫🇷', name: 'France' },
+  { code: '+971', flag: '🇦🇪', name: 'Dubai' },
+  { code: '+974', flag: '🇶🇦', name: 'Qatar' },
+  { code: '+966', flag: '🇸🇦', name: 'Saudi Arabia' },
+  { code: '+254', flag: '🇰🇪', name: 'Kenya' },
+  { code: '+255', flag: '🇹🇿', name: 'Tanzania' },
+  { code: '+256', flag: '🇺🇬', name: 'Uganda' },
+  { code: '+250', flag: '🇷🇼', name: 'Rwanda' },
+]
+
 export default function FirstVisitPopup() {
   const [open, setOpen] = useState(false)
   const [step, setStep] = useState<'choice' | 'whatsapp' | 'success'>('choice')
   const [name, setName] = useState('')
   const [whatsapp, setWhatsapp] = useState('')
+  const [countryCode, setCountryCode] = useState('+91')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
@@ -38,7 +70,7 @@ export default function FirstVisitPopup() {
       const res = await fetch('/api/leads', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ whatsapp: whatsapp.trim(), name: name.trim() || undefined }),
+        body: JSON.stringify({ whatsapp: `${countryCode}${whatsapp.trim()}`, name: name.trim() || undefined }),
       })
       const data = await res.json()
       if (!data.success) throw new Error(data.error || 'Failed')
@@ -173,14 +205,22 @@ export default function FirstVisitPopup() {
               <div>
                 <label className="text-xs text-gray-400 font-medium mb-1.5 block">WhatsApp Number <span className="text-red-400">*</span></label>
                 <div className="flex gap-2">
-                  <div className="flex items-center bg-gray-800 border border-gray-700 rounded-xl px-3 py-2.5 text-sm text-gray-400 flex-shrink-0">
-                    +91
-                  </div>
+                  <select
+                    value={countryCode}
+                    onChange={e => setCountryCode(e.target.value)}
+                    className="bg-gray-800 border border-gray-700 focus:border-emerald-500 text-white rounded-xl px-2 py-2.5 text-sm outline-none transition-colors flex-shrink-0 max-w-[130px] appearance-none cursor-pointer"
+                  >
+                    {COUNTRY_CODES.map((c, i) => (
+                      <option key={i} value={c.code}>
+                        {c.flag} {c.name} ({c.code})
+                      </option>
+                    ))}
+                  </select>
                   <input
                     type="tel"
                     value={whatsapp}
                     onChange={e => setWhatsapp(e.target.value)}
-                    placeholder="9876543210"
+                    placeholder="Phone number"
                     className="flex-1 bg-gray-800 border border-gray-700 focus:border-emerald-500 text-white placeholder-gray-600 rounded-xl px-4 py-2.5 text-sm outline-none transition-colors"
                     maxLength={15}
                   />
