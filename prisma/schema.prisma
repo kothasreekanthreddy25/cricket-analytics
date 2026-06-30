@@ -172,3 +172,13 @@ model MatchAnalysis {
 
   @@index([matchKey])
 }
+
+model PredictionLead {
+  id        String   @id @default(cuid())
+  whatsapp  String?
+  name      String?
+  source    String   @default("popup")
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+}
