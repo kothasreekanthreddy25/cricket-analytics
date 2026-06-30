@@ -1,14 +1,15 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { cookies } from 'next/headers'
 
 export const dynamic = 'force-dynamic'
 
-export async function GET(req: Request) {
-  const { searchParams } = new URL(req.url)
-  const secret = searchParams.get('secret')
-  const adminSecret = process.env.ADMIN_SECRET || 'crickettips2026'
+export async function GET() {
+  const cookieStore = cookies()
+  const session = cookieStore.get('ct_admin_session')
+  const adminPass = process.env.ADMIN_PASSWORD || 'crickettips2026'
 
-  if (secret !== adminSecret) {
+  if (!session || session.value !== adminPass) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
@@ -17,7 +18,7 @@ export async function GET(req: Request) {
   })
 
   const rows = [
-    ['#', 'Name', 'Channel', 'WhatsApp', 'Telegram', 'Date (IST)'],
+    ['#', 'Name', 'Channel', 'WhatsApp', 'Telegram', 'Registered (IST)'],
     ...leads.map((l, i) => [
       String(i + 1),
       l.name || '',
