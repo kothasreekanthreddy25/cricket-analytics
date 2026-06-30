@@ -41,7 +41,9 @@ export default function FirstVisitPopup() {
   const [open, setOpen] = useState(false)
   const [step, setStep] = useState<'choice' | 'whatsapp' | 'success'>('choice')
   const [name, setName] = useState('')
+  const [channel, setChannel] = useState<'whatsapp' | 'telegram'>('whatsapp')
   const [whatsapp, setWhatsapp] = useState('')
+  const [telegram, setTelegram] = useState('')
   const [countryCode, setCountryCode] = useState('+91')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -63,14 +65,19 @@ export default function FirstVisitPopup() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setError('')
-    if (!whatsapp.trim()) { setError('Please enter your WhatsApp number'); return }
+    if (channel === 'whatsapp' && !whatsapp.trim()) { setError('Please enter your WhatsApp number'); return }
+    if (channel === 'telegram' && !telegram.trim()) { setError('Please enter your Telegram username'); return }
 
     setLoading(true)
     try {
       const res = await fetch('/api/leads', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ whatsapp: `${countryCode}${whatsapp.trim()}`, name: name.trim() || undefined }),
+        body: JSON.stringify({
+          whatsapp: channel === 'whatsapp' ? `${countryCode}${whatsapp.trim()}` : undefined,
+          telegram: channel === 'telegram' ? telegram.trim() : undefined,
+          name: name.trim() || undefined,
+        }),
       })
       const data = await res.json()
       if (!data.success) throw new Error(data.error || 'Failed')
@@ -143,7 +150,7 @@ export default function FirstVisitPopup() {
               >
                 <div className="flex items-center gap-2">
                   <MessageCircle className="w-4 h-4" />
-                  Get Predictions on WhatsApp
+                  Get Predictions on WhatsApp / Telegram
                 </div>
                 <ChevronRight className="w-4 h-4" />
               </button>
@@ -181,14 +188,33 @@ export default function FirstVisitPopup() {
               ← Back
             </button>
 
-            <div className="flex items-center gap-3 mb-5">
+            <div className="flex items-center gap-3 mb-4">
               <div className="w-10 h-10 rounded-xl bg-green-500/15 border border-green-500/30 flex items-center justify-center flex-shrink-0">
                 <MessageCircle className="w-5 h-5 text-green-400" />
               </div>
               <div>
-                <h2 className="text-white font-extrabold text-lg">WhatsApp Predictions</h2>
+                <h2 className="text-white font-extrabold text-lg">Get Predictions</h2>
                 <p className="text-gray-400 text-xs mt-0.5">100% free · No spam · Unsubscribe anytime</p>
               </div>
+            </div>
+
+            {/* Channel toggle */}
+            <div className="flex gap-2 mb-4 bg-gray-800/60 p-1 rounded-xl">
+              <button
+                type="button"
+                onClick={() => { setChannel('whatsapp'); setError('') }}
+                className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-xs font-bold transition-colors ${channel === 'whatsapp' ? 'bg-green-600 text-white' : 'text-gray-400 hover:text-white'}`}
+              >
+                <MessageCircle className="w-3.5 h-3.5" /> WhatsApp
+              </button>
+              <button
+                type="button"
+                onClick={() => { setChannel('telegram'); setError('') }}
+                className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-xs font-bold transition-colors ${channel === 'telegram' ? 'bg-blue-600 text-white' : 'text-gray-400 hover:text-white'}`}
+              >
+                <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12L7.43 13.625l-2.95-.924c-.64-.203-.658-.64.136-.954l11.57-4.461c.537-.194 1.006.131.708.935z"/></svg>
+                Telegram
+              </button>
             </div>
 
             <div className="space-y-3 mb-4">
@@ -202,48 +228,67 @@ export default function FirstVisitPopup() {
                   className="w-full bg-gray-800 border border-gray-700 focus:border-emerald-500 text-white placeholder-gray-600 rounded-xl px-4 py-2.5 text-sm outline-none transition-colors"
                 />
               </div>
-              <div>
-                <label className="text-xs text-gray-400 font-medium mb-1.5 block">WhatsApp Number <span className="text-red-400">*</span></label>
-                <div className="flex gap-2">
-                  <select
-                    value={countryCode}
-                    onChange={e => setCountryCode(e.target.value)}
-                    className="bg-gray-800 border border-gray-700 focus:border-emerald-500 text-white rounded-xl px-2 py-2.5 text-sm outline-none transition-colors flex-shrink-0 max-w-[130px] appearance-none cursor-pointer"
-                  >
-                    {COUNTRY_CODES.map((c, i) => (
-                      <option key={i} value={c.code}>
-                        {c.flag} {c.name} ({c.code})
-                      </option>
-                    ))}
-                  </select>
-                  <input
-                    type="tel"
-                    value={whatsapp}
-                    onChange={e => setWhatsapp(e.target.value)}
-                    placeholder="Phone number"
-                    className="flex-1 bg-gray-800 border border-gray-700 focus:border-emerald-500 text-white placeholder-gray-600 rounded-xl px-4 py-2.5 text-sm outline-none transition-colors"
-                    maxLength={15}
-                  />
+
+              {channel === 'whatsapp' ? (
+                <div>
+                  <label className="text-xs text-gray-400 font-medium mb-1.5 block">WhatsApp Number <span className="text-red-400">*</span></label>
+                  <div className="flex gap-2">
+                    <select
+                      value={countryCode}
+                      onChange={e => setCountryCode(e.target.value)}
+                      className="bg-gray-800 border border-gray-700 focus:border-emerald-500 text-white rounded-xl px-2 py-2.5 text-sm outline-none transition-colors flex-shrink-0 max-w-[130px] cursor-pointer"
+                    >
+                      {COUNTRY_CODES.map((c, i) => (
+                        <option key={i} value={c.code}>
+                          {c.flag} {c.name} ({c.code})
+                        </option>
+                      ))}
+                    </select>
+                    <input
+                      type="tel"
+                      value={whatsapp}
+                      onChange={e => setWhatsapp(e.target.value)}
+                      placeholder="Phone number"
+                      className="flex-1 bg-gray-800 border border-gray-700 focus:border-green-500 text-white placeholder-gray-600 rounded-xl px-4 py-2.5 text-sm outline-none transition-colors"
+                      maxLength={15}
+                    />
+                  </div>
                 </div>
-                {error && <p className="text-red-400 text-xs mt-1.5">{error}</p>}
-              </div>
+              ) : (
+                <div>
+                  <label className="text-xs text-gray-400 font-medium mb-1.5 block">Telegram Username <span className="text-red-400">*</span></label>
+                  <div className="relative">
+                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 text-sm font-bold">@</span>
+                    <input
+                      type="text"
+                      value={telegram}
+                      onChange={e => setTelegram(e.target.value.replace(/^@/, ''))}
+                      placeholder="yourusername"
+                      className="w-full bg-gray-800 border border-gray-700 focus:border-blue-500 text-white placeholder-gray-600 rounded-xl pl-8 pr-4 py-2.5 text-sm outline-none transition-colors"
+                    />
+                  </div>
+                  <p className="text-gray-600 text-[10px] mt-1">Find your username in Telegram → Settings → Username</p>
+                </div>
+              )}
+
+              {error && <p className="text-red-400 text-xs">{error}</p>}
             </div>
 
             <button
               type="submit"
               disabled={loading}
-              className="flex items-center justify-center gap-2 w-full bg-green-600 hover:bg-green-500 disabled:opacity-50 text-white px-4 py-3 rounded-xl font-bold text-sm transition-colors"
+              className={`flex items-center justify-center gap-2 w-full disabled:opacity-50 text-white px-4 py-3 rounded-xl font-bold text-sm transition-colors ${channel === 'whatsapp' ? 'bg-green-600 hover:bg-green-500' : 'bg-blue-600 hover:bg-blue-500'}`}
             >
               {loading ? (
                 <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
               ) : (
                 <MessageCircle className="w-4 h-4" />
               )}
-              {loading ? 'Sending…' : 'Send Me Predictions'}
+              {loading ? 'Sending…' : `Get Predictions via ${channel === 'whatsapp' ? 'WhatsApp' : 'Telegram'}`}
             </button>
 
             <p className="text-center text-[10px] text-gray-600 mt-3">
-              By submitting you agree to receive WhatsApp messages from CricketTips.ai. 18+ only.
+              By submitting you agree to receive messages from CricketTips.ai. 18+ only.
             </p>
           </form>
         )}

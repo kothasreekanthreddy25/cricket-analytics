@@ -6,18 +6,19 @@ export const dynamic = 'force-dynamic'
 export async function POST(req: Request) {
   try {
     const body = await req.json()
-    const { whatsapp, name } = body
+    const { whatsapp, telegram, name } = body
 
-    if (!whatsapp && !name) {
-      return NextResponse.json({ success: false, error: 'No data provided' }, { status: 400 })
+    if (!whatsapp && !telegram) {
+      return NextResponse.json({ success: false, error: 'Provide WhatsApp number or Telegram ID' }, { status: 400 })
     }
 
-    // Normalise WhatsApp number — strip spaces/dashes
     const cleanNumber = whatsapp ? whatsapp.replace(/[\s\-().]/g, '') : null
+    const cleanTelegram = telegram ? telegram.replace(/^@/, '').trim() : null
 
     await prisma.predictionLead.create({
       data: {
-        whatsapp: cleanNumber,
+        whatsapp: cleanNumber || null,
+        telegram: cleanTelegram || null,
         name: name || null,
         source: 'popup',
       },

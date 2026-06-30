@@ -176,6 +176,7 @@ model MatchAnalysis {
 model PredictionLead {
   id        String   @id @default(cuid())
   whatsapp  String?
+  telegram  String?
   name      String?
   source    String   @default("popup")
   createdAt DateTime @default(now())
