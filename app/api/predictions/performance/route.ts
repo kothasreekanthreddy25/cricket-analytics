@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { roanuzGet } from '@/lib/roanuz'
+import { getMatchDetails } from '@/lib/sportmonks'
 
 interface PredictionRecord {
   id: string
@@ -39,60 +39,31 @@ interface PerformanceSummary {
 
 async function getMatchWinner(matchKey: string): Promise<{ winner: string | null; status: string } | null> {
   try {
-    const data = await roanuzGet(`match/${matchKey}/`)
-    // Roanuz v5: match data is at data.data (no .match nesting)
-    const match = data?.data?.match || data?.data
+    const data = await getMatchDetails(matchKey)
+    const match = data?.data
     if (!match) return null
 
     const matchStatus: string = match.status || ''
+    const isFinished = matchStatus === 'Finished' || matchStatus === 'Completed'
 
-    if (matchStatus !== 'completed' && matchStatus !== 'finished') {
+    if (!isFinished) {
       return { winner: null, status: matchStatus }
     }
 
-    // Roanuz v5: winner is "a" or "b", teams is { a: {...}, b: {...} }
-    const winnerSide: string | null = match.winner || null
-    const teams = match.teams || {}
+    const winnerId: number | null = match.winner_team_id || null
+    const localteam = match.localteam?.data || match.localteam || {}
+    const visitorteam = match.visitorteam?.data || match.visitorteam || {}
 
-    if (winnerSide && teams[winnerSide]) {
-      return {
-        winner: teams[winnerSide].name || winnerSide,
-        status: matchStatus,
-      }
+    if (winnerId) {
+      if (winnerId === localteam.id) return { winner: localteam.name || 'Local Team', status: matchStatus }
+      if (winnerId === visitorteam.id) return { winner: visitorteam.name || 'Visitor Team', status: matchStatus }
     }
 
-    // Fallback: check legacy result object
-    const result = match.result || match.match_result || {}
-    const winnerKey: string | null =
-      result.winner_team_key ||
-      result.winner_key ||
-      result.winning_team_key ||
-      null
-
-    if (winnerKey) {
-      // teams could be object or array
-      if (Array.isArray(teams)) {
-        const found = teams.find((t: any) => t.key === winnerKey || t.team_key === winnerKey)
-        return { winner: found?.name || winnerKey, status: matchStatus }
-      } else {
-        // Object: check a/b values
-        for (const side of Object.values(teams) as any[]) {
-          if (side?.key === winnerKey) {
-            return { winner: side.name || winnerKey, status: matchStatus }
-          }
-        }
-        return { winner: winnerKey, status: matchStatus }
-      }
-    }
-
-    // No result / tie
-    const playStatus = match.play_status || ''
-    if (result.result_type === 'no_result' || result.result_type === 'tie' || playStatus === 'no_result') {
-      return { winner: null, status: 'no_result' }
-    }
+    if (match.draw_noresult) return { winner: null, status: 'no_result' }
 
     return { winner: null, status: matchStatus }
   } catch {
+    // legacy dead-code paths removed
     return null
   }
 }

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { roanuzGet } from '@/lib/roanuz'
+import { getMatchOdds, getFeaturedMatches, normalizeSportMonksMatch } from '@/lib/sportmonks'
 import { getAvailableMatches } from '@/lib/analysis-engine'
 
 /**
@@ -51,79 +51,29 @@ export async function GET(request: NextRequest) {
     }
 
     // ── Fetch odds for specific match ──
-    const endpoint =
-      type === 'live' ? 'live-match-odds' : 'pre-match-odds'
+    const raw = await getMatchOdds(matchKey)
+    const markets: any[] = raw?.data || []
 
-    const raw = await roanuzGet(`match/${matchKey}/${endpoint}/`)
-    const matchData = raw?.data?.match || raw?.data || {}
-
-    // Parse teams
-    const teamsRaw = matchData.teams || {}
-    const teams: Record<
-      string,
-      { key: string; name: string; code: string }
-    > = {}
-    for (const [teamKey, teamVal] of Object.entries(teamsRaw) as any[]) {
-      teams[teamKey] = {
-        key: teamKey,
-        name: teamVal.name || teamKey,
-        code: teamVal.code || teamVal.alternate_code || teamKey.toUpperCase(),
-      }
-    }
-
-    // Parse bet_odds
-    const betOdds = matchData.bet_odds?.automatic || {}
-    const decimalOdds: Record<string, number> = {}
-    const fractionalOdds: Record<string, string> = {}
-
-    if (betOdds.decimal && Array.isArray(betOdds.decimal)) {
-      for (const item of betOdds.decimal) {
-        decimalOdds[item.team_key] = item.value
-      }
-    }
-    if (betOdds.fractional && Array.isArray(betOdds.fractional)) {
-      for (const item of betOdds.fractional) {
-        fractionalOdds[item.team_key] =
-          `${item.numerator}/${item.denominator}`
-      }
-    }
-
-    // Parse result_prediction
-    const prediction = matchData.result_prediction?.automatic || {}
-    const winProbability: Record<string, number> = {}
-
-    if (prediction.percentage && Array.isArray(prediction.percentage)) {
-      for (const item of prediction.percentage) {
-        winProbability[item.team_key] = item.value
-      }
-    }
-
-    // Parse match meta
-    const meta = matchData.meta || {}
-    const matchStatus = meta.status || matchData.status || 'unknown'
-    const format = meta.format || ''
-    const startAt = meta.start_at
-      ? new Date(meta.start_at * 1000).toISOString()
-      : null
-
-    // Build clean response per team
-    const teamOdds = Object.entries(teams).map(([key, team]) => ({
-      teamKey: key,
-      name: team.name,
-      code: team.code,
-      decimalOdds: decimalOdds[key] ?? null,
-      fractionalOdds: fractionalOdds[key] ?? null,
-      winProbability: winProbability[key] ?? null,
-    }))
+    const teamOdds = markets.flatMap((market: any) =>
+      (market.runners || []).map((r: any) => ({
+        teamKey: String(r.id),
+        name: r.name || '',
+        code: '',
+        decimalOdds: r.prices?.[0]?.value ?? r.decimal ?? null,
+        fractionalOdds: null,
+        winProbability: null,
+        market: market.name || '',
+      }))
+    )
 
     return NextResponse.json({
       success: true,
       odds: {
         matchKey,
         type,
-        status: matchStatus,
-        format,
-        startAt,
+        status: 'unknown',
+        format: '',
+        startAt: null,
         teams: teamOdds,
       },
     })

@@ -6,39 +6,16 @@
  */
 
 import { NextResponse } from 'next/server'
-import { getFeaturedMatches2, getMatchDetails, normalizeRoanuzMatch } from '@/lib/roanuz'
+import { getFeaturedMatches, normalizeSportMonksMatch } from '@/lib/sportmonks'
 import { prisma } from '@/lib/prisma'
 
 export async function GET() {
   try {
-    const data = await getFeaturedMatches2()
-    const rawMatches = data?.data?.matches || []
-    const all = rawMatches.map(normalizeRoanuzMatch).filter(Boolean)
+    const data = await getFeaturedMatches()
+    const rawMatches = data?.data || []
+    const all = rawMatches.map(normalizeSportMonksMatch).filter(Boolean)
     const live = all.filter((m: any) => m.status === 'live')
     const upcoming = all.filter((m: any) => m.status === 'upcoming').slice(0, 8)
-
-    // Fetch live match scores individually (featured-matches-2 doesn't include innings data)
-    if (live.length > 0) {
-      const scoreResults = await Promise.allSettled(
-        live.map((m: any) => getMatchDetails(m.key))
-      )
-      scoreResults.forEach((res, i) => {
-        if (res.status !== 'fulfilled') return
-        const matchData = res.value?.data
-        if (!matchData?.play?.innings) return
-        const innings = matchData.play.innings as Record<string, any>
-        const aScores = Object.entries(innings)
-          .filter(([k]) => k.startsWith('a_'))
-          .map(([, v]) => v?.score_str)
-          .filter(Boolean)
-        const bScores = Object.entries(innings)
-          .filter(([k]) => k.startsWith('b_'))
-          .map(([, v]) => v?.score_str)
-          .filter(Boolean)
-        if (aScores.length > 0) (live[i] as any).scoreA = aScores.join(' & ')
-        if (bScores.length > 0) (live[i] as any).scoreB = bScores.join(' & ')
-      })
-    }
 
     // Look up stored predictions from DB for all ticker matches
     const matchKeys = [...live, ...upcoming]
@@ -73,12 +50,12 @@ export async function GET() {
     }
 
     console.log(
-      `[Ticker] Roanuz: ${live.length} live, ${upcoming.length} upcoming, ${storedPredictions.length} DB predictions attached`
+      `[Ticker] SportMonks: ${live.length} live, ${upcoming.length} upcoming, ${storedPredictions.length} DB predictions attached`
     )
 
     return NextResponse.json({
       success: true,
-      source: 'roanuz',
+      source: 'sportmonks',
       live: live.map(enrich),
       upcoming: upcoming.map(enrich),
     })

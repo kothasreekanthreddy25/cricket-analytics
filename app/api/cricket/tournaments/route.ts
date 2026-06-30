@@ -1,9 +1,9 @@
 import { NextResponse } from 'next/server'
-import { getFeaturedTournaments } from '@/lib/roanuz'
+import { getLeagues } from '@/lib/sportmonks'
 
 export async function GET() {
   try {
-    const data = await getFeaturedTournaments()
+    const data = await getLeagues()
     return NextResponse.json(data)
   } catch (error: any) {
     console.error('Tournaments error:', error.message)

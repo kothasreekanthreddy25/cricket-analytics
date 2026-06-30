@@ -202,7 +202,7 @@ export default function LiveMatchesTicker() {
             return (
               <Link
                 key={t.key}
-                href={isLiveT ? '/matches' : '/predictions'}
+                href={isLiveT ? '/matches' : `/analysis?match=${t.key}`}
                 className={`flex flex-col shrink-0 rounded-lg border px-2.5 py-1.5 min-w-[140px] max-w-[160px] transition-all cursor-pointer ${
                   isLiveT
                     ? 'border-green-600/60 bg-green-900/15 hover:border-green-500'
@@ -307,7 +307,8 @@ function MatchCard({ match }: { match: TickerMatch }) {
   const dateStr = matchDate?.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) || ''
   const timeStr = matchDate?.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }) || ''
 
-  const href = isLive ? `/live/${match.key || match.id}` : '/predictions'
+  const matchId = match.key || match.id
+  const href = isLive ? `/live/${matchId}` : `/analysis?match=${matchId}`
 
   return (
     <Link

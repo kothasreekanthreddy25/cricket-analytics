@@ -1,11 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { roanuzGet } from '@/lib/roanuz'
+import { getLiveScorecard } from '@/lib/sportmonks'
 
 /**
  * GET /api/cricket/match/{matchKey}/graphs
  *
- * Returns worm, manhattan, and run-rate data from Roanuz v5 in one call.
- * Gracefully handles individual endpoint failures.
+ * Returns scorecard data from SportMonks for worm/run-rate charting on the frontend.
  */
 export async function GET(
   request: NextRequest,
@@ -14,22 +13,17 @@ export async function GET(
   const matchKey = params.matchKey
 
   try {
-    const [wormRes, manhattanRes, runRateRes] = await Promise.allSettled([
-      roanuzGet(`match/${matchKey}/worm/`),
-      roanuzGet(`match/${matchKey}/manhattan/`),
-      roanuzGet(`match/${matchKey}/run-rate/`),
-    ])
+    const data = await getLiveScorecard(matchKey)
+    const scoreboards = data?.data?.scoreboards?.data || []
+    const balls = data?.data?.balls?.data || []
 
     return NextResponse.json({
       success: true,
-      worm: wormRes.status === 'fulfilled' ? wormRes.value?.data : null,
-      manhattan: manhattanRes.status === 'fulfilled' ? manhattanRes.value?.data : null,
-      runRate: runRateRes.status === 'fulfilled' ? runRateRes.value?.data : null,
-      errors: {
-        worm: wormRes.status === 'rejected' ? wormRes.reason?.message : null,
-        manhattan: manhattanRes.status === 'rejected' ? manhattanRes.reason?.message : null,
-        runRate: runRateRes.status === 'rejected' ? runRateRes.reason?.message : null,
-      },
+      scoreboards,
+      balls,
+      worm: null,
+      manhattan: null,
+      runRate: null,
     })
   } catch (error: any) {
     console.error('Graphs API error:', error.message)

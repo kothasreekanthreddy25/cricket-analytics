@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { roanuzGet } from '@/lib/roanuz'
+import { getMatchOdds } from '@/lib/sportmonks'
 
 /**
  * GET /api/cricket/live-probability?match=KEY
@@ -21,106 +21,39 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    // Try live odds first, fall back to pre-match
-    let matchData: any = null
-    let source = 'live'
+    const raw = await getMatchOdds(matchKey)
+    const markets: any[] = raw?.data || []
 
-    try {
-      const raw = await roanuzGet(`match/${matchKey}/live-match-odds/`)
-      matchData = raw?.data?.match || raw?.data || {}
-    } catch {
-      // Live odds not available — try pre-match
-      try {
-        const raw = await roanuzGet(`match/${matchKey}/pre-match-odds/`)
-        matchData = raw?.data?.match || raw?.data || {}
-        source = 'pre-match'
-      } catch {
-        return NextResponse.json({
-          success: true,
-          probability: null,
-          source: 'unavailable',
-        })
-      }
+    if (!markets.length) {
+      return NextResponse.json({ success: true, probability: null, source: 'unavailable' })
     }
 
-    // Parse teams
-    const teamsRaw = matchData.teams || {}
-    const teamKeys = Object.keys(teamsRaw)
-    const teams: Record<string, { name: string; code: string }> = {}
-    for (const [key, val] of Object.entries(teamsRaw) as any[]) {
-      teams[key] = {
-        name: val.name || key,
-        code: val.code || val.alternate_code || key.toUpperCase(),
-      }
+    const market = markets[0]
+    const runners: any[] = market.runners || []
+
+    if (runners.length < 2) {
+      return NextResponse.json({ success: true, probability: null, source: 'insufficient_data' })
     }
 
-    // Parse result_prediction percentages
-    const prediction = matchData.result_prediction?.automatic || {}
-    const winPct: Record<string, number> = {}
+    const totalImplied = runners.reduce((sum: number, r: any) => {
+      const price = r.prices?.[0]?.value || r.decimal || 2
+      return sum + 1 / price
+    }, 0)
 
-    if (prediction.percentage && Array.isArray(prediction.percentage)) {
-      for (const item of prediction.percentage) {
-        winPct[item.team_key] = item.value
-      }
-    }
+    const pctA = Math.round(((1 / (runners[0].prices?.[0]?.value || 2)) / totalImplied) * 100)
+    const pctB = Math.round(((1 / (runners[1].prices?.[0]?.value || 2)) / totalImplied) * 100)
 
-    // Also parse decimal odds as fallback for implied probability
-    const betOdds = matchData.bet_odds?.automatic || {}
-    const decimalOdds: Record<string, number> = {}
-    if (betOdds.decimal && Array.isArray(betOdds.decimal)) {
-      for (const item of betOdds.decimal) {
-        decimalOdds[item.team_key] = item.value
-      }
-    }
-
-    // If no direct win% from prediction, calculate from decimal odds
-    if (Object.keys(winPct).length === 0 && Object.keys(decimalOdds).length >= 2) {
-      const totalImplied = Object.values(decimalOdds).reduce(
-        (sum, odds) => sum + 1 / odds,
-        0
-      )
-      for (const [key, odds] of Object.entries(decimalOdds)) {
-        winPct[key] = Math.round(((1 / odds) / totalImplied) * 100)
-      }
-    }
-
-    // Build response — map team keys to teamA/teamB positions
-    if (teamKeys.length >= 2 && Object.keys(winPct).length >= 2) {
-      const [keyA, keyB] = teamKeys
-
-      return NextResponse.json({
-        success: true,
-        probability: {
-          teamA: {
-            key: keyA,
-            name: teams[keyA]?.name || keyA,
-            code: teams[keyA]?.code || keyA.toUpperCase(),
-            pct: winPct[keyA] ?? 50,
-          },
-          teamB: {
-            key: keyB,
-            name: teams[keyB]?.name || keyB,
-            code: teams[keyB]?.code || keyB.toUpperCase(),
-            pct: winPct[keyB] ?? 50,
-          },
-        },
-        source,
-      })
-    }
-
-    // Not enough data
     return NextResponse.json({
       success: true,
-      probability: null,
-      source: 'insufficient_data',
+      probability: {
+        teamA: { name: runners[0].name || 'Team A', pct: pctA },
+        teamB: { name: runners[1].name || 'Team B', pct: pctB },
+      },
+      source: 'sportmonks',
     })
   } catch (error: any) {
     console.error('Live probability error:', error.message)
-    return NextResponse.json({
-      success: true,
-      probability: null,
-      source: 'error',
-    })
+    return NextResponse.json({ success: true, probability: null, source: 'error' })
   }
 }
 

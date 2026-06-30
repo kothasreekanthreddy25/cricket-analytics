@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getMatchInsights } from '@/lib/roanuz'
+import { getMatchDetails } from '@/lib/sportmonks'
 
 export interface H2HMatch {
   key: string
@@ -190,16 +190,14 @@ export async function GET(req: NextRequest) {
   }
 
   try {
-    const raw = await getMatchInsights(matchKey)
+    const raw = await getMatchDetails(matchKey)
     const data = raw?.data ?? null
-
-    console.log('[Insights] top-level data keys:', data ? Object.keys(data) : 'null')
 
     const h2h = parseH2H(data, teamA, teamB)
 
     return NextResponse.json({
       h2h,
-      raw: data, // pass through for debugging
+      raw: data,
     })
   } catch (err: any) {
     console.error('Insights fetch error:', err?.message)

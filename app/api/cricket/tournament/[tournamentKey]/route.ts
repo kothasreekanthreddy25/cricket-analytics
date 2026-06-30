@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getTournament } from '@/lib/roanuz'
+import { getLeague } from '@/lib/sportmonks'
 
 export async function GET(
   request: NextRequest,
   { params }: { params: { tournamentKey: string } }
 ) {
   try {
-    const data = await getTournament(params.tournamentKey)
+    const data = await getLeague(params.tournamentKey)
     return NextResponse.json(data)
   } catch (error: any) {
     console.error('Tournament error:', error.message)

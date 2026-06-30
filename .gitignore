@@ -50,3 +50,5 @@ docs/reports/
 
 # ML training data (large — thousands of JSON files, only needed locally to train)
 training-data/
+mobile/node_modules/
+mobile/.expo/

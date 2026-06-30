@@ -1,13 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getTournamentFixtures } from '@/lib/roanuz'
+import { getLeagueFixtures } from '@/lib/sportmonks'
 
 export async function GET(
   request: NextRequest,
   { params }: { params: { tournamentKey: string } }
 ) {
   try {
-    const pageKey = request.nextUrl.searchParams.get('page_key')
-    const data = await getTournamentFixtures(params.tournamentKey, pageKey || undefined)
+    // tournamentKey is treated as seasonId for SportMonks fixture lookup
+    const data = await getLeagueFixtures(params.tournamentKey)
     return NextResponse.json(data)
   } catch (error: any) {
     console.error('Tournament fixtures error:', error.message)

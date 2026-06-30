@@ -1,17 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getMatchDetails } from '@/lib/roanuz'
+import { getMatchDetails } from '@/lib/sportmonks'
 import { cricapiMatchInfo } from '@/lib/cricapi'
 
 export async function GET(
   request: NextRequest,
   { params }: { params: { matchKey: string } }
 ) {
-  // 1. Try Roanuz
+  // 1. Try SportMonks
   try {
     const data = await getMatchDetails(params.matchKey)
-    return NextResponse.json({ source: 'roanuz', ...data })
+    return NextResponse.json({ source: 'sportmonks', ...data })
   } catch {
-    console.warn(`[Match] Roanuz failed for ${params.matchKey}, falling back to CricAPI...`)
+    console.warn(`[Match] SportMonks failed for ${params.matchKey}, falling back to CricAPI...`)
   }
 
   // 2. Fallback: CricAPI

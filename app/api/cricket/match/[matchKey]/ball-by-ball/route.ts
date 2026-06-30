@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getMatchBallByBall } from '@/lib/roanuz'
+import { getMatchBallByBall } from '@/lib/sportmonks'
 
 export async function GET(
   request: NextRequest,

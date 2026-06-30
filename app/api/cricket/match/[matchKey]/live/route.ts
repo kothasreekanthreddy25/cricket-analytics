@@ -1,15 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getMatchDetails, getMatchBallByBall } from '@/lib/roanuz'
+import { getLiveScorecard, getMatchBallByBall } from '@/lib/sportmonks'
 import { cricapiMatchInfo, cricapiScorecard } from '@/lib/cricapi'
 
 export async function GET(
   request: NextRequest,
   { params }: { params: { matchKey: string } }
 ) {
-  // 1. Try Roanuz (primary)
+  // 1. Try SportMonks (primary)
   try {
     const [matchData, ballData] = await Promise.allSettled([
-      getMatchDetails(params.matchKey),
+      getLiveScorecard(params.matchKey),
       getMatchBallByBall(params.matchKey),
     ])
 
@@ -18,7 +18,7 @@ export async function GET(
 
     if (match) {
       return NextResponse.json({
-        source: 'roanuz',
+        source: 'sportmonks',
         match,
         ballByBall,
         matchError: matchData.status === 'rejected' ? matchData.reason?.message : null,
@@ -26,7 +26,7 @@ export async function GET(
       })
     }
   } catch {
-    console.warn(`[Live] Roanuz failed for ${params.matchKey}, falling back to CricAPI...`)
+    console.warn(`[Live] SportMonks failed for ${params.matchKey}, falling back to CricAPI...`)
   }
 
   // 2. Fallback: CricAPI

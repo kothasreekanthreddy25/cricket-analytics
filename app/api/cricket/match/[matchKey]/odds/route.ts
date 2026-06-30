@@ -1,17 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getLiveMatchOdds, getPreMatchOdds } from '@/lib/roanuz'
+import { getMatchOdds } from '@/lib/sportmonks'
 
 export async function GET(
   request: NextRequest,
   { params }: { params: { matchKey: string } }
 ) {
-  const { searchParams } = new URL(request.url)
-  const type = searchParams.get('type') || 'live'
-
   try {
-    const data = type === 'pre'
-      ? await getPreMatchOdds(params.matchKey)
-      : await getLiveMatchOdds(params.matchKey)
+    const data = await getMatchOdds(params.matchKey)
     return NextResponse.json(data)
   } catch (error: any) {
     console.error('Match odds error:', error.message)
