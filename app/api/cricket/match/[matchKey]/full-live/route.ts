@@ -283,50 +283,119 @@ export async function GET(
       }
     }
 
-    // --- Dynamic win probability from live state + team history ---
+    // --- Dynamic win probability: DLS model + team history + recent form + venue ---
     if (!probability && innings.length > 0) {
       try {
-        // Fetch historical records for both teams using direct schema columns
+        const venueKeyword = matchRaw.venue?.data?.name?.split(' ')[0] || ''
+        const teamAKey = teamA.name.split(' ')[0]
+        const teamBKey = teamB.name.split(' ')[0]
+
+        // Fetch all relevant historical records in one query
         const allRecords = await prisma.matchAnalysis.findMany({
-          select: { teamA: true, teamB: true, winProbabilityA: true, winProbabilityB: true },
+          select: {
+            teamA: true, teamB: true,
+            winProbabilityA: true, winProbabilityB: true,
+            recentForm: true, conditions: true,
+            createdAt: true,
+          },
           where: {
             OR: [
-              { teamA: { contains: teamA.name.split(' ')[0] } },
-              { teamB: { contains: teamA.name.split(' ')[0] } },
-              { teamA: { contains: teamB.name.split(' ')[0] } },
-              { teamB: { contains: teamB.name.split(' ')[0] } },
+              { teamA: { contains: teamAKey } },
+              { teamB: { contains: teamAKey } },
+              { teamA: { contains: teamBKey } },
+              { teamB: { contains: teamBKey } },
             ],
           },
-          take: 100,
+          orderBy: { createdAt: 'desc' },
+          take: 200,
         })
 
-        // Derive win rates: team that had higher winProbability "won" that prediction
-        const teamWins: Record<string, number> = {}
-        const teamMatches: Record<string, number> = {}
+        const now = Date.now()
+
+        // ── Team history win rates (exponential time decay — recent matches weighted more) ──
+        // Weight = exp(-days_ago / 180): match 6 months ago = ~37% weight, 1 year = ~14%
+        const teamWeightedWins: Record<string, number> = {}
+        const teamWeightedTotal: Record<string, number> = {}
+
         for (const rec of allRecords) {
+          const daysAgo = (now - new Date(rec.createdAt).getTime()) / (1000 * 86400)
+          const weight = Math.exp(-daysAgo / 180)  // decay over 180 days
           const tA = rec.teamA, tB = rec.teamB
-          if (tA) teamMatches[tA] = (teamMatches[tA] || 0) + 1
-          if (tB) teamMatches[tB] = (teamMatches[tB] || 0) + 1
+          if (tA) teamWeightedTotal[tA] = (teamWeightedTotal[tA] || 0) + weight
+          if (tB) teamWeightedTotal[tB] = (teamWeightedTotal[tB] || 0) + weight
           if (rec.winProbabilityA > rec.winProbabilityB) {
-            if (tA) teamWins[tA] = (teamWins[tA] || 0) + 1
+            if (tA) teamWeightedWins[tA] = (teamWeightedWins[tA] || 0) + weight
           } else {
-            if (tB) teamWins[tB] = (teamWins[tB] || 0) + 1
+            if (tB) teamWeightedWins[tB] = (teamWeightedWins[tB] || 0) + weight
           }
         }
 
-        // Match team names with recorded names (fuzzy: first word)
         const findWinRate = (name: string) => {
-          const key = Object.keys(teamMatches).find(k =>
-            k.toLowerCase().includes(name.split(' ')[0].toLowerCase()) ||
-            name.toLowerCase().includes(k.split(' ')[0].toLowerCase())
+          const key = name.split(' ')[0].toLowerCase()
+          const match = Object.keys(teamWeightedTotal).find(k =>
+            k.toLowerCase().includes(key) || key.includes(k.split(' ')[0].toLowerCase())
           )
-          if (!key || !teamMatches[key]) return 0.5
-          return (teamWins[key] || 0) / teamMatches[key]
+          if (!match || !teamWeightedTotal[match]) return 0.5
+          return (teamWeightedWins[match] || 0) / teamWeightedTotal[match]
         }
 
+        const histWinRateA = findWinRate(teamA.name)  // 0–1
+        const histWinRateB = findWinRate(teamB.name)  // 0–1
+
+        // ── Recent form: last 5 matches for each team (W/L points, recency weighted) ──
+        // recentForm stored as JSON array [{result:'W'|'L', opponent:string}, ...]
+        const getRecentFormScore = (teamName: string): number => {
+          const key = teamName.split(' ')[0].toLowerCase()
+          const teamRecs = allRecords
+            .filter(r =>
+              r.teamA?.toLowerCase().includes(key) ||
+              r.teamB?.toLowerCase().includes(key)
+            )
+            .slice(0, 5)  // last 5
+
+          if (!teamRecs.length) return 0
+
+          let formScore = 0
+          teamRecs.forEach((rec, idx) => {
+            const recencyWeight = 1 - idx * 0.15  // most recent = 1.0, 5th = 0.4
+            const isTeamA = rec.teamA?.toLowerCase().includes(key)
+            const won = isTeamA
+              ? rec.winProbabilityA > rec.winProbabilityB
+              : rec.winProbabilityB > rec.winProbabilityA
+            formScore += won ? recencyWeight : -recencyWeight * 0.5
+          })
+          return formScore / 5  // normalise to -1..+1
+        }
+
+        const formScoreA = getRecentFormScore(teamA.name)  // positive = good form
+        const formScoreB = getRecentFormScore(teamB.name)
+
+        // ── Venue history: how each team performs at this venue ──
+        const getVenueWinRate = (teamName: string): number => {
+          if (!venueKeyword) return 0.5
+          const key = teamName.split(' ')[0].toLowerCase()
+          const venueRecs = allRecords.filter(r => {
+            const cond = r.conditions as any
+            const venue = (cond?.venue || cond?.ground || '').toLowerCase()
+            return venue.includes(venueKeyword.toLowerCase()) && (
+              r.teamA?.toLowerCase().includes(key) ||
+              r.teamB?.toLowerCase().includes(key)
+            )
+          })
+          if (!venueRecs.length) return 0.5
+          const wins = venueRecs.filter(r => {
+            const isA = r.teamA?.toLowerCase().includes(key)
+            return isA ? r.winProbabilityA > r.winProbabilityB : r.winProbabilityB > r.winProbabilityA
+          }).length
+          return wins / venueRecs.length
+        }
+
+        const venueRateA = getVenueWinRate(teamA.name)  // 0–1
+        const venueRateB = getVenueWinRate(teamB.name)
+
         // Historical win rates (fallback 50% if no data)
-        const histWinRateA = findWinRate(teamA.name)
-        const histWinRateB = findWinRate(teamB.name)
+        const histWinRateA_norm = histWinRateA
+        const histWinRateB_norm = histWinRateB
 
         // ── DLS-inspired Live Win Probability Model ──
         // Based on: Duckworth-Lewis-Stern resource table + logistic regression approach
@@ -362,8 +431,15 @@ export async function GET(
           return 1 / (1 + Math.exp(-x))
         }
 
-        // History as small 10% bias only
-        const histBiasA = ((histWinRateA / (histWinRateA + histWinRateB)) - 0.5) * 10
+        // ── Pre-match prior: history (10%) + recent form (8%) + venue (7%) = 25% total ──
+        // Live DLS model drives remaining 75%
+        const histTotal = histWinRateA_norm + histWinRateB_norm || 1
+        const histBias   = ((histWinRateA_norm / histTotal) - 0.5) * 10   // -5 to +5
+        const formBias   = (formScoreA - formScoreB) * 8                  // -8 to +8
+        const venueBiasA = venueRateA - 0.5  // how much better than 50% at venue
+        const venueBiasB = venueRateB - 0.5
+        const venueBias  = (venueBiasA - venueBiasB) * 7                  // -7 to +7
+        const histBiasA  = histBias + formBias + venueBias                 // -20 to +20
 
         let livePctA = 50
 
@@ -451,10 +527,20 @@ export async function GET(
         }
         probabilitySource = 'live'
 
-        // Enrich insights with historical rates
+        // Enrich insights with all factors
         if (!predictionInsights) predictionInsights = {} as any
-        predictionInsights.teamAWinRate = histWinRateA
-        predictionInsights.teamBWinRate = histWinRateB
+        predictionInsights.teamAWinRate  = Math.round(histWinRateA_norm * 100)
+        predictionInsights.teamBWinRate  = Math.round(histWinRateB_norm * 100)
+        predictionInsights.teamAForm     = Math.round((formScoreA + 1) * 50)   // 0–100
+        predictionInsights.teamBForm     = Math.round((formScoreB + 1) * 50)
+        predictionInsights.teamAVenue    = Math.round(venueRateA * 100)
+        predictionInsights.teamBVenue    = Math.round(venueRateB * 100)
+        predictionInsights.factors = [
+          `${teamA.name} hist:${Math.round(histWinRateA_norm * 100)}%`,
+          `${teamB.name} hist:${Math.round(histWinRateB_norm * 100)}%`,
+          formScoreA > 0.1 ? `${teamA.name} in form` : formScoreB > 0.1 ? `${teamB.name} in form` : 'even form',
+          venueKeyword ? `venue:${venueKeyword}` : null,
+        ].filter(Boolean)
 
         // Last 5 matches per team from DB
         const buildLast5 = (teamName: string, side: 'A' | 'B') => {
