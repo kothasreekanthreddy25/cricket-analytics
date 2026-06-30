@@ -338,23 +338,41 @@ export async function GET(
           // 2nd innings: chase in progress
           const target = (inn1.runs ?? 0) + 1
           const chaseRuns = inn2.runs
+          const chaseWickets = inn2.wickets ?? 0
           const chaseOversRaw = parseFloat(String(inn2.overs ?? '0')) || 0
           const ballsDone = Math.floor(chaseOversRaw) * 6 + Math.round((chaseOversRaw % 1) * 10)
           const ballsLeft = 120 - ballsDone
           const needed = target - chaseRuns
-          // Resources remaining factor (simplified Duckworth-Lewis style)
-          const resourcesUsed = ballsDone / 120
+          const wicketsLeft = 10 - chaseWickets
+
           const difficulty = needed > 0 && ballsLeft > 0
             ? (needed / ballsLeft) * 6  // required RR
             : needed <= 0 ? 0 : 99
-          // If req RR < 7: chasing team +10 to +20; if > 12: -15 to -25
-          if (needed <= 0) liveAdjA = -30   // chaser won
-          else if (difficulty < 6) liveAdjA = -20
-          else if (difficulty < 8) liveAdjA = -10
-          else if (difficulty < 10) liveAdjA = 0
-          else if (difficulty < 13) liveAdjA = 12
-          else liveAdjA = 22
-          // The batting team in inn2 is inn2.teamSide
+
+          // Base adjustment from required run rate
+          let rrAdj = 0
+          if (needed <= 0) rrAdj = -35        // chaser won
+          else if (difficulty < 5) rrAdj = -25
+          else if (difficulty < 7) rrAdj = -15
+          else if (difficulty < 9) rrAdj = -5
+          else if (difficulty < 11) rrAdj = 8
+          else if (difficulty < 13) rrAdj = 18
+          else rrAdj = 28
+
+          // Wicket pressure: each wicket lost shifts advantage toward the defending team
+          // 0-2 wickets: small penalty, 3-5: moderate, 6-7: heavy, 8-9: very heavy
+          const wicketPenalty =
+            wicketsLeft >= 8 ? 0   :
+            wicketsLeft >= 6 ? 8   :
+            wicketsLeft >= 5 ? 14  :
+            wicketsLeft >= 4 ? 20  :
+            wicketsLeft >= 3 ? 27  :
+            wicketsLeft >= 2 ? 34  :
+            wicketsLeft >= 1 ? 40  : 45
+
+          liveAdjA = rrAdj + wicketPenalty  // positive = defending team (A) favoured
+
+          // Flip if inn2 batting team is team A
           if (inn2.teamSide === 'a') liveAdjA = -liveAdjA
         } else if (inn1 && inn1.runs !== null) {
           // 1st innings in progress — batting team has slight edge if scoring well
