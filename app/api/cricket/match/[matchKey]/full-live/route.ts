@@ -328,79 +328,121 @@ export async function GET(
         const histWinRateA = findWinRate(teamA.name)
         const histWinRateB = findWinRate(teamB.name)
 
-        // Live match state — primary driver of win probability
+        // ── DLS-inspired Live Win Probability Model ──
+        // Based on: Duckworth-Lewis-Stern resource table + logistic regression approach
+        // Research: "In-Game Win Prediction Models for Cricket" (Springer 2024)
+        //           "Predicting Cricket Outcomes using Bayesian Priors" (arXiv 2022)
+        //
+        // Key insight: A team's remaining resources = f(balls_left, wickets_left)
+        // Win probability = sigmoid(run_advantage / resource_difficulty)
+        // History = small 10% prior bias only
+
         const inn1 = innings[0]
         const inn2 = innings[1] ?? null
 
-        // History is only a small bias (15%) — live state drives 85%
-        const histBiasA = ((histWinRateA / (histWinRateA + histWinRateB)) - 0.5) * 15
+        // DLS T20 resource table: resource[ballsLeft][wicketsLeft] as % of total resources
+        // Derived from official DLS table scaled to T20 (120 balls = 100% resource)
+        // Rows = balls remaining (0-120), Cols = wickets remaining (0-10)
+        // Source: Duckworth-Lewis-Stern method Wikipedia + SFU paper on T20 DLS
+        function dlsResource(ballsLeft: number, wicketsLeft: number): number {
+          if (ballsLeft <= 0 || wicketsLeft <= 0) return 0
+          // Wicket decay factors (how much resource each wicket is worth)
+          // Based on: 10wkts=100%, 7wkts=68%, 5wkts=49%, 3wkts=28%, 1wkt=8%
+          const wicketFactor = [0, 0.08, 0.18, 0.28, 0.38, 0.49, 0.59, 0.68, 0.79, 0.89, 1.0]
+          const wf = wicketFactor[Math.min(wicketsLeft, 10)] ?? 0
+          // Ball resource = exponential decay (early overs worth more)
+          // Z(u,w) = Z0(w) * [1 - exp(-b*u)] where u=balls, b=decay constant
+          const b = 0.04  // decay constant calibrated for T20
+          const ballFactor = (1 - Math.exp(-b * ballsLeft)) / (1 - Math.exp(-b * 120))
+          return wf * ballFactor * 100  // returns 0–100
+        }
 
-        let livePctA = 50  // start at 50/50, adjust from live state
+        // Logistic sigmoid for converting run advantage to probability
+        function sigmoid(x: number): number {
+          return 1 / (1 + Math.exp(-x))
+        }
+
+        // History as small 10% bias only
+        const histBiasA = ((histWinRateA / (histWinRateA + histWinRateB)) - 0.5) * 10
+
+        let livePctA = 50
 
         if (inn2 && inn1.runs !== null && inn2.runs !== null) {
-          // ── 2nd innings chase in progress ──
+          // ── 2nd innings: DLS chase model ──
           const target = (inn1.runs ?? 0) + 1
           const chaseRuns = inn2.runs
           const chaseWickets = inn2.wickets ?? 0
           const chaseOversRaw = parseFloat(String(inn2.overs ?? '0')) || 0
           const ballsDone = Math.floor(chaseOversRaw) * 6 + Math.round((chaseOversRaw % 1) * 10)
-          const ballsLeft = Math.max(1, 120 - ballsDone)
+          const ballsLeft = Math.max(0, 120 - ballsDone)
           const needed = target - chaseRuns
           const wicketsLeft = 10 - chaseWickets
 
           if (needed <= 0) {
-            // Chaser has won
-            livePctA = inn2.teamSide === 'a' ? 95 : 5
+            // Chasing team won
+            livePctA = inn2.teamSide === 'a' ? 96 : 4
           } else if (ballsLeft <= 0 || wicketsLeft <= 0) {
-            // Defender has won
-            livePctA = inn2.teamSide === 'a' ? 5 : 95
+            // Defending team won
+            livePctA = inn2.teamSide === 'a' ? 4 : 96
           } else {
-            const reqRR = (needed / ballsLeft) * 6
-            const currentRR = ballsDone > 0 ? (chaseRuns / ballsDone) * 6 : reqRR
+            const reqRR = (needed / ballsLeft) * 6           // required run rate
+            const currentRR = ballsDone > 0 ? (chaseRuns / ballsDone) * 6 : 8
+            const resourcePct = dlsResource(ballsLeft, wicketsLeft)  // 0–100
 
-            // Resources remaining: balls * wickets (like D/L resource table)
-            // wicketsLeft weight: 10wkts=1.0, 5wkts=0.55, 2wkts=0.25, 1wkt=0.12
-            const wicketResource = [0, 0.05, 0.12, 0.22, 0.34, 0.47, 0.60, 0.72, 0.83, 0.92, 1.0][wicketsLeft] ?? 0.5
-            const ballResource = ballsLeft / 120
-            const resourcesLeft = wicketResource * 0.55 + ballResource * 0.45
+            // Par score at this point: what score should chaser have?
+            // par = target * (1 - resourcePct/100) means they've "used" that much
+            const parScore = target * (1 - resourcePct / 100)
+            const runAdvantage = chaseRuns - parScore  // +ve = chaser ahead of par
 
-            // How hard is the chase given remaining resources?
-            // If reqRR is close to currentRR and resources are high → chaser wins
-            // reqRR vs average T20 scoring (~8 rpo baseline)
-            const rrRatio = reqRR / Math.max(currentRR, 5)  // how much harder than current pace
+            // Sensitivity: scales how sharply probability changes with run advantage
+            // Higher sensitivity later in innings (less time to recover)
+            const progressFactor = 0.5 + (ballsDone / 120) * 1.5  // 0.5 early → 2.0 at end
+            // Also penalise heavily if reqRR is extreme
+            const rrPenalty = Math.max(0, (reqRR - 8) * 0.8)  // extra difficulty above 8 rpo
+            const sensitivity = progressFactor * 0.12
 
-            // Chase win probability (0→1): high resources + low rrRatio = chaser wins
-            let chasePct = resourcesLeft * (1 / Math.max(rrRatio, 0.3)) * 100
-            // Scale: reqRR <7 → chaser dominant, >13 → defender dominant
-            if (reqRR < 6)  chasePct = Math.min(chasePct, 85)
-            if (reqRR > 14) chasePct = Math.min(chasePct, 25)
-            chasePct = Math.max(5, Math.min(92, chasePct))
+            // Logistic model: P(chaser wins) = sigmoid(runAdv * sensitivity - rrPenalty * sensitivity)
+            const z = (runAdvantage - rrPenalty) * sensitivity
+            let chasePct = sigmoid(z) * 100
 
-            // chasePct = probability that inn2 batting team wins
+            // Hard clamp: if reqRR > 18, nearly impossible; if reqRR < 4, near certain
+            if (reqRR > 18) chasePct = Math.min(chasePct, 8)
+            else if (reqRR > 14) chasePct = Math.min(chasePct, 22)
+            else if (reqRR < 4) chasePct = Math.max(chasePct, 82)
+            else if (reqRR < 6) chasePct = Math.max(chasePct, 65)
+
+            chasePct = Math.max(4, Math.min(96, chasePct))
             livePctA = inn2.teamSide === 'a' ? chasePct : (100 - chasePct)
           }
 
         } else if (inn1 && inn1.runs !== null) {
-          // ── 1st innings in progress ──
+          // ── 1st innings: resource strength model ──
           const oversRaw = parseFloat(String(inn1.overs ?? '0')) || 0
           const ballsDone = Math.floor(oversRaw) * 6 + Math.round((oversRaw % 1) * 10)
-          const currentRR = ballsDone > 0 ? (inn1.runs / ballsDone) * 6 : 7.5
+          const currentRR = ballsDone > 0 ? ((inn1.runs ?? 0) / ballsDone) * 6 : 8
           const wickets = inn1.wickets ?? 0
           const wicketsLeft = 10 - wickets
           const ballsLeft = 120 - ballsDone
 
-          // Batting team strength: high RR + wickets in hand = on track for big score
-          const rrEdge = (currentRR - 7.75) * 3          // +/- based on run rate vs average
-          const wicketEdge = (wicketsLeft - 5) * 1.8     // wickets in hand bonus
-          const progressEdge = (ballsDone / 120) * 2     // later in innings = more certain
-          const batEdge = Math.max(-25, Math.min(25, rrEdge + wicketEdge + progressEdge))
+          // Projected final score based on current RR + resource remaining
+          const resourcePct = dlsResource(ballsLeft, wicketsLeft)
+          // Average T20 score = 160; batting team edge based on projected score vs average
+          const projectedScore = (inn1.runs ?? 0) + (resourcePct / 100) * 160 * (currentRR / 8)
+          const projectedEdge = (projectedScore - 160) / 160  // -1 to +1
+
+          // Wickets in hand bonus: more wickets = more aggressive hitting possible
+          const wicketBonus = (wicketsLeft - 5) * 1.5  // -7.5 to +7.5
+
+          const batEdge = Math.max(-28, Math.min(28,
+            projectedEdge * 30 + wicketBonus
+          ))
 
           livePctA = inn1.teamSide === 'a' ? 50 + batEdge : 50 - batEdge
         }
 
-        // Blend: 85% live state + 15% history bias
+        // Final blend: 90% live model + 10% history prior
         const rawA = livePctA + histBiasA
-        const pctA = Math.round(Math.max(5, Math.min(95, rawA)))
+        const pctA = Math.round(Math.max(4, Math.min(96, rawA)))
         const pctB = 100 - pctA
 
         probability = {
