@@ -43,6 +43,7 @@ import FeaturedMatchCards from '@/components/FeaturedMatchCards'
 import LiveScoreCard from '@/components/LiveScoreCard'
 import PredictionStatsWidget from '@/components/PredictionStatsWidget'
 import LatestNews from '@/components/LatestNews'
+import TopPredictionsCarousel from '@/components/TopPredictionsCarousel'
 import {
   Activity,
   TrendingUp,
@@ -169,7 +170,14 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── Section 4: Upcoming Matches ── */}
+      {/* ── Section 4: Top Predictions This Week ── */}
+      <section className="bg-gray-950 py-10 px-4 border-t border-gray-800">
+        <div className="max-w-7xl mx-auto">
+          <TopPredictionsCarousel />
+        </div>
+      </section>
+
+      {/* ── Section 5: Upcoming Matches ── */}
       <section className="bg-gray-900 py-10 px-4">
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center justify-between mb-5">
