@@ -20,10 +20,23 @@ async function getSessionFromRequest(req: NextRequest) {
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
-  // Auth pages — redirect to dashboard if already logged in
-  if (pathname.startsWith('/auth/signin') || pathname.startsWith('/auth/signup')) {
+  // Sign in / sign up — redirect to dashboard if already logged in
+  if (pathname === '/auth/signin' || pathname === '/auth/signup') {
     const session = await getSessionFromRequest(request)
     if (session) {
+      return NextResponse.redirect(new URL(`/plans/${session.plan}`, request.url))
+    }
+    return NextResponse.next()
+  }
+
+  // Select plan — must be logged in, but if already paid redirect to their dashboard
+  if (pathname === '/auth/select-plan') {
+    const session = await getSessionFromRequest(request)
+    if (!session) {
+      return NextResponse.redirect(new URL('/auth/signup', request.url))
+    }
+    // Already on a paid plan → skip straight to dashboard
+    if (session.plan !== 'free') {
       return NextResponse.redirect(new URL(`/plans/${session.plan}`, request.url))
     }
     return NextResponse.next()
@@ -36,12 +49,12 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(new URL('/auth/signin', request.url))
     }
 
-    // Gate Pro/Elite pages by plan
+    // Free users trying to access pro/elite → redirect to select-plan
     if (pathname.startsWith('/plans/pro') && session.plan === 'free') {
-      return NextResponse.redirect(new URL('/plans/free?upgrade=pro', request.url))
+      return NextResponse.redirect(new URL('/auth/select-plan', request.url))
     }
     if (pathname.startsWith('/plans/elite') && session.plan !== 'elite') {
-      return NextResponse.redirect(new URL(`/plans/${session.plan}?upgrade=elite`, request.url))
+      return NextResponse.redirect(new URL('/auth/select-plan', request.url))
     }
 
     return NextResponse.next()
@@ -51,5 +64,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/auth/signin', '/auth/signup', '/plans/:path*'],
+  matcher: ['/auth/signin', '/auth/signup', '/auth/select-plan', '/plans/:path*'],
 }

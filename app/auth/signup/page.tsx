@@ -10,7 +10,6 @@ export default function SignUpPage() {
   const router = useRouter()
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
-  const [phone, setPhone] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState('')
@@ -28,7 +27,7 @@ export default function SignUpPage() {
     }
 
     try {
-      const result = await signUp.email({ email, password, name, phone })
+      const result = await signUp.email({ email, password, name })
 
       if (result.error) {
         setError(result.error.message || 'Failed to create account')
@@ -36,7 +35,8 @@ export default function SignUpPage() {
         return
       }
 
-      router.push('/plans/free')
+      // After signup always go to plan selection
+      router.push('/auth/select-plan')
       router.refresh()
     } catch {
       setError('Something went wrong. Please try again.')
@@ -59,7 +59,7 @@ export default function SignUpPage() {
             </span>
           </Link>
           <h1 className="text-2xl font-bold text-white">Create your account</h1>
-          <p className="text-gray-400 text-sm mt-1">Free forever — upgrade anytime</p>
+          <p className="text-gray-400 text-sm mt-1">Step 1 of 2 — Basic details</p>
         </div>
 
         <div className="bg-gray-900 border border-gray-800 rounded-2xl p-8">
@@ -79,17 +79,6 @@ export default function SignUpPage() {
                 onChange={e => setName(e.target.value)}
                 className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-white placeholder-gray-500 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/50 transition"
                 placeholder="Your name"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1.5">Phone (optional)</label>
-              <input
-                type="tel"
-                value={phone}
-                onChange={e => setPhone(e.target.value)}
-                className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-white placeholder-gray-500 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/50 transition"
-                placeholder="+91 9876543210"
               />
             </div>
 
@@ -135,7 +124,7 @@ export default function SignUpPage() {
               disabled={loading}
               className="w-full bg-emerald-500 hover:bg-emerald-600 disabled:opacity-50 text-white font-semibold py-2.5 rounded-lg text-sm transition-colors mt-2"
             >
-              {loading ? 'Creating account…' : 'Create Free Account'}
+              {loading ? 'Creating account…' : 'Continue →'}
             </button>
           </form>
 
