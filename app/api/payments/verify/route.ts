@@ -16,12 +16,30 @@ export async function POST(req: Request) {
       return NextResponse.json({ success: false, error: 'Invalid signature' }, { status: 400 })
     }
 
-    await prisma.subscription.update({
+    const sub = await prisma.subscription.update({
       where: { razorpayOrderId: razorpay_order_id },
       data: { razorpayPaymentId: razorpay_payment_id, status: 'paid' },
     })
 
-    return NextResponse.json({ success: true })
+    const res = NextResponse.json({ success: true, plan: sub.plan })
+
+    // Set plan cookie (30 days)
+    res.cookies.set('ct_plan', sub.plan, {
+      httpOnly: false, // readable by client for UI
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 60 * 60 * 24 * 30,
+      path: '/',
+    })
+    res.cookies.set('ct_sub_id', sub.id, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 60 * 60 * 24 * 30,
+      path: '/',
+    })
+
+    return res
   } catch (err) {
     console.error('[verify-payment]', err)
     return NextResponse.json({ error: 'Verification failed' }, { status: 500 })

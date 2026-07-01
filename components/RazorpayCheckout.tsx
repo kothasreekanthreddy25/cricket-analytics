@@ -75,7 +75,7 @@ export default function RazorpayCheckout({ plan, label, price }: Props) {
           })
           const vData = await verify.json()
           if (vData.success) {
-            window.location.href = '/pricing?success=1'
+            window.location.href = `/plans/${vData.plan}`
           } else {
             setError('Payment verification failed. Please contact support.')
             setLoading(false)
