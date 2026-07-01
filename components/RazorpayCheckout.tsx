@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { X } from 'lucide-react'
 
 interface Props {
   plan: 'pro' | 'elite'
@@ -10,13 +11,19 @@ interface Props {
 
 declare global {
   interface Window {
-    Razorpay: new (options: Record<string, unknown>) => { open(): void }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    Razorpay: new (options: any) => { open(): void }
   }
 }
 
 function loadRazorpayScript(): Promise<boolean> {
   return new Promise(resolve => {
-    if (document.getElementById('razorpay-script')) { resolve(true); return }
+    if (window.Razorpay) { resolve(true); return }
+    const existing = document.getElementById('razorpay-script')
+    if (existing) {
+      existing.addEventListener('load', () => resolve(true))
+      return
+    }
     const script = document.createElement('script')
     script.id = 'razorpay-script'
     script.src = 'https://checkout.razorpay.com/v1/checkout.js'
@@ -27,17 +34,21 @@ function loadRazorpayScript(): Promise<boolean> {
 }
 
 export default function RazorpayCheckout({ plan, label, price }: Props) {
+  const [open, setOpen] = useState(false)
   const [loading, setLoading] = useState(false)
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [phone, setPhone] = useState('')
-  const [step, setStep] = useState<'idle' | 'form' | 'processing'>('idle')
+  const [error, setError] = useState('')
 
   async function handlePay() {
+    if (!name.trim()) { setError('Please enter your name'); return }
+    setError('')
     setLoading(true)
+
     try {
       const loaded = await loadRazorpayScript()
-      if (!loaded) { alert('Failed to load payment gateway. Please try again.'); return }
+      if (!loaded) { setError('Failed to load payment gateway. Please try again.'); setLoading(false); return }
 
       const res = await fetch('/api/payments/create-order', {
         method: 'POST',
@@ -45,7 +56,7 @@ export default function RazorpayCheckout({ plan, label, price }: Props) {
         body: JSON.stringify({ plan, name, email, phone }),
       })
       const data = await res.json()
-      if (data.error) { alert(data.error); return }
+      if (data.error) { setError(data.error); setLoading(false); return }
 
       const options = {
         key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
@@ -57,7 +68,6 @@ export default function RazorpayCheckout({ plan, label, price }: Props) {
         prefill: { name, email, contact: phone },
         theme: { color: '#10b981' },
         handler: async (response: { razorpay_order_id: string; razorpay_payment_id: string; razorpay_signature: string }) => {
-          setStep('processing')
           const verify = await fetch('/api/payments/verify', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -67,79 +77,98 @@ export default function RazorpayCheckout({ plan, label, price }: Props) {
           if (vData.success) {
             window.location.href = '/pricing?success=1'
           } else {
-            alert('Payment verification failed. Please contact support.')
-            setStep('form')
+            setError('Payment verification failed. Please contact support.')
+            setLoading(false)
           }
         },
-        modal: {
-          ondismiss: () => { setLoading(false); setStep('form') },
-        },
+        modal: { ondismiss: () => setLoading(false) },
       }
 
+      setOpen(false)
       const rz = new window.Razorpay(options)
       rz.open()
-    } catch {
-      alert('Something went wrong. Please try again.')
-    } finally {
+    } catch (e) {
+      console.error(e)
+      setError('Something went wrong. Please try again.')
       setLoading(false)
     }
   }
 
-  if (step === 'idle') {
-    return (
+  return (
+    <>
       <button
-        onClick={() => setStep('form')}
-        className="w-full py-3 rounded-2xl font-bold text-sm bg-emerald-500 hover:bg-emerald-400 text-white transition-colors"
+        type="button"
+        onClick={() => setOpen(true)}
+        className="w-full py-3 rounded-2xl font-bold text-sm bg-emerald-500 hover:bg-emerald-400 active:bg-emerald-600 text-white transition-colors cursor-pointer"
       >
         Get {label}
       </button>
-    )
-  }
 
-  if (step === 'processing') {
-    return (
-      <div className="w-full py-3 rounded-2xl text-sm text-center text-gray-400 border border-gray-700">
-        Verifying payment…
-      </div>
-    )
-  }
+      {open && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          {/* Backdrop */}
+          <div className="absolute inset-0 bg-black/70" onClick={() => setOpen(false)} />
 
-  return (
-    <div className="space-y-2 mt-2">
-      <input
-        type="text"
-        placeholder="Your name"
-        value={name}
-        onChange={e => setName(e.target.value)}
-        className="w-full bg-gray-800 border border-gray-700 text-white placeholder-gray-500 rounded-xl px-3 py-2 text-sm outline-none focus:border-emerald-500 transition-colors"
-      />
-      <input
-        type="email"
-        placeholder="Email (optional)"
-        value={email}
-        onChange={e => setEmail(e.target.value)}
-        className="w-full bg-gray-800 border border-gray-700 text-white placeholder-gray-500 rounded-xl px-3 py-2 text-sm outline-none focus:border-emerald-500 transition-colors"
-      />
-      <input
-        type="tel"
-        placeholder="Phone (optional)"
-        value={phone}
-        onChange={e => setPhone(e.target.value)}
-        className="w-full bg-gray-800 border border-gray-700 text-white placeholder-gray-500 rounded-xl px-3 py-2 text-sm outline-none focus:border-emerald-500 transition-colors"
-      />
-      <button
-        onClick={handlePay}
-        disabled={loading || !name}
-        className="w-full py-3 rounded-2xl font-bold text-sm bg-emerald-500 hover:bg-emerald-400 disabled:opacity-50 text-white transition-colors"
-      >
-        {loading ? 'Opening checkout…' : `Pay ${price} →`}
-      </button>
-      <button
-        onClick={() => setStep('idle')}
-        className="w-full text-xs text-gray-600 hover:text-gray-400 py-1 transition-colors"
-      >
-        Cancel
-      </button>
-    </div>
+          {/* Modal */}
+          <div className="relative bg-gray-900 border border-gray-700 rounded-2xl p-6 w-full max-w-sm shadow-2xl">
+            <button
+              onClick={() => setOpen(false)}
+              className="absolute top-4 right-4 text-gray-500 hover:text-white"
+            >
+              <X className="w-4 h-4" />
+            </button>
+
+            <h3 className="text-white font-extrabold text-lg mb-1">Subscribe to {label}</h3>
+            <p className="text-gray-400 text-sm mb-5">{price} · Cancel anytime</p>
+
+            <div className="space-y-3">
+              <div>
+                <label className="text-xs text-gray-400 mb-1 block">Your name *</label>
+                <input
+                  type="text"
+                  placeholder="Full name"
+                  value={name}
+                  onChange={e => setName(e.target.value)}
+                  className="w-full bg-gray-800 border border-gray-700 text-white placeholder-gray-500 rounded-xl px-3 py-2.5 text-sm outline-none focus:border-emerald-500 transition-colors"
+                />
+              </div>
+              <div>
+                <label className="text-xs text-gray-400 mb-1 block">Email (optional)</label>
+                <input
+                  type="email"
+                  placeholder="you@email.com"
+                  value={email}
+                  onChange={e => setEmail(e.target.value)}
+                  className="w-full bg-gray-800 border border-gray-700 text-white placeholder-gray-500 rounded-xl px-3 py-2.5 text-sm outline-none focus:border-emerald-500 transition-colors"
+                />
+              </div>
+              <div>
+                <label className="text-xs text-gray-400 mb-1 block">Phone (optional)</label>
+                <input
+                  type="tel"
+                  placeholder="+91 9999999999"
+                  value={phone}
+                  onChange={e => setPhone(e.target.value)}
+                  className="w-full bg-gray-800 border border-gray-700 text-white placeholder-gray-500 rounded-xl px-3 py-2.5 text-sm outline-none focus:border-emerald-500 transition-colors"
+                />
+              </div>
+
+              {error && (
+                <p className="text-red-400 text-xs">{error}</p>
+              )}
+
+              <button
+                type="button"
+                onClick={handlePay}
+                disabled={loading}
+                className="w-full py-3 rounded-2xl font-bold text-sm bg-emerald-500 hover:bg-emerald-400 disabled:opacity-60 text-white transition-colors mt-1"
+              >
+                {loading ? 'Opening checkout…' : `Pay ${price} →`}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   )
 }
