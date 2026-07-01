@@ -16,7 +16,7 @@ export function useSession() {
   const [isPending, setIsPending] = useState(true)
 
   useEffect(() => {
-    fetch('/api/auth/me')
+    fetch('/api/user/me')
       .then(r => r.json())
       .then(d => { setData(d); setIsPending(false) })
       .catch(() => { setData({ user: null }); setIsPending(false) })
@@ -28,7 +28,7 @@ export function useSession() {
 // signIn — call login API, return error or redirect hint
 export const signIn = {
   email: async ({ email, password }: { email: string; password: string }) => {
-    const res = await fetch('/api/auth/login', {
+    const res = await fetch('/api/user/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, password }),
@@ -42,7 +42,7 @@ export const signIn = {
 // signUp — call register API
 export const signUp = {
   email: async (fields: { email: string; password: string; name: string; phone?: string }) => {
-    const res = await fetch('/api/auth/register', {
+    const res = await fetch('/api/user/register', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(fields),
@@ -55,6 +55,6 @@ export const signUp = {
 
 // signOut — clear session cookie
 export async function signOut() {
-  await fetch('/api/auth/logout', { method: 'POST' })
+  await fetch('/api/user/logout', { method: 'POST' })
   window.location.href = '/auth/signin'
 }
