@@ -1,18 +1,21 @@
 import { NextResponse } from 'next/server'
-import Razorpay from 'razorpay'
 import { prisma } from '@/lib/prisma'
 
 export const dynamic = 'force-dynamic'
 
 const PLANS = {
-  pro: { amount: 29900, label: 'Pro' },    // ₹299 in paise
-  elite: { amount: 69900, label: 'Elite' }, // ₹699 in paise
+  pro: { amount: 29900, label: 'Pro' },
+  elite: { amount: 69900, label: 'Elite' },
 }
 
-const razorpay = new Razorpay({
-  key_id: process.env.RAZORPAY_KEY_ID!,
-  key_secret: process.env.RAZORPAY_KEY_SECRET!,
-})
+function getRazorpay() {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const Razorpay = require('razorpay')
+  return new Razorpay({
+    key_id: process.env.RAZORPAY_KEY_ID,
+    key_secret: process.env.RAZORPAY_KEY_SECRET,
+  })
+}
 
 export async function POST(req: Request) {
   try {
@@ -23,6 +26,7 @@ export async function POST(req: Request) {
     }
 
     const { amount, label } = PLANS[plan as keyof typeof PLANS]
+    const razorpay = getRazorpay()
 
     const order = await razorpay.orders.create({
       amount,
