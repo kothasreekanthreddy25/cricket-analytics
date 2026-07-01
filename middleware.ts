@@ -1,29 +1,55 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
+import { jwtVerify } from 'jose'
 
-export function middleware(request: NextRequest) {
+const SECRET = new TextEncoder().encode(
+  process.env.BETTER_AUTH_SECRET || 'ct-fallback-secret-change-in-prod'
+)
+
+async function getSessionFromRequest(req: NextRequest) {
+  const token = req.cookies.get('ct_user_session')?.value
+  if (!token) return null
+  try {
+    const { payload } = await jwtVerify(token, SECRET)
+    return payload as { userId: string; plan: string; role: string }
+  } catch {
+    return null
+  }
+}
+
+export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
-  // Public paths that don't require authentication
-  const publicPaths = ['/auth/signin', '/auth/signup', '/api/auth']
-  const isPublicPath = publicPaths.some(path => pathname.startsWith(path))
-
-  // Check if user has session cookie
-  const sessionCookie = request.cookies.get('better-auth.session_token')
-
-  // If accessing auth pages while logged in, redirect to dashboard
-  if (isPublicPath && sessionCookie && pathname.startsWith('/auth')) {
-    return NextResponse.redirect(new URL('/dashboard', request.url))
+  // Auth pages — redirect to dashboard if already logged in
+  if (pathname.startsWith('/auth/signin') || pathname.startsWith('/auth/signup')) {
+    const session = await getSessionFromRequest(request)
+    if (session) {
+      return NextResponse.redirect(new URL(`/plans/${session.plan}`, request.url))
+    }
+    return NextResponse.next()
   }
 
-  // If accessing protected pages without session, redirect to signin
-  if (!isPublicPath && !sessionCookie && pathname.startsWith('/dashboard')) {
-    return NextResponse.redirect(new URL('/auth/signin', request.url))
+  // Plan dashboards — require login
+  if (pathname.startsWith('/plans/')) {
+    const session = await getSessionFromRequest(request)
+    if (!session) {
+      return NextResponse.redirect(new URL('/auth/signin', request.url))
+    }
+
+    // Gate Pro/Elite pages by plan
+    if (pathname.startsWith('/plans/pro') && session.plan === 'free') {
+      return NextResponse.redirect(new URL('/plans/free?upgrade=pro', request.url))
+    }
+    if (pathname.startsWith('/plans/elite') && session.plan !== 'elite') {
+      return NextResponse.redirect(new URL(`/plans/${session.plan}?upgrade=elite`, request.url))
+    }
+
+    return NextResponse.next()
   }
 
   return NextResponse.next()
 }
 
 export const config = {
-  matcher: ['/dashboard/:path*', '/auth/:path*']
+  matcher: ['/auth/signin', '/auth/signup', '/plans/:path*'],
 }

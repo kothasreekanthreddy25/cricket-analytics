@@ -55,16 +55,21 @@ export default function Navbar() {
               </a>
             </div>
             <div className="w-px h-4 bg-gray-700" />
-            {session ? (
+            {session?.user ? (
               <>
-                <span className="text-xs text-gray-400 max-w-[180px] truncate">
-                  {session.user?.email}
+                <span className="text-xs text-gray-400 max-w-[140px] truncate hidden lg:block">
+                  {session.user.name || session.user.email}
                 </span>
+                {session.user.plan !== 'free' && (
+                  <span className={`text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-full border ${session.user.plan === 'elite' ? 'bg-yellow-500/10 text-yellow-400 border-yellow-500/30' : 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30'}`}>
+                    {session.user.plan}
+                  </span>
+                )}
                 <Link
-                  href="/dashboard/user"
+                  href={`/plans/${session.user.plan}`}
                   className="text-xs font-medium text-gray-300 hover:text-white transition px-3 py-1.5 rounded-lg hover:bg-gray-800"
                 >
-                  Dashboard
+                  My Dashboard
                 </Link>
                 <button
                   onClick={() => signOut()}

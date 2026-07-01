@@ -21,9 +21,11 @@ model User {
   email         String     @unique
   name          String?
   phone         String?
+  passwordHash  String?
   emailVerified Boolean    @default(false)
   image         String?
   role          String     @default("USER")
+  plan          String     @default("free") // free, pro, elite
   createdAt     DateTime   @default(now())
   updatedAt     DateTime   @updatedAt
   sessions      Session[]

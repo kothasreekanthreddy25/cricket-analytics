@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CricketTips.ai — YouTube Live Infrastructure & Cost Plan</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: #f5f7fa;
+      color: #1a1a2e;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    .page {
+      max-width: 900px;
+      margin: 0 auto;
+      background: #fff;
+      padding: 48px 56px;
+    }
+
+    /* Header */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      border-bottom: 3px solid #16a34a;
+      padding-bottom: 20px;
+      margin-bottom: 32px;
+    }
+    .header-left h1 {
+      font-size: 24px;
+      font-weight: 700;
+      color: #15803d;
+    }
+    .header-left h2 {
+      font-size: 15px;
+      font-weight: 400;
+      color: #555;
+      margin-top: 4px;
+    }
+    .header-right {
+      text-align: right;
+      font-size: 12px;
+      color: #888;
+    }
+    .header-right .badge {
+      display: inline-block;
+      background: #dcfce7;
+      color: #15803d;
+      font-weight: 600;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-size: 11px;
+      margin-bottom: 6px;
+    }
+
+    /* Section */
+    .section {
+      margin-bottom: 36px;
+    }
+    .section-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: #15803d;
+      border-left: 4px solid #16a34a;
+      padding-left: 10px;
+      margin-bottom: 14px;
+    }
+
+    /* Architecture diagram */
+    .arch-box {
+      background: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      border-radius: 8px;
+      padding: 20px 24px;
+      font-family: 'Courier New', monospace;
+      font-size: 13px;
+      color: #166534;
+      line-height: 2;
+    }
+
+    /* Tables */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 8px;
+      font-size: 13px;
+    }
+    th {
+      background: #15803d;
+      color: #fff;
+      padding: 9px 14px;
+      text-align: left;
+      font-weight: 600;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    td {
+      padding: 9px 14px;
+      border-bottom: 1px solid #e5e7eb;
+    }
+    tr:nth-child(even) td { background: #f9fafb; }
+    tr:last-child td { border-bottom: none; }
+    td strong { color: #15803d; }
+    td .note { font-size: 11px; color: #888; margin-top: 2px; }
+    td .check { color: #16a34a; font-weight: bold; }
+    td .cross { color: #dc2626; font-weight: bold; }
+
+    /* Plan cards */
+    .plans {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 8px;
+    }
+    .plan-card {
+      border: 2px solid #e5e7eb;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    .plan-card.recommended {
+      border-color: #16a34a;
+      box-shadow: 0 0 0 3px #dcfce7;
+    }
+    .plan-header {
+      background: #f3f4f6;
+      padding: 12px 16px;
+      font-weight: 700;
+      font-size: 13px;
+    }
+    .plan-card.recommended .plan-header {
+      background: #15803d;
+      color: #fff;
+    }
+    .plan-body {
+      padding: 14px 16px;
+    }
+    .plan-body .price {
+      font-size: 22px;
+      font-weight: 700;
+      color: #15803d;
+      margin-bottom: 10px;
+    }
+    .plan-body .price span {
+      font-size: 13px;
+      font-weight: 400;
+      color: #888;
+    }
+    .plan-body ul {
+      list-style: none;
+      font-size: 12px;
+      color: #444;
+    }
+    .plan-body ul li {
+      padding: 3px 0;
+      border-bottom: 1px solid #f3f4f6;
+    }
+    .plan-body ul li:last-child { border: none; }
+    .plan-badge {
+      display: inline-block;
+      background: #fef9c3;
+      color: #854d0e;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 10px;
+      margin-left: 6px;
+      vertical-align: middle;
+    }
+    .plan-card.recommended .plan-badge {
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    /* Per match box */
+    .highlight-box {
+      background: #fffbeb;
+      border: 1px solid #fde68a;
+      border-radius: 8px;
+      padding: 16px 20px;
+    }
+    .highlight-box .title {
+      font-weight: 700;
+      font-size: 13px;
+      color: #92400e;
+      margin-bottom: 8px;
+    }
+
+    /* Timeline */
+    .timeline {
+      border-left: 3px solid #16a34a;
+      padding-left: 20px;
+    }
+    .timeline-item {
+      position: relative;
+      margin-bottom: 20px;
+    }
+    .timeline-item::before {
+      content: '';
+      position: absolute;
+      left: -26px;
+      top: 4px;
+      width: 12px;
+      height: 12px;
+      background: #16a34a;
+      border-radius: 50%;
+      border: 2px solid #fff;
+      box-shadow: 0 0 0 2px #16a34a;
+    }
+    .timeline-phase {
+      font-weight: 700;
+      font-size: 13px;
+      color: #15803d;
+    }
+    .timeline-desc {
+      font-size: 12.5px;
+      color: #555;
+      margin-top: 3px;
+    }
+
+    /* Tech stack */
+    .tech-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .tech-item {
+      background: #f9fafb;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      padding: 12px 16px;
+    }
+    .tech-item .name {
+      font-weight: 700;
+      font-size: 13px;
+      color: #1a1a2e;
+    }
+    .tech-item .purpose {
+      font-size: 12px;
+      color: #666;
+      margin-top: 2px;
+    }
+    .tech-item .status-free {
+      display: inline-block;
+      background: #dcfce7;
+      color: #166534;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 1px 7px;
+      border-radius: 10px;
+      margin-top: 4px;
+    }
+    .tech-item .status-new {
+      display: inline-block;
+      background: #fee2e2;
+      color: #991b1b;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 1px 7px;
+      border-radius: 10px;
+      margin-top: 4px;
+    }
+    .tech-item .status-have {
+      display: inline-block;
+      background: #dbeafe;
+      color: #1e40af;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 1px 7px;
+      border-radius: 10px;
+      margin-top: 4px;
+    }
+
+    /* Footer */
+    .footer {
+      margin-top: 40px;
+      padding-top: 16px;
+      border-top: 1px solid #e5e7eb;
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      color: #aaa;
+    }
+
+    /* Print styles */
+    @media print {
+      body { background: #fff; }
+      .page { padding: 24px 32px; max-width: 100%; }
+      .plans { grid-template-columns: 1fr 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <!-- Header -->
+  <div class="header">
+    <div class="header-left">
+      <h1>CricketTips.ai</h1>
+      <h2>YouTube Live Streaming — Infrastructure &amp; Cost Plan</h2>
+    </div>
+    <div class="header-right">
+      <div class="badge">CONFIDENTIAL</div>
+      <div>Prepared: March 2026</div>
+      <div>Version 1.0</div>
+    </div>
+  </div>
+
+  <!-- Architecture -->
+  <div class="section">
+    <div class="section-title">1. System Architecture</div>
+    <div class="arch-box">
+      Roanuz API (ball-by-ball data, every 5s)<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↓<br>
+      Node.js Commentary Service &nbsp;(VPS — runs during live match)<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;↙&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↘<br>
+      GPT-4o (commentary text)&nbsp;&nbsp;&nbsp;&nbsp;Match Scorecard Overlay (HTML/Canvas)<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;↘&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↙<br>
+      ElevenLabs / Google TTS (voice audio)<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↓<br>
+      FFmpeg (encode scorecard + audio → H.264 video stream)<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↓<br>
+      YouTube RTMP Ingest &nbsp;(rtmp://a.rtmp.youtube.com/live2/[key])<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↓<br>
+      YouTube Live Stream → Embedded on /live/[matchKey] page
+    </div>
+  </div>
+
+  <!-- Infrastructure Components -->
+  <div class="section">
+    <div class="section-title">2. Infrastructure Components</div>
+    <div class="tech-grid">
+      <div class="tech-item">
+        <div class="name">Dedicated VPS (Hetzner / DigitalOcean)</div>
+        <div class="purpose">Runs FFmpeg + Node.js streaming service continuously during matches (3-4 hrs)</div>
+        <span class="status-new">NEED TO BUY</span>
+      </div>
+      <div class="tech-item">
+        <div class="name">YouTube Data API v3</div>
+        <div class="purpose">Create live broadcasts, retrieve RTMP stream key, manage stream lifecycle</div>
+        <span class="status-free">FREE (10k units/day)</span>
+      </div>
+      <div class="tech-item">
+        <div class="name">YouTube Channel</div>
+        <div class="purpose">Where live streams are published. Needs to be verified for live streaming.</div>
+        <span class="status-free">FREE</span>
+      </div>
+      <div class="tech-item">
+        <div class="name">OpenAI GPT-4o</div>
+        <div class="purpose">Generates natural-language ball-by-ball commentary in real time</div>
+        <span class="status-have">ALREADY HAVE KEY</span>
+      </div>
+      <div class="tech-item">
+        <div class="name">ElevenLabs / Google TTS</div>
+        <div class="purpose">Converts GPT-4o commentary text into natural-sounding voice audio</div>
+        <span class="status-new">NEED TO SIGN UP</span>
+      </div>
+      <div class="tech-item">
+        <div class="name">FFmpeg</div>
+        <div class="purpose">Encodes scoreboard overlay + audio into H.264 video for RTMP streaming</div>
+        <span class="status-free">FREE (open source)</span>
+      </div>
+      <div class="tech-item">
+        <div class="name">Google Cloud Project</div>
+        <div class="purpose">Required to enable YouTube Data API v3 and obtain OAuth credentials</div>
+        <span class="status-new">NEED TO CREATE</span>
+      </div>
+      <div class="tech-item">
+        <div class="name">Next.js App (existing)</div>
+        <div class="purpose">Embeds YouTube player on /live/[matchKey] page alongside scores</div>
+        <span class="status-have">ALREADY DEPLOYED</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Why Dedicated VPS -->
+  <div class="section">
+    <div class="section-title">3. Why a Dedicated VPS is Required</div>
+    <table>
+      <thead>
+        <tr>
+          <th>Platform</th>
+          <th>Can Run FFmpeg?</th>
+          <th>Reason</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Vercel (current)</td>
+          <td><span class="cross">✗ No</span></td>
+          <td>Serverless — max 60s execution, no persistent processes</td>
+        </tr>
+        <tr>
+          <td>Railway (current)</td>
+          <td><span class="cross">✗ No</span></td>
+          <td>Sleeps after inactivity, FFmpeg can be installed but unreliable for 4hr streams</td>
+        </tr>
+        <tr>
+          <td>Hetzner VPS <strong>(recommended)</strong></td>
+          <td><span class="check">✓ Yes</span></td>
+          <td>Always-on Linux server, full root access, install FFmpeg, Node.js, run pm2</td>
+        </tr>
+        <tr>
+          <td>DigitalOcean Droplet</td>
+          <td><span class="check">✓ Yes</span></td>
+          <td>Same as Hetzner — reliable, easy setup, slightly more expensive</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Per Match Cost -->
+  <div class="section">
+    <div class="section-title">4. Cost Per Match (T20, ~120 balls)</div>
+    <table>
+      <thead>
+        <tr>
+          <th>Item</th>
+          <th>Calculation</th>
+          <th>Cost (USD)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>GPT-4o Input Tokens<div class="note">System prompt + ball data per call</div></td>
+          <td>120 balls × 500 tokens = 60k tokens × $5/1M</td>
+          <td>~$0.30</td>
+        </tr>
+        <tr>
+          <td>GPT-4o Output Tokens<div class="note">Commentary text per ball</div></td>
+          <td>120 balls × 100 tokens = 12k tokens × $15/1M</td>
+          <td>~$0.18</td>
+        </tr>
+        <tr>
+          <td>ElevenLabs TTS<div class="note">Creator plan: $22/mo for 100k chars</div></td>
+          <td>120 balls × 150 chars = 18k chars</td>
+          <td>~$0.18</td>
+        </tr>
+        <tr>
+          <td>VPS Compute<div class="note">3-4 hours of FFmpeg encoding</div></td>
+          <td>Amortized from monthly cost</td>
+          <td>~$0.02</td>
+        </tr>
+        <tr>
+          <td><strong>Total per T20 match</strong></td>
+          <td></td>
+          <td><strong>~$0.68</strong></td>
+        </tr>
+        <tr>
+          <td><em>With Google TTS (free tier)</em></td>
+          <td><em>Google: 1M chars/mo FREE</em></td>
+          <td><em>~$0.50</em></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Monthly Plans -->
+  <div class="section">
+    <div class="section-title">5. Monthly Cost Plans</div>
+    <div class="plans">
+      <div class="plan-card">
+        <div class="plan-header">Starter <span style="font-weight:400;font-size:11px;">~5 matches/mo</span></div>
+        <div class="plan-body">
+          <div class="price">~$19 <span>/month</span></div>
+          <ul>
+            <li>Hetzner CX21 (2 vCPU, 4GB) — $7</li>
+            <li>ElevenLabs Starter — $5</li>
+            <li>OpenAI GPT-4o — ~$7</li>
+            <li>YouTube API — Free</li>
+            <li>Google Cloud — Free tier</li>
+          </ul>
+        </div>
+      </div>
+      <div class="plan-card recommended">
+        <div class="plan-header">Growth <span style="font-weight:400;font-size:11px;">~30 matches/mo</span> <span class="plan-badge">RECOMMENDED</span></div>
+        <div class="plan-body">
+          <div class="price">~$79 <span>/month</span></div>
+          <ul>
+            <li>Hetzner CX31 (2 vCPU, 8GB) — $17</li>
+            <li>ElevenLabs Creator — $22</li>
+            <li>OpenAI GPT-4o — ~$40</li>
+            <li>YouTube API — Free</li>
+            <li>Google Cloud — Free tier</li>
+          </ul>
+        </div>
+      </div>
+      <div class="plan-card">
+        <div class="plan-header">Scale <span style="font-weight:400;font-size:11px;">60+ matches/mo</span></div>
+        <div class="plan-body">
+          <div class="price">~$175 <span>/month</span></div>
+          <ul>
+            <li>Hetzner CCX13 (dedicated) — $16</li>
+            <li>ElevenLabs Professional — $99</li>
+            <li>OpenAI GPT-4o — ~$60</li>
+            <li>YouTube API — Free</li>
+            <li>Multi-language voices</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="highlight-box" style="margin-top:14px;">
+      <div class="title">💡 Budget Tip — Start with Google TTS (Free)</div>
+      Google Cloud TTS offers <strong>1 million characters/month FREE</strong> for standard voices, and WaveNet/Neural2 voices are very affordable after that. Start here, upgrade to ElevenLabs once YouTube monetization kicks in. This reduces Starter plan to just <strong>~$14/month</strong>.
+    </div>
+  </div>
+
+  <!-- YouTube Quota -->
+  <div class="section">
+    <div class="section-title">6. YouTube Data API v3 — Quota Usage</div>
+    <table>
+      <thead>
+        <tr>
+          <th>Operation</th>
+          <th>Quota Units Used</th>
+          <th>Daily Allowance</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Create live broadcast</td>
+          <td>50 units</td>
+          <td rowspan="5" style="vertical-align:middle;font-size:16px;font-weight:700;color:#15803d;text-align:center;">10,000 units/day FREE</td>
+        </tr>
+        <tr>
+          <td>Insert live stream (RTMP)</td>
+          <td>50 units</td>
+        </tr>
+        <tr>
+          <td>Bind stream to broadcast</td>
+          <td>50 units</td>
+        </tr>
+        <tr>
+          <td>Transition to live / complete</td>
+          <td>50 units</td>
+        </tr>
+        <tr>
+          <td><strong>Total per match</strong></td>
+          <td><strong>~200 units</strong></td>
+        </tr>
+        <tr>
+          <td colspan="2"><em>Daily capacity on free tier</em></td>
+          <td><em>Up to <strong>50 matches/day</strong> — well within free limits</em></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Implementation Roadmap -->
+  <div class="section">
+    <div class="section-title">7. Implementation Roadmap</div>
+    <div class="timeline">
+      <div class="timeline-item">
+        <div class="timeline-phase">Phase 1 — Setup (Week 1)</div>
+        <div class="timeline-desc">Set up Google Cloud project, enable YouTube Data API v3, create OAuth credentials. Set up Hetzner VPS, install Node.js + FFmpeg. Set up YouTube channel for live streaming. Test RTMP connection manually.</div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-phase">Phase 2 — Core Streaming (Week 2)</div>
+        <div class="timeline-desc">Build Node.js streaming service: Roanuz ball-by-ball → GPT-4o commentary → Google TTS audio. FFmpeg renders scorecard overlay + audio as H.264 video stream to YouTube RTMP. Test with a real live match.</div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-phase">Phase 3 — Website Integration (Week 3)</div>
+        <div class="timeline-desc">Embed YouTube player on /live/[matchKey] page. Auto-detect when a stream goes live and show embed. Link match page to YouTube stream. Add "LIVE ON YOUTUBE" badge on match cards.</div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-phase">Phase 4 — Voice Upgrade (After monetization)</div>
+        <div class="timeline-desc">Upgrade from Google TTS to ElevenLabs for premium voice quality. Add Hindi / Tamil commentary track option. Add multi-language support for wider audience reach.</div>
+      </div>
+      <div class="timeline-item" style="margin-bottom:0">
+        <div class="timeline-phase">Phase 5 — Automation (Ongoing)</div>
+        <div class="timeline-desc">Auto-start stream when Roanuz detects a match going live. Auto-stop stream when match ends. Auto-generate stream title, description, thumbnail using GPT-4o. Schedule streams 30 mins before match start.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Setup Checklist -->
+  <div class="section">
+    <div class="section-title">8. Setup Checklist — What You Need to Do First</div>
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Task</th>
+          <th>Where</th>
+          <th>Cost</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>1</td>
+          <td>Create Google Cloud project &amp; enable YouTube Data API v3</td>
+          <td>console.cloud.google.com</td>
+          <td>Free</td>
+        </tr>
+        <tr>
+          <td>2</td>
+          <td>Create OAuth 2.0 credentials (Client ID + Secret)</td>
+          <td>Google Cloud Console → APIs → Credentials</td>
+          <td>Free</td>
+        </tr>
+        <tr>
+          <td>3</td>
+          <td>Verify YouTube channel for live streaming (phone verification)</td>
+          <td>studio.youtube.com</td>
+          <td>Free</td>
+        </tr>
+        <tr>
+          <td>4</td>
+          <td>Sign up to Hetzner, create CX21 server (Ubuntu 22.04)</td>
+          <td>hetzner.com/cloud</td>
+          <td>€6.50/mo</td>
+        </tr>
+        <tr>
+          <td>5</td>
+          <td>Sign up to Google Cloud for TTS (or ElevenLabs)</td>
+          <td>cloud.google.com / elevenlabs.io</td>
+          <td>Free / $5+</td>
+        </tr>
+        <tr>
+          <td>6</td>
+          <td>Add environment variables: YOUTUBE_CLIENT_ID, YOUTUBE_CLIENT_SECRET, YOUTUBE_CHANNEL_ID, GOOGLE_TTS_KEY</td>
+          <td>.env file + Railway/Vercel</td>
+          <td>Free</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Cost Summary -->
+  <div class="section">
+    <div class="section-title">9. Total Cost Summary</div>
+    <table>
+      <thead>
+        <tr>
+          <th>Scenario</th>
+          <th>Matches/Month</th>
+          <th>Monthly Cost</th>
+          <th>Cost Per Match</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Budget Start</strong> (Google TTS)</td>
+          <td>~5</td>
+          <td>~$14/mo</td>
+          <td>~$2.80</td>
+        </tr>
+        <tr style="background:#f0fdf4;">
+          <td><strong>Starter</strong> (ElevenLabs Starter)</td>
+          <td>~5</td>
+          <td>~$19/mo</td>
+          <td>~$3.80</td>
+        </tr>
+        <tr style="background:#dcfce7;">
+          <td><strong>Growth ★ Recommended</strong></td>
+          <td>~30</td>
+          <td>~$79/mo</td>
+          <td>~$2.63</td>
+        </tr>
+        <tr>
+          <td><strong>Scale</strong> (Professional)</td>
+          <td>60+</td>
+          <td>~$175/mo</td>
+          <td>~$2.92</td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="highlight-box" style="margin-top:14px;">
+      <div class="title">📈 Monetization Break-Even</div>
+      YouTube pays roughly <strong>$1–4 per 1,000 views (RPM)</strong> for cricket content. At 30 matches/month streamed, with even 5,000 views per stream, that's <strong>150,000 views × $2 RPM = $300/month</strong> in ad revenue — well covering the $79/month infrastructure cost. Break-even requires approximately <strong>1,000 subscribers + 4,000 watch hours</strong> to unlock monetization.
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="footer">
+    <div>CricketTips.ai — Internal Planning Document</div>
+    <div>Generated March 2026 | Confidential</div>
+  </div>
+
+</div>
+</body>
+</html>

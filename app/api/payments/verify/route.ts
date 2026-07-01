@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import crypto from 'crypto'
 import { prisma } from '@/lib/prisma'
+import { getSession, signSession, sessionCookieOptions } from '@/lib/session'
 
 export const dynamic = 'force-dynamic'
 
@@ -21,7 +22,21 @@ export async function POST(req: Request) {
       data: { razorpayPaymentId: razorpay_payment_id, status: 'paid' },
     })
 
+    // If user is logged in, upgrade their plan in DB and refresh their JWT
+    const session = await getSession()
+    let newToken: string | null = null
+    if (session) {
+      await prisma.user.update({
+        where: { id: session.userId },
+        data: { plan: sub.plan },
+      })
+      newToken = await signSession({ ...session, plan: sub.plan })
+    }
+
     const res = NextResponse.json({ success: true, plan: sub.plan })
+
+    // Refresh JWT with new plan if user was logged in
+    if (newToken) res.cookies.set(sessionCookieOptions(newToken))
 
     // Set plan cookie (30 days)
     res.cookies.set('ct_plan', sub.plan, {

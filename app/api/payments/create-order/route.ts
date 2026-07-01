@@ -49,8 +49,9 @@ export async function POST(req: Request) {
     })
 
     return NextResponse.json({ orderId: order.id, amount, currency: 'INR', plan })
-  } catch (err) {
-    console.error('[create-order]', err)
-    return NextResponse.json({ error: 'Failed to create order' }, { status: 500 })
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : String(err)
+    console.error('[create-order]', msg)
+    return NextResponse.json({ error: msg }, { status: 500 })
   }
 }
