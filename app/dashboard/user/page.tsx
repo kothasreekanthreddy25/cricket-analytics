@@ -32,7 +32,7 @@ export default async function UserDashboard() {
 
   // Get user's favorites
   const favorites = await prisma.favorite.findMany({
-    where: { userId: user.id },
+    where: { userId: user.userId },
     include: {
       match: {
         select: { name: true, date: true, status: true },

@@ -31,7 +31,7 @@ export async function POST(request: NextRequest) {
     // Create tip
     const tip = await prisma.tip.create({
       data: {
-        tipsterId: user.id,
+        tipsterId: user.userId,
         matchId,
         prediction,
         odds,

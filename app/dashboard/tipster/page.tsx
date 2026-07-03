@@ -21,7 +21,7 @@ export default async function TipsterDashboard() {
 
   // Get tipster's recent tips
   const myTips = await prisma.tip.findMany({
-    where: { tipsterId: user.id },
+    where: { tipsterId: user.userId },
     orderBy: { createdAt: 'desc' },
     take: 10,
     include: {
@@ -30,7 +30,7 @@ export default async function TipsterDashboard() {
   })
 
   const tipsCount = await prisma.tip.count({
-    where: { tipsterId: user.id },
+    where: { tipsterId: user.userId },
   })
 
   return (
@@ -84,7 +84,7 @@ export default async function TipsterDashboard() {
                 <h2 className="text-lg font-semibold text-gray-900">Create New Tip</h2>
               </div>
               <div className="p-6">
-                <TipsterForm matches={upcomingMatches} tipsterId={user.id} />
+                <TipsterForm matches={upcomingMatches} tipsterId={user.userId} />
               </div>
             </div>
           </div>
