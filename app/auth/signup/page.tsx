@@ -35,9 +35,9 @@ export default function SignUpPage() {
         return
       }
 
-      // After signup always go to plan selection
-      router.push('/auth/select-plan')
+      // Refresh first so server components pick up the new cookie, then navigate
       router.refresh()
+      router.push('/auth/select-plan')
     } catch {
       setError('Something went wrong. Please try again.')
       setLoading(false)

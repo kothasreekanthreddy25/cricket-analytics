@@ -45,6 +45,8 @@ import LatestNews from '@/components/LatestNews'
 import TopPredictionsCarousel from '@/components/TopPredictionsCarousel'
 import UpcomingFeaturedCarousel from '@/components/UpcomingFeaturedCarousel'
 import RecentWinningPredictions from '@/components/RecentWinningPredictions'
+import LiveScoreCard from '@/components/LiveScoreCard'
+import { Suspense } from 'react'
 import {
   Activity,
   TrendingUp,
@@ -122,6 +124,40 @@ export default function Home() {
           {/* Right — Recent winning predictions */}
           <div className="md:col-span-2">
             <RecentWinningPredictions variant="grid" />
+          </div>
+        </div>
+      </section>
+
+      {/* ── Section 1b: Live Scores & Upcoming Matches ── */}
+      <section className="bg-gray-950 py-10 px-4 border-t border-gray-800">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex items-center justify-between mb-5">
+            <div>
+              <h2 className="text-xl md:text-2xl font-bold text-white flex items-center gap-2">
+                <Radio className="w-5 h-5 text-red-400 animate-pulse" />
+                Live Scores & Matches
+              </h2>
+              <p className="text-gray-400 text-sm mt-0.5">
+                Real-time scores · win probability · AI predictions
+              </p>
+            </div>
+            <Link href="/matches" className="text-emerald-400 text-sm font-medium hover:text-emerald-300 transition-colors flex items-center gap-1">
+              All matches <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
+          </div>
+
+          <div className="grid lg:grid-cols-3 gap-6">
+            {/* Left: Live score widget (takes 1 col on large screens) */}
+            <div className="lg:col-span-1">
+              <Suspense fallback={<div className="bg-gray-800/50 rounded-2xl border border-gray-700/50 p-6 animate-pulse h-64" />}>
+                <LiveScoreCard />
+              </Suspense>
+            </div>
+
+            {/* Right: Upcoming featured matches (takes 2 cols) */}
+            <div className="lg:col-span-2">
+              <FeaturedMatchCards variant="carousel" />
+            </div>
           </div>
         </div>
       </section>

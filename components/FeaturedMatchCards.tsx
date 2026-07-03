@@ -30,21 +30,44 @@ export default function FeaturedMatchCards({ variant }: Props) {
   useEffect(() => {
     async function fetchMatches() {
       try {
-        const res = await fetch('/api/analysis')
+        // Primary: ticker API (SportMonks — has actual live + upcoming data)
+        const res = await fetch('/api/cricket/ticker')
         const json = await res.json()
-        const allMatches: AnalysisMatch[] = json?.matches || []
-
-        // Only show live or upcoming matches — never completed/past
-        const relevant = allMatches.filter(
-          (m) => m.status === 'live' || m.status === 'upcoming'
+        const live: AnalysisMatch[] = (json?.live || []).map((m: any) => ({
+          key: m.key || m.id,
+          name: `${m.teamA} vs ${m.teamB}`,
+          teamA: m.teamA,
+          teamB: m.teamB,
+          status: 'live' as const,
+          startDate: m.dateTimeGMT || m.date || '',
+          venue: m.venue || '',
+          statusNote: m.statusNote || '',
+          scoreA: m.scoreA,
+          scoreB: m.scoreB,
+        }))
+        const upcoming: AnalysisMatch[] = (json?.upcoming || []).map((m: any) => ({
+          key: m.key || m.id,
+          name: `${m.teamA} vs ${m.teamB}`,
+          teamA: m.teamA,
+          teamB: m.teamB,
+          status: 'upcoming' as const,
+          startDate: m.dateTimeGMT || m.date || '',
+          venue: m.venue || '',
+          statusNote: m.statusNote || '',
+          scoreA: null,
+          scoreB: null,
+        }))
+        const all = [...live, ...upcoming].filter(
+          (m) => m.teamA && m.teamB && m.teamA !== 'TBD' && m.teamB !== 'TBD'
         )
+        if (all.length > 0) { setMatches(all); setLoading(false); return }
 
-        // Filter out TBC vs TBC matches (teams not yet decided)
-        const withTeams = relevant.filter(
-          (m) => m.teamA !== 'TBD' && m.teamB !== 'TBD' && m.name !== 'TBC vs TBC'
-        )
-
-        setMatches(withTeams)
+        // Fallback: /api/matches merged data
+        const res2 = await fetch('/api/matches')
+        const json2 = await res2.json()
+        const allMatches: AnalysisMatch[] = (json2?.matches || [])
+          .filter((m: any) => (m.status === 'live' || m.status === 'upcoming') && m.teamA !== 'TBD' && m.teamB !== 'TBD')
+        setMatches(allMatches)
       } catch (err) {
         console.error('Failed to fetch featured matches:', err)
       } finally {

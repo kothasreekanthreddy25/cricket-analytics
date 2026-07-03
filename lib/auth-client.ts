@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { usePathname } from 'next/navigation'
 
 export interface SessionUser {
   userId: string
@@ -14,13 +15,15 @@ export interface SessionUser {
 export function useSession() {
   const [data, setData] = useState<{ user: SessionUser | null } | null>(null)
   const [isPending, setIsPending] = useState(true)
+  const pathname = usePathname()
 
   useEffect(() => {
+    setIsPending(true)
     fetch('/api/user/me')
       .then(r => r.json())
       .then(d => { setData(d); setIsPending(false) })
       .catch(() => { setData({ user: null }); setIsPending(false) })
-  }, [])
+  }, [pathname])
 
   return { data, isPending }
 }

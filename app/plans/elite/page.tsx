@@ -3,6 +3,8 @@ import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { Sparkles, Brain, MessageCircle, Crown, Phone, TrendingUp, BookOpen } from 'lucide-react'
 import { prisma } from '@/lib/prisma'
+import LiveMatchWidget from '@/components/LiveMatchWidget'
+import { SignOutButton } from '@/components/SignOutButton'
 
 export const dynamic = 'force-dynamic'
 
@@ -36,9 +38,12 @@ export default async function EliteDashboardPage() {
             </h1>
             <p className="text-gray-500 text-sm mt-1">VIP access · All predictions · 1-on-1 tipster support</p>
           </div>
-          <Link href="/" className="text-xs text-gray-500 hover:text-white border border-gray-800 px-3 py-2 rounded-xl transition-colors">
-            ← Home
-          </Link>
+          <div className="flex items-center gap-2">
+            <Link href="/" className="text-xs text-gray-500 hover:text-white border border-gray-800 px-3 py-2 rounded-xl transition-colors">
+              ← Home
+            </Link>
+            <SignOutButton />
+          </div>
         </div>
 
         {/* Stats bar */}
@@ -79,6 +84,14 @@ export default async function EliteDashboardPage() {
               <p className="text-gray-400 text-xs mt-1">In-depth analysis 24h before every major match</p>
             </div>
           </div>
+        </div>
+
+        {/* Live Match Widget */}
+        <div className="mb-8">
+          <h2 className="font-bold text-white mb-3 flex items-center gap-2 text-sm uppercase tracking-wider">
+            <Crown className="w-4 h-4 text-yellow-400" /> Live Match Center
+          </h2>
+          <LiveMatchWidget />
         </div>
 
         {/* VIP high-confidence predictions */}

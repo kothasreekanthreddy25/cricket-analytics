@@ -28,10 +28,10 @@ export default function SignInPage() {
         return
       }
 
-      // Redirect to plan dashboard based on plan
+      // Refresh first so server components pick up the new cookie, then navigate
+      router.refresh()
       const plan = result.data?.plan || 'free'
       router.push(`/plans/${plan}`)
-      router.refresh()
     } catch {
       setError('Something went wrong. Please try again.')
       setLoading(false)
@@ -78,7 +78,10 @@ export default function SignInPage() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1.5">Password</label>
+              <div className="flex items-center justify-between mb-1.5">
+                <label className="block text-sm font-medium text-gray-300">Password</label>
+                <span className="text-xs text-gray-500">Forgot password? Contact <a href="mailto:support@crickettips.ai" className="text-emerald-400 hover:text-emerald-300">support</a></span>
+              </div>
               <div className="relative">
                 <input
                   type={showPassword ? 'text' : 'password'}

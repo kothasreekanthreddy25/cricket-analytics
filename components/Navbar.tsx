@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { Shield, Menu, X, Send } from 'lucide-react'
 import { useState } from 'react'
-import { useSession, signOut } from '@/lib/auth-client'
+import { useSession } from '@/lib/auth-client'
 
 function XIcon({ className }: { className?: string }) {
   return (
@@ -72,7 +72,10 @@ export default function Navbar() {
                   My Dashboard
                 </Link>
                 <button
-                  onClick={() => signOut()}
+                  onClick={async () => {
+                    try { await fetch('/api/user/logout', { method: 'POST' }) } catch {}
+                    window.location.href = '/auth/signin'
+                  }}
                   className="text-xs font-medium text-gray-400 hover:text-white transition"
                 >
                   Sign Out
@@ -138,7 +141,7 @@ export default function Navbar() {
               {session ? (
                 <>
                   <Link href="/dashboard/user" onClick={() => setIsOpen(false)} className="flex-1 text-center py-2 text-sm text-gray-300 hover:text-white bg-gray-800 rounded-lg">Dashboard</Link>
-                  <button onClick={() => { signOut(); setIsOpen(false) }} className="flex-1 py-2 text-sm text-gray-400 hover:text-white bg-gray-800 rounded-lg">Sign Out</button>
+                  <button onClick={async () => { try { await fetch('/api/user/logout', { method: 'POST' }) } catch {} window.location.href = '/auth/signin' }} className="flex-1 py-2 text-sm text-gray-400 hover:text-white bg-gray-800 rounded-lg">Sign Out</button>
                 </>
               ) : (
                 <>

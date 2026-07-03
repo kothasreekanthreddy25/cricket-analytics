@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { Lock, ArrowRight, Brain, Trophy } from 'lucide-react'
 import { prisma } from '@/lib/prisma'
+import { SignOutButton } from '@/components/SignOutButton'
 
 export const dynamic = 'force-dynamic'
 
@@ -30,9 +31,12 @@ export default async function FreeDashboardPage() {
             </h1>
             <p className="text-gray-500 text-sm mt-1">3 free predictions per week</p>
           </div>
-          <Link href="/" className="text-xs text-gray-500 hover:text-white border border-gray-800 px-3 py-2 rounded-xl transition-colors">
-            ← Home
-          </Link>
+          <div className="flex items-center gap-2">
+            <Link href="/" className="text-xs text-gray-500 hover:text-white border border-gray-800 px-3 py-2 rounded-xl transition-colors">
+              ← Home
+            </Link>
+            <SignOutButton />
+          </div>
         </div>
 
         {/* Upgrade banner */}
