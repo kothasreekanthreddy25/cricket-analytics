@@ -94,8 +94,15 @@ export default function SelectPlanPage() {
       const data = await res.json()
       if (data.error) { setError(data.error); setPaying(null); return }
 
+      const rzKey = process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID
+      if (!rzKey) {
+        setError('Payment gateway not configured. Please contact support.')
+        setPaying(null)
+        return
+      }
+
       const options = {
-        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+        key: rzKey,
         amount: data.amount,
         currency: data.currency,
         name: 'CricketTips AI',
