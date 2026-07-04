@@ -1210,122 +1210,68 @@ async function fetchMatchDetails(matchKeys: string[]): Promise<any[]> {
   return results
 }
 
-// Get list of T20 World Cup 2026 matches for analysis
+// Get ALL available matches across all tournaments from Roanuz featured-matches API
 export async function getAvailableMatches(): Promise<any[]> {
   try {
-    // Get all match keys from tournament structure
-    const matchEntries = await getAllWCMatchKeys()
+    // Use featured-matches-2 which returns live + upcoming across ALL tournaments
+    const data = await roanuzGet('featured-matches-2/')
+    const raw: any[] = data?.data?.matches || []
 
-    // Build a quick lookup for first page of fixtures (has basic info)
-    let fixtureMap: Record<string, any> = {}
-    try {
-      const fixtureData = await roanuzGet(`tournament/${T20_WC_KEY}/fixtures/`)
-      const fixtures = fixtureData?.data?.matches || []
-      for (const f of fixtures) {
-        fixtureMap[f.key] = f
-      }
-    } catch (e) {
-      // OK if this fails
+    if (raw.length === 0) {
+      console.warn('[getAvailableMatches] featured-matches-2 returned 0 matches')
     }
 
-    // For matches not in fixtures, fetch details individually
-    const missingKeys = matchEntries
-      .filter(e => !fixtureMap[e.key])
-      .map(e => e.key)
+    const statusOrder: Record<string, number> = { live: 0, started: 0, upcoming: 1, not_started: 1, scheduled: 1, completed: 2 }
 
-    if (missingKeys.length > 0) {
-      const details = await fetchMatchDetails(missingKeys)
-      for (const d of details) {
-        if (d?.key) fixtureMap[d.key] = d
-      }
-    }
+    const matches = raw
+      .filter(m => m?.key && m?.teams?.a && m?.teams?.b)
+      .map(m => {
+        const teamA = m.teams?.a?.name || 'TBD'
+        const teamB = m.teams?.b?.name || 'TBD'
+        const venue = m.venue?.name || ''
+        const city = m.venue?.city || ''
 
-    // Build match list
-    const matches = matchEntries.map(entry => {
-      const m = fixtureMap[entry.key]
-      if (!m) {
+        let status: string = m.status || 'upcoming'
+        if (status === 'started') status = 'live'
+        else if (status === 'completed' || m.winner) status = 'completed'
+        else if (['not_started', 'scheduled'].includes(status)) status = 'upcoming'
+
+        const startDate = m.start_at
+          ? new Date(m.start_at * 1000).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+          : ''
+
+        const tournament = m.tournament?.name || m.sub_title || ''
+        const format = m.format?.toUpperCase() || 'T20'
+
         return {
-          key: entry.key,
-          name: 'TBD vs TBD',
-          subTitle: `${entry.group}`,
-          round: entry.round,
-          group: entry.group,
-          tournament: 'ICC T20 World Cup 2026',
-          format: 'T20',
-          venue: '',
-          startDate: '',
-          status: 'upcoming',
-          winner: null,
+          key: m.key,
+          name: `${teamA} vs ${teamB}`,
+          subTitle: m.sub_title || tournament,
+          tournament,
+          tournamentKey: m.tournament?.key || '',
+          format,
+          venue: `${venue}${city ? ', ' + city : ''}`,
+          startDate,
+          startDateTs: m.start_at || null,
+          status,
+          winner: m.winner
+            ? (m.winner === 'a' ? teamA : teamB)
+            : null,
+          statusNote: m.play?.result?.msg || m.status_note || '',
+          teamA,
+          teamB,
+          group: m.sub_title || tournament,
+          round: m.round || '',
         }
-      }
+      })
 
-      const teamA = m.teams?.a?.name || 'TBD'
-      const teamB = m.teams?.b?.name || 'TBD'
-      const venue = m.venue?.name || ''
-      const city = m.venue?.city || ''
-      const startDate = m.start_at
-        ? new Date(m.start_at * 1000).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
-        : ''
+    // Sort: live first, then upcoming, completed last
+    matches.sort((a, b) => (statusOrder[a.status] ?? 1) - (statusOrder[b.status] ?? 1))
 
-      let status = m.status || 'upcoming'
-      if (status === 'completed' || m.winner) status = 'completed'
-      else if (status === 'started') status = 'live'
-      else status = 'upcoming'
-
-      // Extract score info from play.innings (available in match details)
-      let statusNote = m.status_note || ''
-      let scoreA = ''
-      let scoreB = ''
-      if (m.play?.innings) {
-        const innings = m.play.innings
-        const teamKeys = Object.keys(m.teams || {})
-        for (const ik of Object.keys(innings)) {
-          const inn = innings[ik]
-          // Use score_str if available (e.g. "147/10 in 19.5"), otherwise build from fields
-          let scoreStr = inn?.score_str || ''
-          if (!scoreStr && inn?.score) {
-            const runs = typeof inn.score === 'object' ? inn.score.runs : inn.score
-            const wickets = inn.wickets ?? ''
-            const overs = Array.isArray(inn.overs) ? `${inn.overs[0]}.${inn.overs[1]}` : inn.overs ?? ''
-            scoreStr = runs !== '' && runs !== undefined ? `${runs}/${wickets} (${overs} ov)` : ''
-          }
-          // innings key like "a_1" or "b_1" — first char is the team key
-          const teamChar = ik.split('_')[0]
-          if (teamChar === teamKeys[0]) {
-            scoreA = scoreStr
-          } else {
-            scoreB = scoreStr
-          }
-        }
-      }
-
-      return {
-        key: entry.key,
-        name: `${teamA} vs ${teamB}`,
-        subTitle: m.sub_title || entry.group,
-        round: entry.round,
-        group: entry.group,
-        tournament: 'ICC T20 World Cup 2026',
-        format: 'T20',
-        venue: `${venue}${city ? ', ' + city : ''}`,
-        startDate,
-        status,
-        winner: m.winner ? (m.winner === 'a' ? teamA : teamB) : null,
-        statusNote,
-        scoreA,
-        scoreB,
-        teamA,
-        teamB,
-      }
-    })
-
-    // Sort: live first, then upcoming, then completed
-    const statusOrder: Record<string, number> = { live: 0, upcoming: 1, completed: 2 }
-    matches.sort((a, b) => (statusOrder[a.status] ?? 2) - (statusOrder[b.status] ?? 2))
-
+    console.log(`[getAvailableMatches] Returning ${matches.length} matches across all tournaments`)
     return matches
   } catch (e) {
-    console.error('Failed to get T20 WC matches:', e)
+    console.error('[getAvailableMatches] Failed:', e)
     return []
   }
 }
