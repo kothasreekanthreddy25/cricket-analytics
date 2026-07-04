@@ -49,7 +49,7 @@ import UpcomingFeaturedCarousel from '@/components/UpcomingFeaturedCarousel'
 import RecentWinningPredictions from '@/components/RecentWinningPredictions'
 import LiveScoreCard from '@/components/LiveScoreCard'
 import AIMatchMoodPredictor from '@/components/AIMatchMoodPredictor'
-import MatchPreviewWidget from '@/components/MatchPreviewWidget'
+import MatchPreviewTeaser from '@/components/MatchPreviewTeaser'
 import { Suspense } from 'react'
 import {
   Activity,
@@ -166,10 +166,10 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── Section 1c: AI Match Preview ── */}
+      {/* ── Section 1c: AI Match Preview teaser ── */}
       <section className="bg-gray-950 py-10 px-4 border-t border-gray-800">
         <div className="max-w-7xl mx-auto">
-          <MatchPreviewWidget />
+          <MatchPreviewTeaser />
         </div>
       </section>
 
