@@ -12,6 +12,7 @@
     "db:studio": "prisma studio"
   },
   "dependencies": {
+    "@google/generative-ai": "^0.24.1",
     "@portabletext/react": "^6.0.2",
     "@prisma/client": "^6.19.2",
     "@sanity/client": "^6.29.1",

@@ -48,6 +48,8 @@ import TopPredictionsCarousel from '@/components/TopPredictionsCarousel'
 import UpcomingFeaturedCarousel from '@/components/UpcomingFeaturedCarousel'
 import RecentWinningPredictions from '@/components/RecentWinningPredictions'
 import LiveScoreCard from '@/components/LiveScoreCard'
+import AIMatchMoodPredictor from '@/components/AIMatchMoodPredictor'
+import MatchPreviewWidget from '@/components/MatchPreviewWidget'
 import { Suspense } from 'react'
 import {
   Activity,
@@ -161,6 +163,34 @@ export default function Home() {
               <FeaturedMatchCards variant="carousel" />
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* ── Section 1c: AI Match Preview ── */}
+      <section className="bg-gray-950 py-10 px-4 border-t border-gray-800">
+        <div className="max-w-7xl mx-auto">
+          <MatchPreviewWidget />
+        </div>
+      </section>
+
+      {/* ── Section 1d: AI Match Mood Predictor ── */}
+      <section className="bg-gray-950 py-10 px-4 border-t border-gray-800">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h2 className="text-xl md:text-2xl font-bold text-white flex items-center gap-2">
+                <Zap className="w-5 h-5 text-amber-400" />
+                AI Match Mood Predictor
+              </h2>
+              <p className="text-gray-400 text-sm mt-0.5">
+                GPT-4o reads pitch, form &amp; head-to-head to predict match vibes
+              </p>
+            </div>
+            <span className="text-[10px] bg-purple-500/10 text-purple-400 border border-purple-500/20 px-2.5 py-1 rounded-full font-bold">
+              ✨ Exclusive to CricketTips.ai
+            </span>
+          </div>
+          <AIMatchMoodPredictor />
         </div>
       </section>
 
