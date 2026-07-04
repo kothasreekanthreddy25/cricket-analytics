@@ -1,12 +1,12 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { Zap, Brain, ExternalLink, ChevronRight, TrendingUp } from 'lucide-react'
+import { Zap, Brain, ExternalLink, ChevronRight, TrendingUp, Tag } from 'lucide-react'
 import Link from 'next/link'
 
 const BOOKMAKERS = [
   { id: 'bet365', name: 'bet365', color: 'bg-green-600',  href: 'https://www.bet365.com' },
-  { id: '1xbet',  name: '1xBet',  color: 'bg-blue-600',   href: 'https://reffpa.com/L?tag=d_5312130m_1599c_&site=5312130&ad=1599' },
+  { id: '1xbet',  name: '1xBet',  color: 'bg-blue-600',   href: 'https://reffpa.com/L?tag=d_5312130m_1599c_&site=5312130&ad=1599', promo: 'd_5312130m_1599c_1x_5227150' },
   { id: 'betway', name: 'Betway', color: 'bg-purple-600', href: 'https://betway.com' },
 ]
 
@@ -113,8 +113,12 @@ export default function ValueBetAlerts() {
         })}
       </div>
 
-      <div className="px-5 py-2.5 bg-gray-900/60">
-        <p className="text-[10px] text-gray-600 text-center">18+ · T&Cs apply · Gamble responsibly · BeGambleAware.org</p>
+      <div className="px-5 py-2.5 bg-gray-900/60 flex items-center justify-between gap-2">
+        <div className="flex items-center gap-1">
+          <Tag className="w-2.5 h-2.5 text-amber-400" />
+          <span className="text-[9px] font-bold text-amber-400">1xBet promo: d_5312130m_1599c_1x_5227150</span>
+        </div>
+        <p className="text-[10px] text-gray-600">18+ · T&Cs apply</p>
       </div>
     </div>
   )

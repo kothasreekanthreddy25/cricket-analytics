@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { Brain, TrendingUp, ExternalLink, Star, ChevronRight } from 'lucide-react'
+import { Brain, TrendingUp, ExternalLink, Star, ChevronRight, Tag } from 'lucide-react'
 import Link from 'next/link'
 
 // ── Bookmaker config – replace href with your actual affiliate tracking links ──
@@ -22,6 +22,7 @@ const BOOKMAKERS = [
     color: 'bg-blue-600',
     href: 'https://reffpa.com/L?tag=d_5312130m_1599c_&site=5312130&ad=1599',
     bonus: '₹26,000 Welcome Bonus',
+    promo: 'd_5312130m_1599c_1x_5227150',
     featured: true,
   },
   {
@@ -183,6 +184,12 @@ export default function AIoddsWidget() {
               <div className="flex-1 min-w-0">
                 <p className="text-white text-xs font-bold">{bk.name}</p>
                 <p className="text-gray-400 text-[10px] truncate">{bk.bonus}</p>
+                {(bk as any).promo && (
+                  <div className="flex items-center gap-1 mt-0.5">
+                    <Tag className="w-2.5 h-2.5 text-amber-400 flex-shrink-0" />
+                    <p className="text-[9px] font-bold text-amber-400 truncate">{(bk as any).promo}</p>
+                  </div>
+                )}
               </div>
               <ChevronRight className="w-3.5 h-3.5 text-gray-600 group-hover:text-gray-400 flex-shrink-0" />
             </a>

@@ -1,6 +1,6 @@
 'use client'
 
-import { ExternalLink, Star, Zap, Shield, Trophy } from 'lucide-react'
+import { ExternalLink, Star, Zap, Shield, Trophy, Tag } from 'lucide-react'
 
 // ── Affiliate config — update links here ─────────────────────────────────────
 const AFFILIATES = {
@@ -10,6 +10,7 @@ const AFFILIATES = {
     tagline: 'World\'s #1 Betting Platform',
     bonus: '₹26,000 Welcome Bonus',
     bonusDetail: '100% on first deposit up to ₹26,000',
+    promo: 'd_5312130m_1599c_1x_5227150',
     rating: 4.8,
     features: ['Live Cricket Betting', 'Fastest Payouts', '1000+ Markets'],
     badge: 'TOP PICK',
@@ -112,12 +113,23 @@ function AffiliateCard({ site }: { site: typeof AFFILIATES.onexbet }) {
           ))}
         </ul>
 
+        {/* Promo code */}
+        {(site as any).promo && (
+          <div className="mt-3 flex items-center gap-2 bg-black/30 border border-amber-500/20 rounded-lg px-3 py-2">
+            <Tag className="w-3.5 h-3.5 text-amber-400 flex-shrink-0" />
+            <div>
+              <p className="text-[9px] text-gray-500 leading-none">Promo Code</p>
+              <p className="text-xs font-extrabold text-amber-400 tracking-wide">{(site as any).promo}</p>
+            </div>
+          </div>
+        )}
+
         {/* CTA */}
         <a
           href={site.url}
           target="_blank"
           rel="noopener noreferrer sponsored"
-          className={`mt-4 flex items-center justify-center gap-1.5 w-full py-2.5 rounded-lg text-xs font-bold transition-colors ${site.btnColor}`}
+          className={`mt-3 flex items-center justify-center gap-1.5 w-full py-2.5 rounded-lg text-xs font-bold transition-colors ${site.btnColor}`}
         >
           Claim Bonus <ExternalLink className="w-3 h-3" />
         </a>

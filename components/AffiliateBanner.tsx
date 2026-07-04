@@ -1,11 +1,12 @@
-import { ExternalLink, Trophy, Shield } from 'lucide-react'
+import { ExternalLink, Trophy, Shield, Tag } from 'lucide-react'
 
-const OFFERS = [
+const OFFERS: { name: string; tagline: string; bonus: string; detail: string; promo?: string; url: string; badge: string; badgeCls: string; btnCls: string; borderCls: string; accentCls: string; logo: string; logoBg: string }[] = [
   {
     name: '1xBet',
     tagline: 'World\'s #1 Betting Platform',
     bonus: '₹26,000 Welcome Bonus',
     detail: '100% on first deposit',
+    promo: 'd_5312130m_1599c_1x_5227150',
     url: 'https://reffpa.com/L?tag=d_5312130m_1599c_&site=5312130&ad=1599',
     badge: 'TOP PICK',
     badgeCls: 'bg-amber-500 text-black',
@@ -84,6 +85,15 @@ export default function AffiliateBanner() {
               </div>
             </div>
 
+            {o.promo && (
+              <div className="flex items-center gap-1.5 bg-black/30 border border-amber-500/20 rounded-lg px-2.5 py-1.5 mb-2">
+                <Tag className="w-3 h-3 text-amber-400 flex-shrink-0" />
+                <div className="min-w-0">
+                  <p className="text-[9px] text-gray-500 leading-none">Promo Code</p>
+                  <p className="text-[11px] font-extrabold text-amber-400 tracking-wide truncate">{o.promo}</p>
+                </div>
+              </div>
+            )}
             <a
               href={o.url}
               target="_blank"

@@ -1,12 +1,13 @@
 'use client'
 
-import { ExternalLink, Trophy } from 'lucide-react'
+import { ExternalLink, Trophy, Tag } from 'lucide-react'
 
-const OFFERS = [
+const OFFERS: { name: string; bonus: string; detail: string; promo?: string; url: string; badge: string; badgeCls: string; btnCls: string; borderCls: string; accentCls: string; logo: string; logoBg: string }[] = [
   {
     name: '1xBet',
     bonus: '₹26,000 Bonus',
     detail: '100% first deposit',
+    promo: 'd_5312130m_1599c_1x_5227150',
     url: 'https://reffpa.com/L?tag=d_5312130m_1599c_&site=5312130&ad=1599',
     badge: 'TOP',
     badgeCls: 'bg-amber-500 text-black',
@@ -85,6 +86,14 @@ export default function MobileAdStrip() {
                 <p className="text-[9px] text-gray-500">{o.detail}</p>
               </div>
             </div>
+
+            {/* Promo code */}
+            {o.promo && (
+              <div className="flex items-center gap-1 mb-1.5">
+                <Tag className="w-2.5 h-2.5 text-amber-400 flex-shrink-0" />
+                <p className="text-[9px] font-bold text-amber-400 truncate">{o.promo}</p>
+              </div>
+            )}
 
             {/* CTA */}
             <a

@@ -1,13 +1,13 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { Brain, TrendingUp, ExternalLink, Star, Zap, ChevronRight, AlertTriangle, CheckCircle2, Info } from 'lucide-react'
+import { Brain, TrendingUp, ExternalLink, Star, Zap, ChevronRight, AlertTriangle, CheckCircle2, Info, Tag } from 'lucide-react'
 import Link from 'next/link'
 
 // ── Bookmakers – replace href with your real affiliate tracking URLs ──
 const BOOKMAKERS = [
   { id: 'bet365',     name: 'bet365',     logo: '365', color: 'bg-green-700',  href: 'https://www.bet365.com',      bonus: '100% up to ₹8,000',    rating: 4.8 },
-  { id: '1xbet',      name: '1xBet',      logo: '1X',  color: 'bg-blue-700',   href: 'https://reffpa.com/L?tag=d_5312130m_1599c_&site=5312130&ad=1599',           bonus: '₹26,000 Welcome Bonus', rating: 4.5 },
+  { id: '1xbet',      name: '1xBet',      logo: '1X',  color: 'bg-blue-700',   href: 'https://reffpa.com/L?tag=d_5312130m_1599c_&site=5312130&ad=1599',           bonus: '₹26,000 Welcome Bonus', rating: 4.5, promo: 'd_5312130m_1599c_1x_5227150' },
   { id: 'betway',     name: 'Betway',     logo: 'BW',  color: 'bg-purple-700', href: 'https://betway.com',          bonus: '₹2,500 Free Bet',       rating: 4.4 },
   { id: 'dafabet',    name: 'Dafabet',    logo: 'DA',  color: 'bg-orange-700', href: 'https://dafabet.com',         bonus: '160% up to ₹16,000',    rating: 4.3 },
   { id: 'parimatch',  name: 'Parimatch',  logo: 'PM',  color: 'bg-yellow-700', href: 'https://parimatch.com',       bonus: '₹6,000 First Bet',      rating: 4.2 },
@@ -232,6 +232,12 @@ export default function OddsPage() {
                       <span className="text-[10px] text-yellow-400">★ {bk.rating}</span>
                     </div>
                     <p className="text-gray-400 text-[10px] truncate">{bk.bonus}</p>
+                    {(bk as any).promo && (
+                      <div className="flex items-center gap-1 mt-0.5">
+                        <Tag className="w-2.5 h-2.5 text-amber-400 flex-shrink-0" />
+                        <p className="text-[9px] font-bold text-amber-400 truncate">{(bk as any).promo}</p>
+                      </div>
+                    )}
                   </div>
                   <ChevronRight className="w-3.5 h-3.5 text-gray-600 group-hover:text-gray-400 flex-shrink-0" />
                 </a>
