@@ -35,7 +35,7 @@ const OFFERS: { name: string; tagline: string; bonus: string; detail: string; pr
     tagline: 'Huge Cricket Markets & Fast Payouts',
     bonus: '₹10,400 Welcome Bonus',
     detail: '130% on first deposit',
-    url: 'https://refpa3665.com/L?tag=d_5312608m_45415c_ml_2217822&site=5312608&ad=45415',
+    url: 'https://refpa3665.com/L?tag=d_5312608m_45415c_&site=5312608&ad=45415',
     badge: 'NEW',
     badgeCls: 'bg-emerald-500 text-white',
     btnCls: 'bg-emerald-600 hover:bg-emerald-500 text-white',

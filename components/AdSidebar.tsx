@@ -38,7 +38,7 @@ const AFFILIATES = {
     logoBg: 'bg-blue-600 text-white',
   },
   melbet: {
-    url: 'https://refpa3665.com/L?tag=d_5312608m_45415c_ml_2210043&site=5312608&ad=45415',
+    url: 'https://refpa3665.com/L?tag=d_5312608m_45415c_&site=5312608&ad=45415',
     name: 'Melbet',
     tagline: 'Huge Cricket Markets & Fast Payouts',
     bonus: '₹10,400 Welcome Bonus',
