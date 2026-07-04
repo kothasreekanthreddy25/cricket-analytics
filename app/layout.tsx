@@ -52,6 +52,15 @@ export const metadata: Metadata = {
     'England cricket tips', 'Australia cricket analysis',
     'cricket team stats', 'cricket player analysis',
     'players to watch cricket', 'cricket players performance',
+    // Geo-targeted
+    'cricket tips South Africa', 'cricket predictions South Africa',
+    'cricket betting South Africa', 'Proteas predictions',
+    'cricket tips New Zealand', 'cricket predictions New Zealand',
+    'Black Caps predictions', 'NZ cricket tips',
+    'cricket tips Australia', 'cricket predictions Australia',
+    'cricket betting Australia', 'Australian cricket tips',
+    'cricket tips UK', 'cricket predictions UK', 'England cricket predictions',
+    'cricket betting tips UK', 'best cricket tipster UK',
     // Formats
     'T20 predictions', 'ODI predictions', 'Test match predictions',
     'T20 match tips', 'ODI match analysis',
@@ -102,6 +111,13 @@ export const metadata: Metadata = {
   },
   alternates: {
     canonical: BASE_URL,
+    languages: {
+      'en-ZA': `${BASE_URL}`,
+      'en-NZ': `${BASE_URL}`,
+      'en-AU': `${BASE_URL}`,
+      'en-GB': `${BASE_URL}`,
+      'x-default': `${BASE_URL}`,
+    },
   },
   verification: {
     google: 'nsg-_3rxP_qcomcdtViWENyfJbPmO_ftj91F18_nGWk',

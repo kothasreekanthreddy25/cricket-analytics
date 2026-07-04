@@ -1,52 +1,17 @@
 import { ExternalLink, Trophy, Shield, Tag } from 'lucide-react'
+import { headers } from 'next/headers'
+import { getBookmakersByCountry } from '@/lib/bookmakers'
 
-const OFFERS: { name: string; tagline: string; bonus: string; detail: string; promo?: string; url: string; badge: string; badgeCls: string; btnCls: string; borderCls: string; accentCls: string; logo: string; logoBg: string }[] = [
-  {
-    name: '1xBet',
-    tagline: 'World\'s #1 Betting Platform',
-    bonus: '₹26,000 Welcome Bonus',
-    detail: '100% on first deposit',
-    promo: 'd_5312130m_1599c_1x_5227150',
-    url: 'https://reffpa.com/L?tag=d_5312130m_1599c_&site=5312130&ad=1599',
-    badge: 'TOP PICK',
-    badgeCls: 'bg-amber-500 text-black',
-    btnCls: 'bg-amber-500 hover:bg-amber-400 text-black',
-    borderCls: 'border-amber-500/30',
-    accentCls: 'from-amber-600/10',
-    logo: '1X',
-    logoBg: 'bg-amber-500 text-black',
-  },
-  {
-    name: 'Mostbet',
-    tagline: 'Best Odds for Cricket',
-    bonus: '₹25,000 Welcome Bonus',
-    detail: '125% on first deposit',
-    url: 'https://xtsplkmost.com/QIjU',
-    badge: 'HOT',
-    badgeCls: 'bg-red-500 text-white',
-    btnCls: 'bg-blue-600 hover:bg-blue-500 text-white',
-    borderCls: 'border-blue-500/30',
-    accentCls: 'from-blue-600/10',
-    logo: 'MB',
-    logoBg: 'bg-blue-600 text-white',
-  },
-  {
-    name: 'Melbet',
-    tagline: 'Huge Cricket Markets & Fast Payouts',
-    bonus: '₹10,400 Welcome Bonus',
-    detail: '130% on first deposit',
-    url: 'https://refpa3665.com/L?tag=d_5312608m_45415c_&site=5312608&ad=45415',
-    badge: 'NEW',
-    badgeCls: 'bg-emerald-500 text-white',
-    btnCls: 'bg-emerald-600 hover:bg-emerald-500 text-white',
-    borderCls: 'border-emerald-500/30',
-    accentCls: 'from-emerald-600/10',
-    logo: 'ML',
-    logoBg: 'bg-emerald-600 text-white',
-  },
-]
+export default async function AffiliateBanner() {
+  const headersList = await headers()
+  const country =
+    headersList.get('x-country') ||
+    headersList.get('x-vercel-ip-country') ||
+    headersList.get('cf-ipcountry') ||
+    'ZA'
 
-export default function AffiliateBanner() {
+  const offers = getBookmakersByCountry(country)
+
   return (
     <div className="rounded-2xl bg-gray-900 border border-gray-800 overflow-hidden my-8">
       {/* Header */}
@@ -60,8 +25,8 @@ export default function AffiliateBanner() {
 
       {/* Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x divide-gray-800">
-        {OFFERS.map((o) => (
-          <div key={o.name} className={`p-4 bg-gradient-to-br ${o.accentCls} to-transparent`}>
+        {offers.map((o) => (
+          <div key={o.id} className={`p-4 bg-gradient-to-br ${o.accentCls} to-transparent`}>
             <div className="flex items-center gap-3 mb-3">
               <div className={`w-10 h-10 rounded-xl ${o.logoBg} flex items-center justify-center font-extrabold text-sm shrink-0`}>
                 {o.logo}
@@ -94,6 +59,7 @@ export default function AffiliateBanner() {
                 </div>
               </div>
             )}
+
             <a
               href={o.url}
               target="_blank"
