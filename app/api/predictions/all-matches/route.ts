@@ -186,7 +186,7 @@ async function generateInBackground(matchKeys: string[]) {
 async function fallbackToDb() {
   const records = await prisma.matchAnalysis.findMany({
     orderBy: { createdAt: 'desc' },
-    take: 50,
+    take: 200,
     select: {
       matchKey: true, teamA: true, teamB: true,
       winProbabilityA: true, winProbabilityB: true,

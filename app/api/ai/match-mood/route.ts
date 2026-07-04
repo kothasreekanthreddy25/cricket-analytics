@@ -34,7 +34,7 @@ export async function GET() {
       if (seen.has(r.matchKey)) return false
       seen.add(r.matchKey)
       return true
-    }).slice(0, 5)
+    }).slice(0, 8)
 
     if (matches.length === 0) {
       return NextResponse.json({ success: true, matches: [] })
@@ -61,7 +61,7 @@ export async function GET() {
       model: 'gpt-4o',
       response_format: { type: 'json_object' },
       temperature: 0.7,
-      max_tokens: 1200,
+      max_tokens: 2000,
       messages: [
         {
           role: 'system',

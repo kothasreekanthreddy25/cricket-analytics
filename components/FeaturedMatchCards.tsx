@@ -16,6 +16,7 @@ interface AnalysisMatch {
   statusNote?: string
   scoreA?: string
   scoreB?: string
+  tournament?: string
 }
 
 interface Props {
@@ -44,6 +45,7 @@ export default function FeaturedMatchCards({ variant }: Props) {
           statusNote: m.statusNote || '',
           scoreA: m.scoreA,
           scoreB: m.scoreB,
+          tournament: m.tournament || '',
         }))
         const upcoming: AnalysisMatch[] = (json?.upcoming || []).map((m: any) => ({
           key: m.key || m.id,
@@ -56,6 +58,7 @@ export default function FeaturedMatchCards({ variant }: Props) {
           statusNote: m.statusNote || '',
           scoreA: null,
           scoreB: null,
+          tournament: m.tournament || '',
         }))
         const all = [...live, ...upcoming].filter(
           (m) => m.teamA && m.teamB && m.teamA !== 'TBD' && m.teamB !== 'TBD'
@@ -67,6 +70,7 @@ export default function FeaturedMatchCards({ variant }: Props) {
         const json2 = await res2.json()
         const allMatches: AnalysisMatch[] = (json2?.matches || [])
           .filter((m: any) => (m.status === 'live' || m.status === 'upcoming') && m.teamA !== 'TBD' && m.teamB !== 'TBD')
+          .map((m: any) => ({ ...m, tournament: m.tournament || '' }))
         setMatches(allMatches)
       } catch (err) {
         console.error('Failed to fetch featured matches:', err)
@@ -345,8 +349,8 @@ function MatchCarousel({ matches }: { matches: AnalysisMatch[] }) {
 
               {/* CTA */}
               <div className="flex items-center justify-between pt-3 border-t border-gray-700/50">
-                <span className="text-[10px] text-gray-500 bg-gray-700/50 px-2 py-0.5 rounded">
-                  T20 WC 2026
+                <span className="text-[10px] text-gray-500 bg-gray-700/50 px-2 py-0.5 rounded truncate max-w-[140px]">
+                  {match.tournament || 'Cricket'}
                 </span>
                 <span className="text-emerald-400 text-xs font-medium inline-flex items-center gap-1 group-hover:gap-2 transition-all">
                   <Brain className="w-3 h-3" />
@@ -452,7 +456,7 @@ function HeroCard({ match }: { match: AnalysisMatch }) {
         <span className="text-[10px] text-gray-500 bg-gray-700/50 px-2 py-0.5 rounded">
           AI-Powered Prediction
         </span>
-        <span className="text-xs text-gray-500">T20 WC 2026</span>
+        <span className="text-xs text-gray-500 truncate max-w-[150px]">{match.tournament || 'Cricket'}</span>
       </div>
 
       <Link

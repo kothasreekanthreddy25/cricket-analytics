@@ -29,7 +29,7 @@ export async function GET() {
   try {
     const analyses = await prisma.matchAnalysis.findMany({
       orderBy: { createdAt: 'desc' },
-      take: 20, // fetch more so we have enough after filtering dummies
+      take: 100, // fetch more so we have enough after filtering dummies
       select: {
         matchKey: true,
         teamA: true,
@@ -50,7 +50,7 @@ export async function GET() {
       return true
     })
 
-    const matches = real.slice(0, 6).map(a => {
+    const matches = real.slice(0, 12).map(a => {
       // Normalise probabilities to 0–1 range
       const rawA = normaliseProb(Math.max(0.01, a.winProbabilityA))
       const rawB = normaliseProb(Math.max(0.01, a.winProbabilityB))

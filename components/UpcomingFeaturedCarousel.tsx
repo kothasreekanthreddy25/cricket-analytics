@@ -212,16 +212,17 @@ export default function UpcomingFeaturedCarousel() {
           .filter(m => m.status === 'upcoming' && m.dateTimeGMT)
           .sort((a, b) => new Date(a.dateTimeGMT).getTime() - new Date(b.dateTimeGMT).getTime())
 
-        // Max 1 per tournament
-        const seenTournaments = new Set<string>()
+        // Max 2 per tournament, up to 20 total
+        const seenTournaments = new Map<string, number>()
         const deduped: UpcomingMatch[] = []
         for (const m of upcoming) {
           const tKey = m.tournamentKey || m.tournament || 'unknown'
-          if (!seenTournaments.has(tKey)) {
-            seenTournaments.add(tKey)
+          const count = seenTournaments.get(tKey) || 0
+          if (count < 2) {
+            seenTournaments.set(tKey, count + 1)
             deduped.push(m)
           }
-          if (deduped.length >= 5) break
+          if (deduped.length >= 20) break
         }
 
         setMatches(deduped)

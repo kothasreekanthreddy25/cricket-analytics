@@ -12,7 +12,7 @@ export async function GET() {
     let records = await prisma.matchAnalysis.findMany({
       where: { createdAt: { gte: oneWeekAgo } },
       orderBy: { createdAt: 'desc' },
-      take: 50,
+      take: 100,
       select: {
         id: true, matchKey: true, teamA: true, teamB: true,
         winProbabilityA: true, winProbabilityB: true,
@@ -24,7 +24,7 @@ export async function GET() {
     if (records.length === 0) {
       records = await prisma.matchAnalysis.findMany({
         orderBy: { createdAt: 'desc' },
-        take: 50,
+        take: 100,
         select: {
           id: true, matchKey: true, teamA: true, teamB: true,
           winProbabilityA: true, winProbabilityB: true,
@@ -54,7 +54,7 @@ export async function GET() {
 
     const top = scored
       .filter(r => !isDummy(r.teamA) && !isDummy(r.teamB))
-      .slice(0, 10).map(r => {
+      .slice(0, 20).map(r => {
       const rawA = norm(Math.max(0.01, r.winProbabilityA))
       const rawB = norm(Math.max(0.01, r.winProbabilityB))
       const total = rawA + rawB
