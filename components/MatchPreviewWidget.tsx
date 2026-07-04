@@ -32,6 +32,7 @@ interface Prediction {
 }
 interface Preview {
   matchKey: string; teamA: string; teamB: string
+  tournament: string; format: string
   probA: number; probB: number; confidence: string
   commentatorIntro: string; commentatorSource: string
   pitchReport: PitchReport; playersToWatch: Player[]
@@ -314,8 +315,12 @@ function PreviewCard({ preview }: { preview: Preview }) {
           <span className="text-[10px] font-extrabold bg-amber-500/10 text-amber-400 border border-amber-500/30 px-2.5 py-0.5 rounded-full uppercase tracking-wider">
             Pre-Match Preview
           </span>
-          <span className="text-[10px] text-gray-600">{preview.commentatorSource}</span>
+          <span className="text-[10px] text-gray-500">{preview.commentatorSource}</span>
         </div>
+
+        {preview.tournament && (
+          <p className="text-[10px] text-purple-400 font-semibold mb-1 truncate">{preview.tournament} · {preview.format}</p>
+        )}
 
         <h3 className="text-base font-extrabold text-white">
           {preview.teamA} <span className="text-gray-500 font-normal">vs</span> {preview.teamB}
