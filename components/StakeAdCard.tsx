@@ -67,7 +67,7 @@ export function StakeAdCarousel() {
         {/* Mock odds strip */}
         <div className="bg-gray-800/60 border border-yellow-500/20 rounded-xl px-3 py-2.5 flex justify-between items-center gap-2">
           <div className="text-center flex-1">
-            <p className="text-[9px] text-gray-500 uppercase mb-0.5">Team A</p>
+            <p className="text-[9px] text-gray-500 uppercase mb-0.5">Home</p>
             <p className="text-yellow-300 font-extrabold font-mono text-base">1.85</p>
           </div>
           <div className="text-center">
@@ -75,7 +75,7 @@ export function StakeAdCarousel() {
             <p className="text-gray-400 font-mono text-sm">—</p>
           </div>
           <div className="text-center flex-1">
-            <p className="text-[9px] text-gray-500 uppercase mb-0.5">Team B</p>
+            <p className="text-[9px] text-gray-500 uppercase mb-0.5">Away</p>
             <p className="text-yellow-300 font-extrabold font-mono text-base">2.10</p>
           </div>
         </div>

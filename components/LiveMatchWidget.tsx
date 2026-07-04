@@ -556,8 +556,8 @@ export default function LiveMatchWidget() {
             {insights && (insights.teamALast5?.length || insights.teamBLast5?.length) ? (
               <div className="space-y-2">
                 <p className="text-[10px] text-gray-600 uppercase tracking-wider font-semibold">Recent Form</p>
-                {insights.teamALast5?.length ? <FormDots form={insights.teamALast5} teamName={teamA?.name || 'Team A'} /> : null}
-                {insights.teamBLast5?.length ? <FormDots form={insights.teamBLast5} teamName={teamB?.name || 'Team B'} /> : null}
+                {insights.teamALast5?.length ? <FormDots form={insights.teamALast5} teamName={teamA?.name || 'Home'} /> : null}
+                {insights.teamBLast5?.length ? <FormDots form={insights.teamBLast5} teamName={teamB?.name || 'Away'} /> : null}
               </div>
             ) : null}
 
@@ -593,8 +593,8 @@ export default function LiveMatchWidget() {
                     <div className="space-y-1.5">
                       <p className="text-[9px] text-gray-600 uppercase tracking-wider">Historical Win Rate</p>
                       {[
-                        { name: teamA?.name || 'Team A', pct: Math.round(insights.teamAWinRate * 100), color: 'bg-emerald-500/60' },
-                        { name: teamB?.name || 'Team B', pct: Math.round(insights.teamBWinRate * 100), color: 'bg-cyan-500/60' },
+                        { name: teamA?.name || 'Home', pct: Math.round(insights.teamAWinRate * 100), color: 'bg-emerald-500/60' },
+                        { name: teamB?.name || 'Away', pct: Math.round(insights.teamBWinRate * 100), color: 'bg-cyan-500/60' },
                       ].map(t => (
                         <div key={t.name} className="flex items-center gap-2">
                           <span className="text-[10px] text-gray-500 w-20 flex-shrink-0 truncate">{t.name}</span>
@@ -612,8 +612,8 @@ export default function LiveMatchWidget() {
                   <div className="space-y-1.5">
                     <p className="text-[9px] text-gray-600 uppercase tracking-wider">Current Form</p>
                     {[
-                      { name: teamA?.name || 'Team A', pct: insights.teamAForm, color: 'bg-emerald-400/60' },
-                      { name: teamB?.name || 'Team B', pct: insights.teamBForm, color: 'bg-cyan-400/60' },
+                      { name: teamA?.name || 'Home', pct: insights.teamAForm, color: 'bg-emerald-400/60' },
+                      { name: teamB?.name || 'Away', pct: insights.teamBForm, color: 'bg-cyan-400/60' },
                     ].map(t => (
                       <div key={t.name} className="flex items-center gap-2">
                         <span className="text-[10px] text-gray-500 w-20 flex-shrink-0 truncate">{t.name}</span>

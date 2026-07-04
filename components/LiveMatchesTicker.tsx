@@ -234,8 +234,8 @@ export default function LiveMatchesTicker() {
                 ) : (
                   <PredictionBadge
                     matchKey={t.key}
-                    teamA={teams[0] || 'Team A'}
-                    teamB={teams[1] || 'Team B'}
+                    teamA={teams[0] || 'TBD'}
+                    teamB={teams[1] || 'TBD'}
                   />
                 )}
               </Link>
@@ -259,8 +259,8 @@ function getPredictionRating(key: string): number {
 
 function PredictionBadge({
   matchKey,
-  teamA = 'Team A',
-  teamB = 'Team B',
+  teamA = 'TBD',
+  teamB = 'TBD',
   winProbabilityA,
   winProbabilityB,
 }: {
