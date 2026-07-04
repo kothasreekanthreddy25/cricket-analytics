@@ -199,10 +199,10 @@ export default function TopPredictionsCarousel() {
         <div>
           <h2 className="text-xl md:text-2xl font-bold text-white flex items-center gap-2">
             <Brain className="w-5 h-5 text-purple-400" />
-            Top Predictions This Week
+            Latest AI Predictions
           </h2>
           <p className="text-gray-400 text-sm mt-0.5">
-            AI's highest confidence picks — updated daily
+            Highest confidence picks from recent matches
           </p>
         </div>
         <div className="flex items-center gap-2">

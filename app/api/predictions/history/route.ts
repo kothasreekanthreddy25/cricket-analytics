@@ -2,19 +2,26 @@ import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 
 export const dynamic = 'force-dynamic'
-export const revalidate = 1800
 
-export async function GET() {
+export async function GET(req: Request) {
   try {
-    const records = await prisma.matchAnalysis.findMany({
-      orderBy: { createdAt: 'desc' },
-      take: 200,
-      select: {
-        id: true, matchKey: true, teamA: true, teamB: true,
-        winProbabilityA: true, winProbabilityB: true,
-        confidence: true, rawData: true, createdAt: true,
-      },
-    })
+    const { searchParams } = new URL(req.url)
+    const take = Math.min(parseInt(searchParams.get('limit') || '50'), 100)
+    const skip = parseInt(searchParams.get('offset') || '0')
+
+    const [records, total] = await Promise.all([
+      prisma.matchAnalysis.findMany({
+        orderBy: { createdAt: 'desc' },
+        take,
+        skip,
+        select: {
+          id: true, matchKey: true, teamA: true, teamB: true,
+          winProbabilityA: true, winProbabilityB: true,
+          confidence: true, tips: true, conditions: true, rawData: true, createdAt: true,
+        },
+      }),
+      prisma.matchAnalysis.count(),
+    ])
 
     const DUMMY = new Set(['team a', 'team b', 'teama', 'teamb', 'test', 'unknown'])
     const isDummy = (n: string) => DUMMY.has(n.toLowerCase().trim())
@@ -29,22 +36,10 @@ export async function GET() {
       return true
     })
 
-    // Try to find verified correct predictions first
-    const verified = unique.filter(r => {
+    const predictions = unique.map(r => {
       const raw = r.rawData as any
-      const actualWinner: string | null = raw?.actualWinner || null
-      if (!actualWinner) return false
-      const predictedWinner = r.winProbabilityA >= r.winProbabilityB ? r.teamA : r.teamB
-      return actualWinner === predictedWinner
-    })
-
-    // If we have verified wins, use them; otherwise show high-confidence recent predictions
-    const source = verified.length >= 6 ? verified : unique.filter(r =>
-      r.confidence === 'HIGH' || r.confidence === 'VERY_HIGH'
-    )
-
-    const result = source.slice(0, 9).map(r => {
-      const raw = r.rawData as any
+      const conditions = r.conditions as any
+      const tips = Array.isArray(r.tips) ? r.tips : []
       const pA = norm(Math.max(0.01, r.winProbabilityA))
       const pB = norm(Math.max(0.01, r.winProbabilityB))
       const total = pA + pB
@@ -52,20 +47,29 @@ export async function GET() {
       const normB = total > 0 ? pB / total : 0.5
       const predictedWinner = normA >= normB ? r.teamA : r.teamB
       const winPct = Math.max(normA, normB)
+      const actualWinner: string | null = raw?.actualWinner || null
+      const result = actualWinner
+        ? actualWinner === predictedWinner ? 'WON' : 'LOST'
+        : 'PENDING'
+
       return {
         id: r.id,
         matchKey: r.matchKey,
         teamA: r.teamA,
         teamB: r.teamB,
+        winProbabilityA: Math.round(normA * 100),
+        winProbabilityB: Math.round(normB * 100),
         predictedWinner,
         winPct: Math.round(winPct * 100),
         confidence: r.confidence,
-        isVerified: !!(raw?.actualWinner && raw.actualWinner === predictedWinner),
+        tip: tips[0] || null,
+        venue: conditions?.venue || conditions?.ground || null,
+        result,
         createdAt: r.createdAt,
       }
     })
 
-    return NextResponse.json({ success: true, predictions: result })
+    return NextResponse.json({ success: true, predictions, total, hasMore: skip + take < total })
   } catch (e: any) {
     return NextResponse.json({ success: false, error: e.message, predictions: [] })
   }

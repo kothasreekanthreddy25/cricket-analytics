@@ -13,6 +13,7 @@ interface WinPrediction {
   predictedWinner: string
   winPct: number
   confidence: string
+  isVerified?: boolean
 }
 
 function short(name: string, max = 12) {
@@ -28,7 +29,7 @@ function WinCard({ p }: { p: WinPrediction }) {
     >
       <div className="flex items-center gap-1">
         <CheckCircle2 className="w-2.5 h-2.5 text-emerald-400 flex-shrink-0" />
-        <span className="text-[8px] font-bold text-emerald-400 uppercase tracking-wider">Correct</span>
+        <span className="text-[8px] font-bold text-emerald-400 uppercase tracking-wider">{p.isVerified ? 'Correct' : 'High Conf'}</span>
       </div>
       <p className="text-[11px] font-bold text-white leading-tight truncate">{short(p.predictedWinner)}</p>
       <p className="text-[9px] text-gray-500 truncate">vs {short(opponent)}</p>
@@ -84,7 +85,7 @@ export default function RecentWinningPredictions({ variant = 'strip' }: Props) {
     <div>
       <p className="text-[10px] text-gray-500 uppercase tracking-wider mb-2.5 flex items-center gap-1.5">
         <CheckCircle2 className="w-3 h-3 text-emerald-400" />
-        Recent Winning Predictions
+        Recent AI Predictions
       </p>
       <div className="grid grid-cols-3 gap-2">
         {items.flatMap((_, i) => {

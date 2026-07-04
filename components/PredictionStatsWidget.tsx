@@ -76,7 +76,7 @@ export default function PredictionStatsWidget() {
               Our Prediction Performance
             </h2>
             <p className="text-gray-400 mt-1 text-sm">
-              T20 World Cup 2026 — live accuracy stats
+              AI prediction accuracy — live stats
               {stats?.lastUpdated && (
                 <span className="text-gray-600 ml-2">
                   &middot; Updated {(() => {

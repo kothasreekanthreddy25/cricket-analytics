@@ -40,6 +40,8 @@ const orgJsonLd = {
   ],
 }
 import FeaturedMatchCards from '@/components/FeaturedMatchCards'
+import AIoddsWidget from '@/components/AIoddsWidget'
+import ValueBetAlerts from '@/components/ValueBetAlerts'
 import PredictionStatsWidget from '@/components/PredictionStatsWidget'
 import LatestNews from '@/components/LatestNews'
 import TopPredictionsCarousel from '@/components/TopPredictionsCarousel'
@@ -80,7 +82,7 @@ export default function Home() {
             <div className="flex items-center gap-3 mb-4">
               <span className="inline-flex items-center gap-2 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-3 py-1 rounded-full text-xs font-medium">
                 <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse" />
-                T20 World Cup 2026 Coverage
+                AI Cricket Predictions · Live
               </span>
               <span className="bg-amber-500 text-black text-xs font-extrabold px-2 py-0.5 rounded">
                 18+
@@ -162,7 +164,36 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── Section 2: Top Predictions This Week ── */}
+      {/* ── Section 2: AI Odds + Bookmakers ── */}
+      <section className="bg-gray-950 py-10 px-4 border-t border-gray-800">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h2 className="text-xl md:text-2xl font-bold text-white flex items-center gap-2">
+                <Brain className="w-5 h-5 text-emerald-400" />
+                AI Predictions &amp; Best Odds
+              </h2>
+              <p className="text-gray-400 text-sm mt-0.5">
+                AI-calculated implied odds · Compare &amp; bet at top bookmakers
+              </p>
+            </div>
+            <Link href="/analysis" className="text-emerald-400 text-sm font-medium hover:text-emerald-300 flex items-center gap-1">
+              All predictions <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
+          </div>
+          <div className="grid lg:grid-cols-3 gap-6">
+            <div className="lg:col-span-2">
+              <AIoddsWidget />
+            </div>
+            <div className="lg:col-span-1 space-y-4">
+              <ValueBetAlerts />
+              <PredictionStatsWidget />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Section 3: Top Predictions This Week ── */}
       <section className="bg-gray-950 py-10 px-4 border-t border-gray-800">
         <div className="max-w-7xl mx-auto">
           <TopPredictionsCarousel />

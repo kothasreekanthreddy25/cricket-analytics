@@ -1,7 +1,7 @@
 import { getSession } from '@/lib/session'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
-import { Trophy, Brain, MessageCircle, Bell, TrendingUp, CheckCircle2 } from 'lucide-react'
+import { Trophy, Brain, MessageCircle, Bell, TrendingUp, CheckCircle2, ExternalLink } from 'lucide-react'
 import { prisma } from '@/lib/prisma'
 import LiveMatchWidget from '@/components/LiveMatchWidget'
 import { SignOutButton } from '@/components/SignOutButton'
@@ -19,6 +19,12 @@ export default async function ProDashboardPage() {
     take: 10,
     select: { matchKey: true, teamA: true, teamB: true, winProbabilityA: true, winProbabilityB: true, confidence: true, createdAt: true },
   })
+
+  const BOOKMAKERS = [
+    { name: 'bet365', color: 'bg-green-700',  href: 'https://www.bet365.com' },
+    { name: '1xBet',  color: 'bg-blue-700',   href: 'https://1xbet.com' },
+    { name: 'Betway', color: 'bg-purple-700', href: 'https://betway.com' },
+  ]
 
   return (
     <div className="min-h-screen bg-gray-950 px-4 py-8">
@@ -95,26 +101,43 @@ export default async function ProDashboardPage() {
             <div className="divide-y divide-gray-800">
               {predictions.map(p => {
                 const winner = p.winProbabilityA >= p.winProbabilityB ? p.teamA : p.teamB
-                const loser = p.winProbabilityA >= p.winProbabilityB ? p.teamB : p.teamA
                 const prob = Math.max(p.winProbabilityA, p.winProbabilityB)
                 const barA = Math.round(p.winProbabilityA * 100)
                 const barB = Math.round(p.winProbabilityB * 100)
+                const aiOdds = parseFloat((1 / (prob * 1.05)).toFixed(2))
+                const isHigh = p.confidence === 'HIGH' || p.confidence === 'VERY_HIGH'
                 return (
                   <div key={p.matchKey} className="px-5 py-4">
-                    <div className="flex items-center justify-between mb-2">
-                      <p className="text-white text-sm font-semibold">{p.teamA} vs {p.teamB}</p>
-                      <span className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded-full ${p.confidence === 'HIGH' || p.confidence === 'VERY_HIGH' ? 'bg-emerald-500/10 text-emerald-400' : 'bg-gray-800 text-gray-400'}`}>
-                        {p.confidence}
-                      </span>
+                    <div className="flex items-start justify-between mb-2 gap-3">
+                      <div>
+                        <p className="text-white text-sm font-semibold">{p.teamA} vs {p.teamB}</p>
+                        <div className="flex items-center gap-2 mt-1">
+                          <span className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded-full ${isHigh ? 'bg-emerald-500/10 text-emerald-400' : 'bg-gray-800 text-gray-400'}`}>
+                            {p.confidence}
+                          </span>
+                          <span className="text-[10px] text-gray-500">
+                            AI Pick: <span className="text-white font-semibold">{winner}</span>
+                            <span className="text-emerald-400 ml-1">@ {aiOdds}</span>
+                          </span>
+                        </div>
+                      </div>
+                      {/* Place Bet buttons */}
+                      <div className="flex gap-1.5 flex-shrink-0">
+                        {BOOKMAKERS.map(bk => (
+                          <a key={bk.name} href={bk.href} target="_blank" rel="noopener noreferrer nofollow"
+                            className={`${bk.color} hover:opacity-80 text-white text-[10px] font-bold px-2 py-1 rounded-lg transition-opacity flex items-center gap-0.5`}>
+                            {bk.name.slice(0, 3)} <ExternalLink className="w-2 h-2 opacity-70" />
+                          </a>
+                        ))}
+                      </div>
                     </div>
-                    {/* Probability bar */}
-                    <div className="flex gap-1 h-2 rounded-full overflow-hidden mb-1.5">
+                    <div className="flex gap-1 h-1.5 rounded-full overflow-hidden mb-1.5">
                       <div className="bg-emerald-500 rounded-l-full transition-all" style={{ width: `${barA}%` }} />
                       <div className="bg-gray-600 rounded-r-full transition-all" style={{ width: `${barB}%` }} />
                     </div>
                     <div className="flex justify-between text-xs text-gray-500">
                       <span>{p.teamA} {barA}%</span>
-                      <span className="text-emerald-400 font-semibold">→ {winner} wins ({(prob * 100).toFixed(0)}%)</span>
+                      <span className="text-emerald-400 font-semibold">{winner} wins ({(prob * 100).toFixed(0)}%)</span>
                       <span>{p.teamB} {barB}%</span>
                     </div>
                   </div>
