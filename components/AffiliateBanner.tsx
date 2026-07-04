@@ -21,7 +21,7 @@ const OFFERS: { name: string; tagline: string; bonus: string; detail: string; pr
     tagline: 'Best Odds for Cricket',
     bonus: '₹25,000 Welcome Bonus',
     detail: '125% on first deposit',
-    url: 'https://mloz82mb.com/LIjU',
+    url: 'https://xtsplkmost.com/QIjU',
     badge: 'HOT',
     badgeCls: 'bg-red-500 text-white',
     btnCls: 'bg-blue-600 hover:bg-blue-500 text-white',

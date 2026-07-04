@@ -22,7 +22,7 @@ const AFFILIATES = {
     logoBg: 'bg-amber-500 text-black',
   },
   mostbet: {
-    url: 'https://mloz82mb.com/LIjU',
+    url: 'https://xtsplkmost.com/QIjU',
     name: 'Mostbet',
     tagline: 'Best Odds for Cricket',
     bonus: '₹25,000 Welcome Bonus',

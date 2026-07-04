@@ -11,7 +11,7 @@ const BOOKMAKERS = [
   { id: 'betway',     name: 'Betway',     logo: 'BW',  color: 'bg-purple-700', href: 'https://betway.com',          bonus: '₹2,500 Free Bet',       rating: 4.4 },
   { id: 'dafabet',    name: 'Dafabet',    logo: 'DA',  color: 'bg-orange-700', href: 'https://dafabet.com',         bonus: '160% up to ₹16,000',    rating: 4.3 },
   { id: 'parimatch',  name: 'Parimatch',  logo: 'PM',  color: 'bg-yellow-700', href: 'https://parimatch.com',       bonus: '₹6,000 First Bet',      rating: 4.2 },
-  { id: 'mostbet',    name: 'Mostbet',    logo: 'MB',  color: 'bg-cyan-700',   href: 'https://mostbet.com',         bonus: '125% up to ₹25,000',    rating: 4.1 },
+  { id: 'mostbet',    name: 'Mostbet',    logo: 'MB',  color: 'bg-cyan-700',   href: 'https://xtsplkmost.com/QIjU',         bonus: '125% up to ₹25,000',    rating: 4.1 },
 ]
 
 interface MatchOdds {

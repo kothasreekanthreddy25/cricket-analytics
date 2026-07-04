@@ -21,7 +21,7 @@ const OFFERS: { name: string; bonus: string; detail: string; promo?: string; url
     name: 'Mostbet',
     bonus: '₹25,000 Bonus',
     detail: '125% first deposit',
-    url: 'https://mloz82mb.com/LIjU',
+    url: 'https://xtsplkmost.com/QIjU',
     badge: 'HOT',
     badgeCls: 'bg-red-500 text-white',
     btnCls: 'bg-blue-600 hover:bg-blue-500 text-white',
