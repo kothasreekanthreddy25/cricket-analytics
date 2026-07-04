@@ -7,7 +7,7 @@ const OFFERS = [
     name: '1xBet',
     bonus: '₹26,000 Bonus',
     detail: '100% first deposit',
-    url: 'https://reffpa.com/L?tag=d_5312130m_1236c_1x_4546809&site=5312130&ad=1236',
+    url: 'https://reffpa.com/L?tag=d_5312130m_1599c_&site=5312130&ad=1599',
     badge: 'TOP',
     badgeCls: 'bg-amber-500 text-black',
     btnCls: 'bg-amber-500 hover:bg-amber-400 text-black',

@@ -7,7 +7,7 @@ import Link from 'next/link'
 // ── Bookmakers – replace href with your real affiliate tracking URLs ──
 const BOOKMAKERS = [
   { id: 'bet365',     name: 'bet365',     logo: '365', color: 'bg-green-700',  href: 'https://www.bet365.com',      bonus: '100% up to ₹8,000',    rating: 4.8 },
-  { id: '1xbet',      name: '1xBet',      logo: '1X',  color: 'bg-blue-700',   href: 'https://1xbet.com',           bonus: '₹26,000 Welcome Bonus', rating: 4.5 },
+  { id: '1xbet',      name: '1xBet',      logo: '1X',  color: 'bg-blue-700',   href: 'https://reffpa.com/L?tag=d_5312130m_1599c_&site=5312130&ad=1599',           bonus: '₹26,000 Welcome Bonus', rating: 4.5 },
   { id: 'betway',     name: 'Betway',     logo: 'BW',  color: 'bg-purple-700', href: 'https://betway.com',          bonus: '₹2,500 Free Bet',       rating: 4.4 },
   { id: 'dafabet',    name: 'Dafabet',    logo: 'DA',  color: 'bg-orange-700', href: 'https://dafabet.com',         bonus: '160% up to ₹16,000',    rating: 4.3 },
   { id: 'parimatch',  name: 'Parimatch',  logo: 'PM',  color: 'bg-yellow-700', href: 'https://parimatch.com',       bonus: '₹6,000 First Bet',      rating: 4.2 },

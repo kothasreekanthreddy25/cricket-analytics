@@ -25,7 +25,7 @@ export default async function EliteDashboardPage() {
 
   const BOOKMAKERS = [
     { name: 'bet365', color: 'bg-green-700',  href: 'https://www.bet365.com' },
-    { name: '1xBet',  color: 'bg-blue-700',   href: 'https://1xbet.com' },
+    { name: '1xBet',  color: 'bg-blue-700',   href: 'https://reffpa.com/L?tag=d_5312130m_1599c_&site=5312130&ad=1599' },
     { name: 'Betway', color: 'bg-purple-700', href: 'https://betway.com' },
     { name: 'Dafabet',color: 'bg-orange-700', href: 'https://dafabet.com' },
   ]

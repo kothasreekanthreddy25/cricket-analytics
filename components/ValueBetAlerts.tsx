@@ -6,7 +6,7 @@ import Link from 'next/link'
 
 const BOOKMAKERS = [
   { id: 'bet365', name: 'bet365', color: 'bg-green-600',  href: 'https://www.bet365.com' },
-  { id: '1xbet',  name: '1xBet',  color: 'bg-blue-600',   href: 'https://1xbet.com' },
+  { id: '1xbet',  name: '1xBet',  color: 'bg-blue-600',   href: 'https://reffpa.com/L?tag=d_5312130m_1599c_&site=5312130&ad=1599' },
   { id: 'betway', name: 'Betway', color: 'bg-purple-600', href: 'https://betway.com' },
 ]
 

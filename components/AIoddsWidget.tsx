@@ -20,7 +20,7 @@ const BOOKMAKERS = [
     name: '1xBet',
     logo: '1X',
     color: 'bg-blue-600',
-    href: 'https://1xbet.com',
+    href: 'https://reffpa.com/L?tag=d_5312130m_1599c_&site=5312130&ad=1599',
     bonus: '₹26,000 Welcome Bonus',
     featured: true,
   },
