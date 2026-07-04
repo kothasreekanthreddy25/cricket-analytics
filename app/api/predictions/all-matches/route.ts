@@ -206,12 +206,15 @@ async function fallbackToDb() {
       const { probA, probB } = normaliseProbs(r.winProbabilityA, r.winProbabilityB)
       const tips = Array.isArray(r.tips) ? r.tips : []
       const conditions = r.conditions as any
+      const tournament = conditions?.tournament || conditions?.format
+        ? (conditions.tournament || `${conditions.format || 'T20'} Cricket`)
+        : 'Cricket'
       return {
         matchKey: r.matchKey,
         teamA: r.teamA,
         teamB: r.teamB,
-        tournament: 'Cricket',
-        format: 'T20',
+        tournament,
+        format: conditions?.format || 'T20',
         venue: conditions?.venue || null,
         status: 'upcoming',
         startAt: null,

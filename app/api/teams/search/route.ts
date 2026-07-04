@@ -68,7 +68,7 @@ function dbRecordsToFakeMatches(records: any[]) {
         a: { name: r.teamA, code: r.teamA.slice(0, 3).toUpperCase(), key: r.teamA.toLowerCase().replace(/\s+/g, '-') },
         b: { name: r.teamB, code: r.teamB.slice(0, 3).toUpperCase(), key: r.teamB.toLowerCase().replace(/\s+/g, '-') },
       },
-      tournament: { name: (r.conditions as any)?.tournament || 'Cricket', key: '' },
+      tournament: { name: (r.conditions as any)?.tournament || `${(r.conditions as any)?.format || 'T20'} Cricket`, key: '' },
       format: 't20',
       status: 'upcoming',
       start_at: null,
