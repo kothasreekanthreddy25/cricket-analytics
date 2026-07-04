@@ -147,6 +147,8 @@ export default function Footer() {
                 { label: 'Sign Up Free', href: '/auth/signup' },
                 { label: 'Log In', href: '/auth/login' },
                 { label: 'Dashboard', href: '/dashboard/user' },
+                { label: 'Privacy Policy', href: '/privacy' },
+                { label: 'Terms & Conditions', href: '/terms' },
               ].map((link) => (
                 <li key={link.href}>
                   <Link
@@ -206,9 +208,9 @@ export default function Footer() {
               © {currentYear} CricketTips.ai — All rights reserved. For entertainment purposes only.
             </p>
             <div className="flex items-center gap-4">
-              <span className="bg-amber-500 text-black text-xs font-extrabold px-2 py-0.5 rounded">
-                18+
-              </span>
+              <Link href="/privacy" className="text-gray-600 hover:text-gray-400 text-xs transition-colors">Privacy</Link>
+              <Link href="/terms" className="text-gray-600 hover:text-gray-400 text-xs transition-colors">Terms</Link>
+              <span className="bg-amber-500 text-black text-xs font-extrabold px-2 py-0.5 rounded">18+</span>
               <span className="text-gray-600 text-xs">Play Responsibly</span>
             </div>
           </div>

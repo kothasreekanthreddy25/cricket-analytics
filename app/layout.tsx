@@ -7,6 +7,7 @@ import LiveMatchesTicker from '@/components/LiveMatchesTicker'
 import PageWithSidebar from '@/components/PageWithSidebar'
 import Footer from '@/components/Footer'
 import FirstVisitPopup from '@/components/FirstVisitPopup'
+import AgeGate from '@/components/AgeGate'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -124,6 +125,7 @@ export default function RootLayout({
         </main>
         <Footer />
         <FirstVisitPopup />
+        <AgeGate />
       </body>
     </html>
   )
