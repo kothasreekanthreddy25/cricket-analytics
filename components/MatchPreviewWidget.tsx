@@ -32,7 +32,7 @@ interface Prediction {
 }
 interface Preview {
   matchKey: string; teamA: string; teamB: string
-  tournament: string; format: string
+  tournament: string; format: string; venue?: string; startAt?: string | null
   probA: number; probB: number; confidence: string
   commentatorIntro: string; commentatorSource: string
   pitchReport: PitchReport; playersToWatch: Player[]
@@ -326,6 +326,12 @@ function PreviewCard({ preview }: { preview: Preview }) {
           {preview.teamA} <span className="text-gray-500 font-normal">vs</span> {preview.teamB}
         </h3>
 
+        {preview.startAt && (
+          <p className="text-[10px] text-gray-500 mt-0.5">
+            {new Date(preview.startAt).toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit', hour12: true })}
+          </p>
+        )}
+
         {/* Prob bar compact */}
         <div className="mt-3">
           <div className="flex h-1.5 rounded-full overflow-hidden gap-0.5">
@@ -428,11 +434,9 @@ export default function MatchPreviewWidget() {
         </div>
       </div>
 
-      {/* Preview card */}
-      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
-        {previews.map((p, i) => (
-          <PreviewCard key={p.matchKey} preview={p} />
-        ))}
+      {/* Preview card — one at a time */}
+      <div className="max-w-lg">
+        <PreviewCard key={previews[idx].matchKey} preview={previews[idx]} />
       </div>
 
       <p className="text-center text-[11px] text-gray-700 mt-4">
