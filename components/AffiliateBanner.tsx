@@ -1,16 +1,18 @@
+'use client'
+
+import { useEffect, useState } from 'react'
 import { ExternalLink, Trophy, Shield, Tag } from 'lucide-react'
-import { headers } from 'next/headers'
-import { getBookmakersByCountry } from '@/lib/bookmakers'
+import { getBookmakersByCountry, type Bookmaker } from '@/lib/bookmakers'
 
-export default async function AffiliateBanner() {
-  const headersList = await headers()
-  const country =
-    headersList.get('x-country') ||
-    headersList.get('x-vercel-ip-country') ||
-    headersList.get('cf-ipcountry') ||
-    'ZA'
+export default function AffiliateBanner() {
+  const [offers, setOffers] = useState<Bookmaker[]>(() => getBookmakersByCountry('ZA'))
 
-  const offers = getBookmakersByCountry(country)
+  useEffect(() => {
+    fetch('/api/geo')
+      .then(r => r.json())
+      .then(({ country }: { country: string }) => setOffers(getBookmakersByCountry(country)))
+      .catch(() => {})
+  }, [])
 
   return (
     <div className="rounded-2xl bg-gray-900 border border-gray-800 overflow-hidden my-8">
