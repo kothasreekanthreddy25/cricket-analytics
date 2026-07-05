@@ -49,13 +49,13 @@ export default function MatchPreviewTeaser() {
       </div>
 
       {loading ? (
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {[1, 2, 3].map(i => (
             <div key={i} className="h-36 bg-gray-800/50 rounded-2xl animate-pulse" />
           ))}
         </div>
       ) : matches.length === 0 ? null : (
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {matches.map(m => (
             <Link
               key={m.matchKey}

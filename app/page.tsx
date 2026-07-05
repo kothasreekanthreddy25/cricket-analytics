@@ -150,16 +150,16 @@ export default function Home() {
             </Link>
           </div>
 
-          <div className="grid lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Left: Live score widget (takes 1 col on large screens) */}
-            <div className="lg:col-span-1">
+            <div className="lg:col-span-1 min-w-0">
               <Suspense fallback={<div className="bg-gray-800/50 rounded-2xl border border-gray-700/50 p-6 animate-pulse h-64" />}>
                 <LiveScoreCard />
               </Suspense>
             </div>
 
             {/* Right: Upcoming featured matches (takes 2 cols) */}
-            <div className="lg:col-span-2">
+            <div className="lg:col-span-2 min-w-0">
               <FeaturedMatchCards variant="carousel" />
             </div>
           </div>
@@ -211,11 +211,11 @@ export default function Home() {
               All predictions <ArrowRight className="w-3.5 h-3.5" />
             </Link>
           </div>
-          <div className="grid lg:grid-cols-3 gap-6">
-            <div className="lg:col-span-2">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="lg:col-span-2 min-w-0">
               <AIoddsWidget />
             </div>
-            <div className="lg:col-span-1 space-y-4">
+            <div className="lg:col-span-1 min-w-0 space-y-4">
               <ValueBetAlerts />
               <PredictionStatsWidget />
             </div>

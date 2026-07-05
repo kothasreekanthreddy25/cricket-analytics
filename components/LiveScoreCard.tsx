@@ -301,13 +301,13 @@ function UpcomingMatchesFallback({
 
       {/* Upcoming tournaments */}
       {loading ? (
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
           {[...Array(6)].map((_, i) => (
             <div key={i} className="bg-gray-800/50 rounded-xl p-3 animate-pulse h-20" />
           ))}
         </div>
       ) : matches.length > 0 ? (
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
           {matches.map((m: any, i: number) => (
             <div
               key={i}

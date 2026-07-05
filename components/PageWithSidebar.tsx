@@ -1,5 +1,3 @@
-'use client'
-
 import AdSidebar from './AdSidebar'
 import MobileAdStrip from './MobileAdStrip'
 
