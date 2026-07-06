@@ -19,9 +19,11 @@ function isInternational(team: string): boolean {
 
 export async function GET() {
   try {
+    // Window is wide enough to reach past prolific domestic leagues (which can
+    // produce 200+ rows in weeks) to the rarer settled international matches.
     const records = await prisma.matchAnalysis.findMany({
       orderBy: { createdAt: 'desc' },
-      take: 200,
+      take: 500,
       select: {
         id: true, matchKey: true, teamA: true, teamB: true,
         winProbabilityA: true, winProbabilityB: true,
@@ -75,17 +77,31 @@ export async function GET() {
       accuracy: settled.length > 0 ? Math.round((correct.length / settled.length) * 100) : 0,
     }
 
-    // Showcase: recent settled results with a meaningful edge (≥60%), wins and
-    // losses alike. Top up with high-confidence pending picks if too few.
+    // Showcase: settled results with a meaningful edge, wins and losses alike.
+    // International slots are reserved during SELECTION (not just sorted at the
+    // end), otherwise daily domestic leagues fill every card before rarer
+    // international matches are even considered. Internationals also get a
+    // relaxed 55% edge threshold — top-nation matchups are predicted tighter
+    // than lopsided domestic fixtures.
     const CARD_COUNT = 8 // 9th grid cell is reserved for the ad
-    const strongSettled = settled.filter(p => p.winPct >= 60).slice(0, CARD_COUNT)
-    const picks = [...strongSettled]
+    const INTL_SLOTS = 5
+
+    const intlSettled = settled
+      .filter(p => p.international && p.winPct >= 55)
+      .slice(0, INTL_SLOTS)
+    const chosenIntl = new Set(intlSettled.map(p => p.id))
+    const restSettled = settled.filter(p => !chosenIntl.has(p.id) && p.winPct >= 60)
+    const picks = [...intlSettled, ...restSettled].slice(0, CARD_COUNT)
+
+    // Top up with high-confidence pending picks (internationals first) if too few
     if (picks.length < CARD_COUNT) {
       const chosen = new Set(picks.map(p => p.id))
-      const pendingStrong = enriched.filter(p =>
-        !p.isSettled && !chosen.has(p.id) &&
-        ['high', 'very_high'].includes(p.confidence.toLowerCase())
-      )
+      const pendingStrong = enriched
+        .filter(p =>
+          !p.isSettled && !chosen.has(p.id) &&
+          ['high', 'very_high'].includes(p.confidence.toLowerCase())
+        )
+        .sort((a, b) => Number(b.international) - Number(a.international))
       picks.push(...pendingStrong.slice(0, CARD_COUNT - picks.length))
     }
 
