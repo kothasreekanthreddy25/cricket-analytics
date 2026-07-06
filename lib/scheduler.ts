@@ -17,12 +17,49 @@
 
 import { prisma } from './prisma'
 import { roanuzGet } from './roanuz'
+import { getMatchDetails as getSportMonksMatch } from './sportmonks'
+import { runPredictionGeneration } from './prediction-generator'
 
 // ──────────────────────────────────────────────
 // Job 1: Update prediction results
 // ──────────────────────────────────────────────
 
-async function resolveMatchResult(matchKey: string) {
+// Numeric keys are SportMonks fixture IDs (the site's primary data source),
+// "a-rz--..." keys are Roanuz. Anything else is a seeded slug (e.g.
+// "intl_ind_eng_t20_jul2026_1") that matches neither API and can never
+// settle, so those are skipped up front.
+function keySource(matchKey: string): 'sportmonks' | 'roanuz' | 'unresolvable' {
+  if (/^\d+$/.test(matchKey)) return 'sportmonks'
+  if (matchKey.startsWith('a-rz--')) return 'roanuz'
+  return 'unresolvable'
+}
+
+async function resolveSportMonksResult(matchKey: string) {
+  try {
+    const data = await getSportMonksMatch(matchKey)
+    const match = data?.data
+    if (!match) return null
+
+    const matchStatus: string = match.status || ''
+    const isFinished = matchStatus === 'Finished' || matchStatus === 'Completed'
+    if (!isFinished) return { winner: null, status: matchStatus }
+
+    if (match.draw_noresult) return { winner: null, status: 'no_result' }
+
+    const winnerId: number | null = match.winner_team_id || null
+    const localteam = match.localteam?.data || match.localteam || {}
+    const visitorteam = match.visitorteam?.data || match.visitorteam || {}
+    if (winnerId) {
+      if (winnerId === localteam.id) return { winner: localteam.name || null, status: 'completed' }
+      if (winnerId === visitorteam.id) return { winner: visitorteam.name || null, status: 'completed' }
+    }
+    return { winner: null, status: matchStatus }
+  } catch {
+    return null
+  }
+}
+
+async function resolveRoanuzResult(matchKey: string) {
   try {
     const data = await roanuzGet(`match/${matchKey}/`)
     // Roanuz v5: match data is at data.data (no .match nesting)
@@ -106,7 +143,12 @@ async function updatePredictionResults() {
     let updated = 0
     for (const analysis of pending) {
       try {
-        const result = await resolveMatchResult(analysis.matchKey)
+        const source = keySource(analysis.matchKey)
+        if (source === 'unresolvable') continue
+
+        const result = source === 'sportmonks'
+          ? await resolveSportMonksResult(analysis.matchKey)
+          : await resolveRoanuzResult(analysis.matchKey)
         if (!result) continue
 
         const { winner, status } = result
@@ -157,17 +199,9 @@ async function updatePredictionResults() {
 async function generateNewPredictions() {
   console.log('[Scheduler] Running auto-prediction generation...')
   try {
-    const baseUrl =
-      process.env.NEXT_PUBLIC_BETTER_AUTH_URL ||
-      process.env.BETTER_AUTH_URL ||
-      'http://localhost:3000'
-
-    const res = await fetch(`${baseUrl}/api/predictions/generate`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({}),
-    })
-    const data = await res.json()
+    // Direct call — an HTTP self-call breaks whenever the configured base URL
+    // doesn't match the server's actual host/port (e.g. behind Railway's proxy)
+    const data = await runPredictionGeneration()
     console.log(
       `[Scheduler] Prediction generation done: ${data.generated || 0} new, ${data.skipped || 0} skipped`
     )

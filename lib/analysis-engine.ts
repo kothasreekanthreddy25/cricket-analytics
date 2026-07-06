@@ -804,33 +804,46 @@ function generateReasoning(
   return reasoning
 }
 
-export async function analyzeMatch(matchKey: string): Promise<AnalysisResult> {
+// Optional seed lets callers supply known match facts (e.g. from SportMonks)
+// so the analysis doesn't depend on Roanuz lookups for basics like team names.
+export interface MatchSeed {
+  teamA?: string
+  teamB?: string
+  venueName?: string
+  venueCountry?: string
+  format?: string
+}
+
+export async function analyzeMatch(matchKey: string, seed?: MatchSeed): Promise<AnalysisResult> {
   // Fetch match data from T20 WC fixtures
   let matchData: any = null
   let matchDetails: any = null
 
-  // First try to find match in WC fixtures list
-  try {
-    const allMatches = await fetchAllWCFixtures()
-    matchData = allMatches.find((m: any) => m.key === matchKey)
-  } catch (e) {
-    console.warn('Could not fetch WC fixtures:', e)
+  // Roanuz lookups are only needed when the caller didn't seed team names
+  if (!seed?.teamA || !seed?.teamB) {
+    // First try to find match in WC fixtures list
+    try {
+      const allMatches = await fetchAllWCFixtures()
+      matchData = allMatches.find((m: any) => m.key === matchKey)
+    } catch (e) {
+      console.warn('Could not fetch WC fixtures:', e)
+    }
+
+    // Also try to get detailed match info
+    try {
+      matchDetails = await getMatchDetails(matchKey)
+    } catch (e) {
+      console.warn('Could not fetch match details:', e)
+    }
   }
 
-  // Also try to get detailed match info
-  try {
-    matchDetails = await getMatchDetails(matchKey)
-  } catch (e) {
-    console.warn('Could not fetch match details:', e)
-  }
+  const teamA = seed?.teamA || matchData?.teams?.a?.name || extractTeams(matchDetails)?.teamA || 'Team A'
+  const teamB = seed?.teamB || matchData?.teams?.b?.name || extractTeams(matchDetails)?.teamB || 'Team B'
+  const format = seed?.format?.toUpperCase().startsWith('T20') ? 'T20' : (seed?.format ? seed.format.toUpperCase() : 'T20')
 
-  const teamA = matchData?.teams?.a?.name || extractTeams(matchDetails)?.teamA || 'Team A'
-  const teamB = matchData?.teams?.b?.name || extractTeams(matchDetails)?.teamB || 'Team B'
-  const format = 'T20'
-
-  const venueName = matchData?.venue?.name || matchDetails?.data?.venue?.name || ''
+  const venueName = seed?.venueName || matchData?.venue?.name || matchDetails?.data?.venue?.name || ''
   const venueCity = matchData?.venue?.city || ''
-  const venueCountry = matchData?.venue?.country?.name || matchDetails?.data?.venue?.country?.name || ''
+  const venueCountry = seed?.venueCountry || matchData?.venue?.country?.name || matchDetails?.data?.venue?.country?.name || ''
   const venueConditions = getVenueConditions(venueCountry)
 
   // Extract players from detailed match data
