@@ -85,13 +85,26 @@ export async function GET() {
     // than lopsided domestic fixtures.
     const CARD_COUNT = 8 // 9th grid cell is reserved for the ad
     const INTL_SLOTS = 5
+    // The model's wrong calls rarely clear a 55-60% edge threshold (overconfident
+    // misses are the exception, not the norm) — so filtering by edge alone
+    // silently produces an all-"Correct" wall even though the header stat is
+    // honest. Reserve slots for real losses up front instead of hoping some
+    // survive the edge filter.
+    const LOSS_SLOTS = 2
 
-    const intlSettled = settled
+    const losses = settled
+      .filter(p => !p.isCorrect)
+      .sort((a, b) => b.winPct - a.winPct)
+      .slice(0, LOSS_SLOTS)
+    const chosenLosses = new Set(losses.map(p => p.id))
+
+    const remainingSettled = settled.filter(p => !chosenLosses.has(p.id))
+    const intlSettled = remainingSettled
       .filter(p => p.international && p.winPct >= 55)
       .slice(0, INTL_SLOTS)
     const chosenIntl = new Set(intlSettled.map(p => p.id))
-    const restSettled = settled.filter(p => !chosenIntl.has(p.id) && p.winPct >= 60)
-    const picks = [...intlSettled, ...restSettled].slice(0, CARD_COUNT)
+    const restSettled = remainingSettled.filter(p => !chosenIntl.has(p.id) && p.winPct >= 60)
+    const picks = [...losses, ...intlSettled, ...restSettled].slice(0, CARD_COUNT)
 
     // Top up with high-confidence pending picks (internationals first) if too few
     if (picks.length < CARD_COUNT) {
