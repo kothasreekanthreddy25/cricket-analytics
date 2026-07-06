@@ -1,10 +1,12 @@
 import { getSession } from '@/lib/session'
 import { redirect } from 'next/navigation'
+import { headers } from 'next/headers'
 import Link from 'next/link'
 import { Trophy, Brain, MessageCircle, Bell, TrendingUp, CheckCircle2, ExternalLink, Tag } from 'lucide-react'
 import { prisma } from '@/lib/prisma'
 import LiveMatchWidget from '@/components/LiveMatchWidget'
 import { SignOutButton } from '@/components/SignOutButton'
+import { getBookmakersByCountry, UK_SAFER_GAMBLING } from '@/lib/bookmakers'
 
 export const dynamic = 'force-dynamic'
 
@@ -20,11 +22,14 @@ export default async function ProDashboardPage() {
     select: { matchKey: true, teamA: true, teamB: true, winProbabilityA: true, winProbabilityB: true, confidence: true, createdAt: true },
   })
 
-  const BOOKMAKERS = [
-    { name: 'bet365', color: 'bg-green-700',  href: 'https://www.bet365.com' },
-    { name: '1xBet',  color: 'bg-blue-700',   href: 'https://reffpa.com/L?tag=d_5312130m_1599c_&site=5312130&ad=1599', promo: 'd_5312130m_1599c_1x_5227150' },
-    { name: 'Betway', color: 'bg-purple-700', href: 'https://betway.com' },
-  ]
+  const headersList = await headers()
+  const country =
+    headersList.get('x-country') ||
+    headersList.get('x-vercel-ip-country') ||
+    headersList.get('cf-ipcountry') ||
+    'ZA'
+  const BOOKMAKERS = getBookmakersByCountry(country)
+  const featuredPromo = BOOKMAKERS.find(bk => bk.promo)
 
   return (
     <div className="min-h-screen bg-gray-950 px-4 py-8">
@@ -124,8 +129,8 @@ export default async function ProDashboardPage() {
                       {/* Place Bet buttons */}
                       <div className="flex gap-1.5 flex-shrink-0">
                         {BOOKMAKERS.map(bk => (
-                          <a key={bk.name} href={bk.href} target="_blank" rel="noopener noreferrer nofollow"
-                            className={`${bk.color} hover:opacity-80 text-white text-[10px] font-bold px-2 py-1 rounded-lg transition-opacity flex items-center gap-0.5`}>
+                          <a key={bk.id} href={bk.url} target="_blank" rel="noopener noreferrer nofollow sponsored"
+                            className={`${bk.logoBg} hover:opacity-80 text-[10px] font-bold px-2 py-1 rounded-lg transition-opacity flex items-center gap-0.5`}>
                             {bk.name.slice(0, 3)} <ExternalLink className="w-2 h-2 opacity-70" />
                           </a>
                         ))}
@@ -147,18 +152,24 @@ export default async function ProDashboardPage() {
           )}
         </div>
 
-        {/* 1xBet promo strip */}
-        <div className="flex items-center gap-2 bg-amber-500/10 border border-amber-500/20 rounded-xl px-4 py-2.5 mb-4">
-          <Tag className="w-3.5 h-3.5 text-amber-400 flex-shrink-0" />
-          <div>
-            <p className="text-[9px] text-gray-500 leading-none">1xBet Promo Code</p>
-            <p className="text-xs font-extrabold text-amber-400 tracking-wide">d_5312130m_1599c_1x_5227150</p>
+        {/* Promo strip */}
+        {featuredPromo && (
+          <div className="flex items-center gap-2 bg-amber-500/10 border border-amber-500/20 rounded-xl px-4 py-2.5 mb-4">
+            <Tag className="w-3.5 h-3.5 text-amber-400 flex-shrink-0" />
+            <div>
+              <p className="text-[9px] text-gray-500 leading-none">{featuredPromo.name} Promo Code</p>
+              <p className="text-xs font-extrabold text-amber-400 tracking-wide">{featuredPromo.promo}</p>
+            </div>
+            <a href={featuredPromo.url} target="_blank" rel="noopener noreferrer sponsored"
+              className={`ml-auto ${featuredPromo.logoBg} hover:opacity-90 text-[10px] font-bold px-3 py-1.5 rounded-lg transition-opacity flex items-center gap-1`}>
+              {featuredPromo.name} <ExternalLink className="w-2.5 h-2.5" />
+            </a>
           </div>
-          <a href="https://reffpa.com/L?tag=d_5312130m_1599c_&site=5312130&ad=1599" target="_blank" rel="noopener noreferrer sponsored"
-            className="ml-auto bg-blue-700 hover:bg-blue-600 text-white text-[10px] font-bold px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1">
-            1xBet <ExternalLink className="w-2.5 h-2.5" />
-          </a>
-        </div>
+        )}
+        <p className="text-[10px] text-gray-600 text-center mb-4">
+          18+ · New customers only · T&Cs apply · Gamble responsibly
+          {country === 'GB' && <> · {UK_SAFER_GAMBLING.helplineName} {UK_SAFER_GAMBLING.helplinePhone}</>}
+        </p>
 
         {/* Upgrade to Elite */}
         <div className="bg-gradient-to-r from-yellow-900/20 to-yellow-800/10 border border-yellow-500/20 rounded-2xl p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">

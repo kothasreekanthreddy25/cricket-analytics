@@ -36,14 +36,6 @@ export default function Footer() {
           </div>
           <div className="flex items-center gap-4 flex-shrink-0">
             <a
-              href="https://www.begambleaware.org"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-amber-400 hover:text-amber-300 text-xs font-medium underline underline-offset-2 inline-flex items-center gap-1"
-            >
-              BeGambleAware <ExternalLink className="w-3 h-3" />
-            </a>
-            <a
               href="https://www.gamcare.org.uk"
               target="_blank"
               rel="noopener noreferrer"
@@ -167,8 +159,7 @@ export default function Footer() {
             <h4 className="text-white text-sm font-semibold mb-3">Responsible Gambling</h4>
             <ul className="space-y-2">
               {[
-                { label: 'BeGambleAware', href: 'https://www.begambleaware.org' },
-                { label: 'GamCare', href: 'https://www.gamcare.org.uk' },
+                { label: 'National Gambling Helpline (GamCare)', href: 'https://www.gamcare.org.uk' },
                 { label: 'Gambling Therapy', href: 'https://www.gamblingtherapy.org' },
                 { label: 'GamStop (UK)', href: 'https://www.gamstop.co.uk' },
                 { label: 'National Problem Gambling Helpline', href: 'https://www.ncpgambling.org' },

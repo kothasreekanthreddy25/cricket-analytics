@@ -102,7 +102,10 @@ export default function TermsPage() {
             <strong className="text-white">South Africa:</strong> Contact the <strong className="text-white">National Responsible Gambling Programme</strong> — Helpline: <strong className="text-white">0800 006 008</strong> (free, 24/7) or visit <a href="https://www.responsiblegambling.org.za" target="_blank" rel="noopener noreferrer" className="text-emerald-400 underline hover:text-emerald-300">responsiblegambling.org.za</a>
           </p>
           <p>
-            <strong className="text-white">International:</strong> <a href="https://www.begambleaware.org" target="_blank" rel="noopener noreferrer" className="text-emerald-400 underline hover:text-emerald-300">BeGambleAware.org</a> · <a href="https://www.gamblingtherapy.org" target="_blank" rel="noopener noreferrer" className="text-emerald-400 underline hover:text-emerald-300">GamblingTherapy.org</a>
+            <strong className="text-white">United Kingdom:</strong> Contact the <strong className="text-white">National Gambling Helpline (GamCare)</strong> — Helpline: <strong className="text-white">0808 8020 133</strong> (free, 24/7) or visit <a href="https://www.gamcare.org.uk" target="_blank" rel="noopener noreferrer" className="text-emerald-400 underline hover:text-emerald-300">gamcare.org.uk</a>. To self-exclude from all UK-licensed operators, visit <a href="https://www.gamstop.co.uk" target="_blank" rel="noopener noreferrer" className="text-emerald-400 underline hover:text-emerald-300">GAMSTOP.co.uk</a>
+          </p>
+          <p>
+            <strong className="text-white">International:</strong> <a href="https://www.gamblingtherapy.org" target="_blank" rel="noopener noreferrer" className="text-emerald-400 underline hover:text-emerald-300">GamblingTherapy.org</a>
           </p>
         </Section>
 

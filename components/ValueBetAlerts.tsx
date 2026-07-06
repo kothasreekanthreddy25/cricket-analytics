@@ -3,12 +3,7 @@
 import { useEffect, useState } from 'react'
 import { Zap, Brain, ExternalLink, ChevronRight, TrendingUp, Tag } from 'lucide-react'
 import Link from 'next/link'
-
-const BOOKMAKERS = [
-  { id: 'bet365', name: 'bet365', color: 'bg-green-600',  href: 'https://www.bet365.com' },
-  { id: '1xbet',  name: '1xBet',  color: 'bg-blue-600',   href: 'https://reffpa.com/L?tag=d_5312130m_1599c_&site=5312130&ad=1599', promo: 'd_5312130m_1599c_1x_5227150' },
-  { id: 'betway', name: 'Betway', color: 'bg-purple-600', href: 'https://betway.com' },
-]
+import { getBookmakersByCountry, type Bookmaker } from '@/lib/bookmakers'
 
 interface ValueMatch {
   matchKey: string
@@ -27,6 +22,7 @@ interface ValueMatch {
 export default function ValueBetAlerts() {
   const [matches, setMatches] = useState<ValueMatch[]>([])
   const [loading, setLoading] = useState(true)
+  const [offers, setOffers] = useState<Bookmaker[]>([])
 
   useEffect(() => {
     fetch('/api/odds/featured')
@@ -39,6 +35,11 @@ export default function ValueBetAlerts() {
         setLoading(false)
       })
       .catch(() => setLoading(false))
+
+    fetch('/api/geo')
+      .then(r => r.json())
+      .then(({ country }: { country: string }) => setOffers(getBookmakersByCountry(country)))
+      .catch(() => {})
   }, [])
 
   if (loading) return (
@@ -99,11 +100,11 @@ export default function ValueBetAlerts() {
 
                 {/* Quick bet buttons */}
                 <div className="flex gap-1.5 flex-shrink-0">
-                  {BOOKMAKERS.map(bk => (
-                    <a key={bk.id} href={bk.href} target="_blank" rel="noopener noreferrer nofollow"
-                      title={`Bet at ${bk.name}`}
-                      className={`${bk.color} hover:opacity-80 text-white text-[10px] font-bold px-2 py-1 rounded-lg transition-opacity flex items-center gap-0.5`}>
-                      {bk.name.slice(0, 3)} <ExternalLink className="w-2 h-2 opacity-70" />
+                  {offers.map(o => (
+                    <a key={o.id} href={o.url} target="_blank" rel="noopener noreferrer nofollow sponsored"
+                      title={`Bet at ${o.name}`}
+                      className={`${o.logoBg} hover:opacity-80 text-[10px] font-bold px-2 py-1 rounded-lg transition-opacity flex items-center gap-0.5`}>
+                      {o.name.slice(0, 3)} <ExternalLink className="w-2 h-2 opacity-70" />
                     </a>
                   ))}
                 </div>
@@ -114,11 +115,15 @@ export default function ValueBetAlerts() {
       </div>
 
       <div className="px-5 py-2.5 bg-gray-900/60 flex items-center justify-between gap-2">
-        <div className="flex items-center gap-1">
-          <Tag className="w-2.5 h-2.5 text-amber-400" />
-          <span className="text-[9px] font-bold text-amber-400">1xBet promo: d_5312130m_1599c_1x_5227150</span>
-        </div>
-        <p className="text-[10px] text-gray-600">18+ · T&Cs apply</p>
+        {offers.find(o => o.promo) && (
+          <div className="flex items-center gap-1 min-w-0">
+            <Tag className="w-2.5 h-2.5 text-amber-400 flex-shrink-0" />
+            <span className="text-[9px] font-bold text-amber-400 truncate">
+              {offers.find(o => o.promo)!.name} promo: {offers.find(o => o.promo)!.promo}
+            </span>
+          </div>
+        )}
+        <p className="text-[10px] text-gray-600 ml-auto flex-shrink-0">18+ · T&Cs apply</p>
       </div>
     </div>
   )

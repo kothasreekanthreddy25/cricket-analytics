@@ -176,3 +176,13 @@ export const COUNTRY_LABELS: Record<string, string> = {
   AU: 'Australia',
   GB: 'United Kingdom',
 }
+
+// GambleAware (BeGambleAware.org) wound down operations on 31 March 2026 as part of the
+// UK's move to a statutory levy — GamCare's National Gambling Helpline is the current
+// live signposting resource for Great Britain. Do not reintroduce begambleaware.org links.
+export const UK_SAFER_GAMBLING = {
+  helplineName: 'National Gambling Helpline (GamCare)',
+  helplinePhone: '0808 8020 133',
+  helplineUrl: 'https://www.gamcare.org.uk',
+  selfExcludeUrl: 'https://www.gamstop.co.uk',
+}

@@ -3,15 +3,22 @@
 import { useEffect, useState } from 'react'
 import { Shield, ExternalLink } from 'lucide-react'
 import Link from 'next/link'
+import { UK_SAFER_GAMBLING } from '@/lib/bookmakers'
 
 const STORAGE_KEY = 'ct_age_verified'
 
 export default function AgeGate() {
   const [visible, setVisible] = useState(false)
+  const [country, setCountry] = useState<string | null>(null)
 
   useEffect(() => {
     const verified = localStorage.getItem(STORAGE_KEY)
     if (!verified) setVisible(true)
+
+    fetch('/api/geo')
+      .then(r => r.json())
+      .then(({ country }: { country: string }) => setCountry(country))
+      .catch(() => {})
   }, [])
 
   function confirm() {
@@ -78,14 +85,23 @@ export default function AgeGate() {
 
           {/* Responsible gambling */}
           <div className="mt-4 flex items-center justify-center gap-4">
-            <a href="https://www.responsiblegambling.org.za" target="_blank" rel="noopener noreferrer"
-              className="text-[10px] text-gray-600 hover:text-amber-400 flex items-center gap-1 transition-colors">
-              Responsible Gambling SA <ExternalLink className="w-2.5 h-2.5" />
-            </a>
-            <a href="https://www.begambleaware.org" target="_blank" rel="noopener noreferrer"
-              className="text-[10px] text-gray-600 hover:text-amber-400 flex items-center gap-1 transition-colors">
-              BeGambleAware <ExternalLink className="w-2.5 h-2.5" />
-            </a>
+            {country === 'GB' ? (
+              <>
+                <a href={UK_SAFER_GAMBLING.helplineUrl} target="_blank" rel="noopener noreferrer"
+                  className="text-[10px] text-gray-600 hover:text-amber-400 flex items-center gap-1 transition-colors">
+                  {UK_SAFER_GAMBLING.helplineName} · {UK_SAFER_GAMBLING.helplinePhone} <ExternalLink className="w-2.5 h-2.5" />
+                </a>
+                <a href={UK_SAFER_GAMBLING.selfExcludeUrl} target="_blank" rel="noopener noreferrer"
+                  className="text-[10px] text-gray-600 hover:text-amber-400 flex items-center gap-1 transition-colors">
+                  GAMSTOP <ExternalLink className="w-2.5 h-2.5" />
+                </a>
+              </>
+            ) : (
+              <a href="https://www.responsiblegambling.org.za" target="_blank" rel="noopener noreferrer"
+                className="text-[10px] text-gray-600 hover:text-amber-400 flex items-center gap-1 transition-colors">
+                Responsible Gambling SA <ExternalLink className="w-2.5 h-2.5" />
+              </a>
+            )}
           </div>
         </div>
       </div>

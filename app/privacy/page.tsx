@@ -75,7 +75,7 @@ export default function PrivacyPage() {
 
         <Section title="4. Affiliate Links & Third Parties">
           <p>
-            CricketTips.ai displays affiliate links to licensed betting operators including <strong className="text-white">1xBet</strong>, <strong className="text-white">Mostbet</strong>, and <strong className="text-white">Melbet</strong>. When you click these links:
+            CricketTips.ai displays affiliate links to betting operators licensed in your region — for example <strong className="text-white">Bet365</strong>, <strong className="text-white">William Hill</strong>, and <strong className="text-white">Paddy Power</strong> for UK visitors (all licensed and regulated by the UK Gambling Commission), or <strong className="text-white">1xBet</strong>, <strong className="text-white">Mostbet</strong>, and <strong className="text-white">Melbet</strong> for other regions. The operators shown are determined automatically by your location. When you click these links:
           </p>
           <ul className="list-disc list-inside space-y-2 mt-2 text-gray-500">
             <li>You are redirected to the third-party operator's website</li>

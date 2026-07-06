@@ -2,17 +2,34 @@
 
 import { useEffect, useState } from 'react'
 import { ExternalLink, Trophy, Shield, Tag } from 'lucide-react'
-import { getBookmakersByCountry, type Bookmaker } from '@/lib/bookmakers'
+import { getBookmakersByCountry, UK_SAFER_GAMBLING, type Bookmaker } from '@/lib/bookmakers'
 
 export default function AffiliateBanner() {
-  const [offers, setOffers] = useState<Bookmaker[]>(() => getBookmakersByCountry('ZA'))
+  // Empty until geo resolves — never default to a specific region's operators,
+  // since some (e.g. 1xBet) aren't licensed in every jurisdiction (GB in particular).
+  const [offers, setOffers] = useState<Bookmaker[]>([])
+  const [country, setCountry] = useState<string | null>(null)
 
   useEffect(() => {
     fetch('/api/geo')
       .then(r => r.json())
-      .then(({ country }: { country: string }) => setOffers(getBookmakersByCountry(country)))
+      .then(({ country }: { country: string }) => {
+        setCountry(country)
+        setOffers(getBookmakersByCountry(country))
+      })
       .catch(() => {})
   }, [])
+
+  if (offers.length === 0) {
+    return (
+      <div className="rounded-2xl bg-gray-900 border border-gray-800 overflow-hidden my-8 animate-pulse">
+        <div className="h-10 border-b border-gray-800" />
+        <div className="grid grid-cols-1 sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x divide-gray-800">
+          {[1, 2, 3].map(i => <div key={i} className="h-52 bg-gray-800/30" />)}
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="rounded-2xl bg-gray-900 border border-gray-800 overflow-hidden my-8">
@@ -20,7 +37,7 @@ export default function AffiliateBanner() {
       <div className="flex items-center gap-2 px-4 py-3 border-b border-gray-800 bg-gray-900/80">
         <Shield className="w-3.5 h-3.5 text-emerald-400" />
         <span className="text-[10px] font-bold uppercase tracking-widest text-gray-500">
-          Recommended Bookmakers
+          {country === 'GB' ? '🇬🇧 UKGC-Licensed Bookmakers' : 'Recommended Bookmakers'}
         </span>
         <span className="ml-auto text-[9px] text-gray-600">Ad · 18+ · Gamble Responsibly</span>
       </div>
@@ -70,6 +87,9 @@ export default function AffiliateBanner() {
             >
               Claim Bonus <ExternalLink className="w-3 h-3" />
             </a>
+            <p className="text-[9px] text-gray-600 text-center mt-2">
+              18+ · New customers only · T&Cs apply
+            </p>
           </div>
         ))}
       </div>
@@ -78,6 +98,9 @@ export default function AffiliateBanner() {
       <div className="px-4 py-2 border-t border-gray-800 bg-gray-900/50">
         <p className="text-[9px] text-gray-600 text-center">
           These are paid partnerships. Betting involves risk — never bet more than you can afford to lose. T&Cs apply.
+          {country === 'GB' && (
+            <> {UK_SAFER_GAMBLING.helplineName}: <strong>{UK_SAFER_GAMBLING.helplinePhone}</strong> · Self-exclude at GAMSTOP.co.uk</>
+          )}
         </p>
       </div>
     </div>

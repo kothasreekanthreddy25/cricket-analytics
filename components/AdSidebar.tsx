@@ -1,6 +1,6 @@
 import { ExternalLink, Star, Zap, Shield, Trophy, Tag } from 'lucide-react'
 import { headers } from 'next/headers'
-import { getBookmakersByCountry, type Bookmaker } from '@/lib/bookmakers'
+import { getBookmakersByCountry, UK_SAFER_GAMBLING, type Bookmaker } from '@/lib/bookmakers'
 
 function StarRating({ rating }: { rating: number }) {
   return (
@@ -97,6 +97,12 @@ export default async function AdSidebar() {
         </span>
       </div>
 
+      {country === 'GB' && (
+        <p className="px-1 text-[10px] text-emerald-400 font-semibold">
+          🇬🇧 Licensed and regulated by the UK Gambling Commission
+        </p>
+      )}
+
       {bookmakers.map((bk) => (
         <AffiliateCard key={bk.id} site={bk} />
       ))}
@@ -108,6 +114,9 @@ export default async function AdSidebar() {
             <p className="text-[10px] font-semibold text-gray-400 mb-1">Bet Responsibly</p>
             <p className="text-[9px] text-gray-600 leading-relaxed">
               These are paid partnerships. Betting involves risk. Never bet more than you can afford to lose.
+              {country === 'GB' && (
+                <> {UK_SAFER_GAMBLING.helplineName}: {UK_SAFER_GAMBLING.helplinePhone} · Self-exclude at GAMSTOP.co.uk</>
+              )}
             </p>
           </div>
         </div>

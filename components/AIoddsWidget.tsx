@@ -3,47 +3,7 @@
 import { useEffect, useState } from 'react'
 import { Brain, TrendingUp, ExternalLink, Star, ChevronRight, Tag } from 'lucide-react'
 import Link from 'next/link'
-
-// ── Bookmaker config – replace href with your actual affiliate tracking links ──
-const BOOKMAKERS = [
-  {
-    id: 'bet365',
-    name: 'bet365',
-    logo: '365',
-    color: 'bg-green-600',
-    href: 'https://www.bet365.com',
-    bonus: '100% up to ₹8,000',
-    featured: true,
-  },
-  {
-    id: '1xbet',
-    name: '1xBet',
-    logo: '1X',
-    color: 'bg-blue-600',
-    href: 'https://reffpa.com/L?tag=d_5312130m_1599c_&site=5312130&ad=1599',
-    bonus: '₹26,000 Welcome Bonus',
-    promo: 'd_5312130m_1599c_1x_5227150',
-    featured: true,
-  },
-  {
-    id: 'betway',
-    name: 'Betway',
-    logo: 'BW',
-    color: 'bg-purple-600',
-    href: 'https://betway.com',
-    bonus: '₹2,500 Free Bet',
-    featured: false,
-  },
-  {
-    id: 'dafabet',
-    name: 'Dafabet',
-    logo: 'DA',
-    color: 'bg-orange-600',
-    href: 'https://dafabet.com',
-    bonus: '160% up to ₹16,000',
-    featured: false,
-  },
-]
+import { getBookmakersByCountry, type Bookmaker } from '@/lib/bookmakers'
 
 interface Match {
   matchKey: string
@@ -68,12 +28,22 @@ const CONFIDENCE_COLOR: Record<string, string> = {
 export default function AIoddsWidget() {
   const [matches, setMatches] = useState<Match[]>([])
   const [loading, setLoading] = useState(true)
+  const [offers, setOffers] = useState<Bookmaker[]>([])
+  const [country, setCountry] = useState<string | null>(null)
 
   useEffect(() => {
     fetch('/api/odds/featured')
       .then(r => r.json())
       .then(d => { setMatches(d.matches || []); setLoading(false) })
       .catch(() => setLoading(false))
+
+    fetch('/api/geo')
+      .then(r => r.json())
+      .then(({ country }: { country: string }) => {
+        setCountry(country)
+        setOffers(getBookmakersByCountry(country))
+      })
+      .catch(() => {})
   }, [])
 
   if (loading) return (
@@ -145,15 +115,15 @@ export default function AIoddsWidget() {
               <div className="w-px h-6 bg-gray-700 mx-1" />
 
               {/* Bookmaker buttons */}
-              {BOOKMAKERS.map(bk => (
+              {offers.map(o => (
                 <a
-                  key={bk.id}
-                  href={bk.href}
+                  key={o.id}
+                  href={o.url}
                   target="_blank"
-                  rel="noopener noreferrer nofollow"
-                  className={`flex items-center gap-1.5 ${bk.color} hover:opacity-90 text-white rounded-lg px-2.5 py-1.5 text-[11px] font-bold transition-opacity`}
+                  rel="noopener noreferrer nofollow sponsored"
+                  className={`flex items-center gap-1.5 ${o.logoBg} hover:opacity-90 rounded-lg px-2.5 py-1.5 text-[11px] font-bold transition-opacity`}
                 >
-                  <span>{bk.name}</span>
+                  <span>{o.name}</span>
                   <ExternalLink className="w-2.5 h-2.5 opacity-70" />
                 </a>
               ))}
@@ -163,40 +133,50 @@ export default function AIoddsWidget() {
       ))}
 
       {/* Bookmaker bonus strip */}
-      <div className="bg-gray-900/60 border border-gray-800 rounded-2xl p-4">
-        <div className="flex items-center gap-2 mb-3">
-          <Star className="w-4 h-4 text-yellow-400" />
-          <span className="text-sm font-bold text-white">New to betting? Claim your welcome bonus</span>
-          <span className="text-[10px] bg-amber-500 text-black font-bold px-1.5 py-0.5 rounded ml-auto">18+</span>
+      {offers.length > 0 && (
+        <div className="bg-gray-900/60 border border-gray-800 rounded-2xl p-4">
+          <div className="flex items-center gap-2 mb-3">
+            <Star className="w-4 h-4 text-yellow-400" />
+            <span className="text-sm font-bold text-white">New to betting? Claim your welcome bonus</span>
+            <span className="text-[10px] bg-amber-500 text-black font-bold px-1.5 py-0.5 rounded ml-auto">18+</span>
+          </div>
+          {country === 'GB' && (
+            <p className="text-[10px] text-emerald-400 font-semibold mb-2.5">
+              🇬🇧 Licensed and regulated by the UK Gambling Commission
+            </p>
+          )}
+          <div className="grid grid-cols-2 gap-2">
+            {offers.map(o => (
+              <a
+                key={o.id}
+                href={o.url}
+                target="_blank"
+                rel="noopener noreferrer nofollow sponsored"
+                className="flex items-center gap-2.5 bg-gray-800 hover:bg-gray-750 border border-gray-700 hover:border-gray-600 rounded-xl px-3 py-2.5 transition-colors group"
+              >
+                <div className={`w-8 h-8 rounded-lg ${o.logoBg} flex items-center justify-center text-[10px] font-extrabold flex-shrink-0`}>
+                  {o.logo}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-white text-xs font-bold">{o.name}</p>
+                  <p className="text-gray-400 text-[10px] truncate">{o.bonus}</p>
+                  {o.promo && (
+                    <div className="flex items-center gap-1 mt-0.5">
+                      <Tag className="w-2.5 h-2.5 text-amber-400 flex-shrink-0" />
+                      <p className="text-[9px] font-bold text-amber-400 truncate">{o.promo}</p>
+                    </div>
+                  )}
+                </div>
+                <ChevronRight className="w-3.5 h-3.5 text-gray-600 group-hover:text-gray-400 flex-shrink-0" />
+              </a>
+            ))}
+          </div>
+          <p className="text-[10px] text-gray-600 mt-3 text-center">
+            18+ · New customers only · T&Cs apply · Gamble responsibly
+            {country === 'GB' && <> · National Gambling Helpline (GamCare) <strong className="text-gray-500">0808 8020 133</strong></>}
+          </p>
         </div>
-        <div className="grid grid-cols-2 gap-2">
-          {BOOKMAKERS.map(bk => (
-            <a
-              key={bk.id}
-              href={bk.href}
-              target="_blank"
-              rel="noopener noreferrer nofollow"
-              className="flex items-center gap-2.5 bg-gray-800 hover:bg-gray-750 border border-gray-700 hover:border-gray-600 rounded-xl px-3 py-2.5 transition-colors group"
-            >
-              <div className={`w-8 h-8 rounded-lg ${bk.color} flex items-center justify-center text-white text-[10px] font-extrabold flex-shrink-0`}>
-                {bk.logo}
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-white text-xs font-bold">{bk.name}</p>
-                <p className="text-gray-400 text-[10px] truncate">{bk.bonus}</p>
-                {(bk as any).promo && (
-                  <div className="flex items-center gap-1 mt-0.5">
-                    <Tag className="w-2.5 h-2.5 text-amber-400 flex-shrink-0" />
-                    <p className="text-[9px] font-bold text-amber-400 truncate">{(bk as any).promo}</p>
-                  </div>
-                )}
-              </div>
-              <ChevronRight className="w-3.5 h-3.5 text-gray-600 group-hover:text-gray-400 flex-shrink-0" />
-            </a>
-          ))}
-        </div>
-        <p className="text-[10px] text-gray-600 mt-3 text-center">T&Cs apply. Gamble responsibly. BeGambleAware.org</p>
-      </div>
+      )}
 
       <div className="text-center">
         <Link href="/odds" className="text-xs text-emerald-400 hover:text-emerald-300 flex items-center justify-center gap-1">

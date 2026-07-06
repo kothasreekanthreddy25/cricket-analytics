@@ -1,10 +1,12 @@
 import { getSession } from '@/lib/session'
 import { redirect } from 'next/navigation'
+import { headers } from 'next/headers'
 import Link from 'next/link'
 import { Sparkles, Brain, MessageCircle, Crown, Phone, TrendingUp, BookOpen, ExternalLink, Tag } from 'lucide-react'
 import { prisma } from '@/lib/prisma'
 import LiveMatchWidget from '@/components/LiveMatchWidget'
 import { SignOutButton } from '@/components/SignOutButton'
+import { getBookmakersByCountry, UK_SAFER_GAMBLING } from '@/lib/bookmakers'
 
 export const dynamic = 'force-dynamic'
 
@@ -23,12 +25,14 @@ export default async function EliteDashboardPage() {
     p.confidence === 'HIGH' || p.confidence === 'VERY_HIGH'
   )
 
-  const BOOKMAKERS = [
-    { name: 'bet365', color: 'bg-green-700',  href: 'https://www.bet365.com' },
-    { name: '1xBet',  color: 'bg-blue-700',   href: 'https://reffpa.com/L?tag=d_5312130m_1599c_&site=5312130&ad=1599', promo: 'd_5312130m_1599c_1x_5227150' },
-    { name: 'Betway', color: 'bg-purple-700', href: 'https://betway.com' },
-    { name: 'Dafabet',color: 'bg-orange-700', href: 'https://dafabet.com' },
-  ]
+  const headersList = await headers()
+  const country =
+    headersList.get('x-country') ||
+    headersList.get('x-vercel-ip-country') ||
+    headersList.get('cf-ipcountry') ||
+    'ZA'
+  const BOOKMAKERS = getBookmakersByCountry(country)
+  const featuredPromo = BOOKMAKERS.find(bk => bk.promo)
 
   return (
     <div className="min-h-screen bg-gray-950 px-4 py-8">
@@ -128,8 +132,8 @@ export default async function EliteDashboardPage() {
                       </div>
                       <div className="flex gap-1.5 flex-shrink-0">
                         {BOOKMAKERS.map(bk => (
-                          <a key={bk.name} href={bk.href} target="_blank" rel="noopener noreferrer nofollow"
-                            className={`${bk.color} hover:opacity-80 text-white text-[10px] font-bold px-2 py-1 rounded-lg transition-opacity flex items-center gap-0.5`}>
+                          <a key={bk.id} href={bk.url} target="_blank" rel="noopener noreferrer nofollow sponsored"
+                            className={`${bk.logoBg} hover:opacity-80 text-[10px] font-bold px-2 py-1 rounded-lg transition-opacity flex items-center gap-0.5`}>
                             {bk.name.slice(0, 3)} <ExternalLink className="w-2 h-2 opacity-70" />
                           </a>
                         ))}
@@ -180,8 +184,8 @@ export default async function EliteDashboardPage() {
                       </div>
                       <div className="flex gap-1.5 flex-shrink-0">
                         {BOOKMAKERS.map(bk => (
-                          <a key={bk.name} href={bk.href} target="_blank" rel="noopener noreferrer nofollow"
-                            className={`${bk.color} hover:opacity-80 text-white text-[10px] font-bold px-2 py-1 rounded-lg transition-opacity flex items-center gap-0.5`}>
+                          <a key={bk.id} href={bk.url} target="_blank" rel="noopener noreferrer nofollow sponsored"
+                            className={`${bk.logoBg} hover:opacity-80 text-[10px] font-bold px-2 py-1 rounded-lg transition-opacity flex items-center gap-0.5`}>
                             {bk.name.slice(0, 3)} <ExternalLink className="w-2 h-2 opacity-70" />
                           </a>
                         ))}
@@ -203,18 +207,24 @@ export default async function EliteDashboardPage() {
           )}
         </div>
 
-        {/* 1xBet promo strip */}
-        <div className="flex items-center gap-2 bg-amber-500/10 border border-amber-500/20 rounded-xl px-4 py-2.5 mt-4">
-          <Tag className="w-3.5 h-3.5 text-amber-400 flex-shrink-0" />
-          <div>
-            <p className="text-[9px] text-gray-500 leading-none">1xBet Promo Code</p>
-            <p className="text-xs font-extrabold text-amber-400 tracking-wide">d_5312130m_1599c_1x_5227150</p>
+        {/* Promo strip */}
+        {featuredPromo && (
+          <div className="flex items-center gap-2 bg-amber-500/10 border border-amber-500/20 rounded-xl px-4 py-2.5 mt-4">
+            <Tag className="w-3.5 h-3.5 text-amber-400 flex-shrink-0" />
+            <div>
+              <p className="text-[9px] text-gray-500 leading-none">{featuredPromo.name} Promo Code</p>
+              <p className="text-xs font-extrabold text-amber-400 tracking-wide">{featuredPromo.promo}</p>
+            </div>
+            <a href={featuredPromo.url} target="_blank" rel="noopener noreferrer sponsored"
+              className={`ml-auto ${featuredPromo.logoBg} hover:opacity-90 text-[10px] font-bold px-3 py-1.5 rounded-lg transition-opacity flex items-center gap-1`}>
+              {featuredPromo.name} <ExternalLink className="w-2.5 h-2.5" />
+            </a>
           </div>
-          <a href="https://reffpa.com/L?tag=d_5312130m_1599c_&site=5312130&ad=1599" target="_blank" rel="noopener noreferrer sponsored"
-            className="ml-auto bg-blue-700 hover:bg-blue-600 text-white text-[10px] font-bold px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1">
-            1xBet <ExternalLink className="w-2.5 h-2.5" />
-          </a>
-        </div>
+        )}
+        <p className="text-[10px] text-gray-600 mt-3 text-center">
+          18+ · New customers only · T&Cs apply · Gamble responsibly
+          {country === 'GB' && <> · {UK_SAFER_GAMBLING.helplineName} {UK_SAFER_GAMBLING.helplinePhone}</>}
+        </p>
 
       </div>
     </div>

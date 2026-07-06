@@ -3,16 +3,7 @@
 import { useEffect, useState } from 'react'
 import { Brain, TrendingUp, ExternalLink, Star, Zap, ChevronRight, AlertTriangle, CheckCircle2, Info, Tag } from 'lucide-react'
 import Link from 'next/link'
-
-// ── Bookmakers – replace href with your real affiliate tracking URLs ──
-const BOOKMAKERS = [
-  { id: 'bet365',     name: 'bet365',     logo: '365', color: 'bg-green-700',  href: 'https://www.bet365.com',      bonus: '100% up to ₹8,000',    rating: 4.8 },
-  { id: '1xbet',      name: '1xBet',      logo: '1X',  color: 'bg-blue-700',   href: 'https://reffpa.com/L?tag=d_5312130m_1599c_&site=5312130&ad=1599',           bonus: '₹26,000 Welcome Bonus', rating: 4.5, promo: 'd_5312130m_1599c_1x_5227150' },
-  { id: 'betway',     name: 'Betway',     logo: 'BW',  color: 'bg-purple-700', href: 'https://betway.com',          bonus: '₹2,500 Free Bet',       rating: 4.4 },
-  { id: 'dafabet',    name: 'Dafabet',    logo: 'DA',  color: 'bg-orange-700', href: 'https://dafabet.com',         bonus: '160% up to ₹16,000',    rating: 4.3 },
-  { id: 'parimatch',  name: 'Parimatch',  logo: 'PM',  color: 'bg-yellow-700', href: 'https://parimatch.com',       bonus: '₹6,000 First Bet',      rating: 4.2 },
-  { id: 'mostbet',    name: 'Mostbet',    logo: 'MB',  color: 'bg-cyan-700',   href: 'https://xtsplkmost.com/QIjU',         bonus: '125% up to ₹25,000',    rating: 4.1 },
-]
+import { getBookmakersByCountry, UK_SAFER_GAMBLING, type Bookmaker } from '@/lib/bookmakers'
 
 interface MatchOdds {
   matchKey: string
@@ -47,12 +38,22 @@ export default function OddsPage() {
   const [matches, setMatches] = useState<MatchOdds[]>([])
   const [loading, setLoading] = useState(true)
   const [activeTab, setActiveTab] = useState<'all' | 'value' | 'strong'>('all')
+  const [offers, setOffers] = useState<Bookmaker[]>([])
+  const [country, setCountry] = useState<string | null>(null)
 
   useEffect(() => {
     fetch('/api/odds/featured')
       .then(r => r.json())
       .then(d => { setMatches(d.matches || []); setLoading(false) })
       .catch(() => setLoading(false))
+
+    fetch('/api/geo')
+      .then(r => r.json())
+      .then(({ country }: { country: string }) => {
+        setCountry(country)
+        setOffers(getBookmakersByCountry(country))
+      })
+      .catch(() => {})
   }, [])
 
   const filtered = matches.filter(m => {
@@ -168,17 +169,19 @@ export default function OddsPage() {
                 </div>
 
                 {/* Bookmaker buttons */}
-                <div className="border-t border-white/5 px-5 py-3">
-                  <p className="text-[11px] text-gray-500 uppercase tracking-wider font-medium mb-2.5">Bet Now at</p>
-                  <div className="flex flex-wrap gap-2">
-                    {BOOKMAKERS.map(bk => (
-                      <a key={bk.id} href={bk.href} target="_blank" rel="noopener noreferrer nofollow"
-                        className={`flex items-center gap-1.5 ${bk.color} hover:opacity-80 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition-opacity`}>
-                        {bk.name} <ExternalLink className="w-2.5 h-2.5 opacity-70" />
-                      </a>
-                    ))}
+                {offers.length > 0 && (
+                  <div className="border-t border-white/5 px-5 py-3">
+                    <p className="text-[11px] text-gray-500 uppercase tracking-wider font-medium mb-2.5">Bet Now at</p>
+                    <div className="flex flex-wrap gap-2">
+                      {offers.map(o => (
+                        <a key={o.id} href={o.url} target="_blank" rel="noopener noreferrer nofollow sponsored"
+                          className={`flex items-center gap-1.5 ${o.logoBg} hover:opacity-80 px-3 py-1.5 rounded-lg text-xs font-bold transition-opacity`}>
+                          {o.name} <ExternalLink className="w-2.5 h-2.5 opacity-70" />
+                        </a>
+                      ))}
+                    </div>
                   </div>
-                </div>
+                )}
               </div>
             )
           })}
@@ -215,27 +218,31 @@ export default function OddsPage() {
           <div className="bg-gray-900 border border-gray-800 rounded-2xl p-5">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-sm font-bold text-white flex items-center gap-2">
-                <Star className="w-4 h-4 text-yellow-400" /> Top Bookmakers
+                <Star className="w-4 h-4 text-yellow-400" /> {country === 'GB' ? 'UKGC-Licensed Bookmakers' : 'Top Bookmakers'}
               </h3>
               <span className="text-[10px] bg-amber-500 text-black font-bold px-1.5 py-0.5 rounded">18+</span>
             </div>
+            {country === 'GB' && (
+              <p className="text-[10px] text-emerald-400 font-semibold mb-3">
+                🇬🇧 Licensed and regulated by the UK Gambling Commission
+              </p>
+            )}
             <div className="space-y-2.5">
-              {BOOKMAKERS.map(bk => (
-                <a key={bk.id} href={bk.href} target="_blank" rel="noopener noreferrer nofollow"
+              {offers.map(o => (
+                <a key={o.id} href={o.url} target="_blank" rel="noopener noreferrer nofollow sponsored"
                   className="flex items-center gap-3 bg-gray-800 hover:bg-gray-750 border border-gray-700 hover:border-gray-600 rounded-xl px-3 py-2.5 transition-colors group">
-                  <div className={`w-9 h-9 rounded-lg ${bk.color} flex items-center justify-center text-white text-[10px] font-extrabold flex-shrink-0`}>
-                    {bk.logo}
+                  <div className={`w-9 h-9 rounded-lg ${o.logoBg} flex items-center justify-center text-[10px] font-extrabold flex-shrink-0`}>
+                    {o.logo}
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-1.5">
-                      <p className="text-white text-xs font-bold">{bk.name}</p>
-                      <span className="text-[10px] text-yellow-400">★ {bk.rating}</span>
+                      <p className="text-white text-xs font-bold">{o.name}</p>
                     </div>
-                    <p className="text-gray-400 text-[10px] truncate">{bk.bonus}</p>
-                    {(bk as any).promo && (
+                    <p className="text-gray-400 text-[10px] truncate">{o.bonus}</p>
+                    {o.promo && (
                       <div className="flex items-center gap-1 mt-0.5">
                         <Tag className="w-2.5 h-2.5 text-amber-400 flex-shrink-0" />
-                        <p className="text-[9px] font-bold text-amber-400 truncate">{(bk as any).promo}</p>
+                        <p className="text-[9px] font-bold text-amber-400 truncate">{o.promo}</p>
                       </div>
                     )}
                   </div>
@@ -243,7 +250,10 @@ export default function OddsPage() {
                 </a>
               ))}
             </div>
-            <p className="text-[10px] text-gray-600 mt-3 text-center">T&Cs apply. Gamble responsibly.</p>
+            <p className="text-[10px] text-gray-600 mt-3 text-center">
+              18+ · New customers only · T&Cs apply · Gamble responsibly
+              {country === 'GB' && <> · {UK_SAFER_GAMBLING.helplineName} {UK_SAFER_GAMBLING.helplinePhone}</>}
+            </p>
           </div>
         </div>
       </div>
