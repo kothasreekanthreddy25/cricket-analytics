@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { Mic2, ArrowRight, MapPin, Trophy, Brain } from 'lucide-react'
+import { Mic2, ArrowRight, MapPin, Trophy, Brain, Calendar } from 'lucide-react'
 
 interface TeaserMatch {
   matchKey: string
@@ -11,8 +11,19 @@ interface TeaserMatch {
   tournament: string
   format: string
   venue?: string
+  round: string | null
+  dateTimeGMT: string
   probA: number
   probB: number
+}
+
+function formatMatchDateTime(dateTimeGMT: string): string | null {
+  if (!dateTimeGMT) return null
+  const d = new Date(dateTimeGMT)
+  if (isNaN(d.getTime())) return null
+  const datePart = d.toLocaleDateString('en-US', { day: 'numeric', month: 'short' })
+  const timePart = d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', timeZoneName: 'short' })
+  return `${datePart} · ${timePart}`
 }
 
 export default function MatchPreviewTeaser() {
@@ -63,10 +74,17 @@ export default function MatchPreviewTeaser() {
               className="group bg-gray-900 border border-gray-800 hover:border-purple-500/40 rounded-2xl p-4 transition-all hover:bg-gray-800/60"
             >
               {/* Tournament badge */}
-              <div className="flex items-center gap-1.5 mb-3">
+              <div className="flex items-center gap-1.5 mb-1.5">
                 <Trophy className="w-3 h-3 text-amber-400" />
-                <span className="text-[10px] font-bold text-amber-400 uppercase tracking-wider truncate">{m.tournament}</span>
+                <span className="text-[10px] font-bold text-amber-400 uppercase tracking-wider truncate">{m.round || m.tournament}</span>
                 <span className="ml-auto text-[10px] text-gray-600 bg-gray-800 px-1.5 py-0.5 rounded">{m.format}</span>
+              </div>
+
+              {/* Date + time */}
+              <div className="flex items-center gap-1 mb-3 text-[10px] text-gray-500 h-3.5">
+                {formatMatchDateTime(m.dateTimeGMT) && (
+                  <><Calendar className="w-2.5 h-2.5" />{formatMatchDateTime(m.dateTimeGMT)}</>
+                )}
               </div>
 
               {/* Teams */}

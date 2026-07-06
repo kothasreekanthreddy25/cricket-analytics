@@ -45,6 +45,9 @@ export interface SportMonksMatch {
   dateTimeGMT: string
   tournament: string
   tournamentKey: string
+  // e.g. "3rd T20I", "1st ODI", "Final" — SportMonks' round field, null for
+  // leagues that don't expose it (some domestic T20s)
+  round: string | null
 }
 
 function formatScore(innings: any): string | null {
@@ -105,6 +108,7 @@ export function normalizeSportMonksMatch(m: any): SportMonksMatch | null {
     dateTimeGMT: startAt || '',
     tournament: league.name || season.name || '',
     tournamentKey: String(league.id || season.id || ''),
+    round: m.round || null,
   }
 }
 

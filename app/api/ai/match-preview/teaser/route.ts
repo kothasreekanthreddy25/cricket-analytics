@@ -10,7 +10,7 @@ const norm = (p: number) => p > 1 ? p / 100 : p
 
 export async function GET() {
   try {
-    let slots: { teamA: string; teamB: string; matchKey: string; tournament: string; venue: string; format: string }[] = []
+    let slots: { teamA: string; teamB: string; matchKey: string; tournament: string; venue: string; format: string; round: string | null; dateTimeGMT: string }[] = []
 
     // Try SportMonks first
     try {
@@ -19,7 +19,7 @@ export async function GET() {
       const upcoming = raw
         .filter((m: any) => m.status === 'upcoming' && !isDummy(m.teamA) && !isDummy(m.teamB))
         .slice(0, 6)
-        .map((m: any) => ({ teamA: m.teamA, teamB: m.teamB, matchKey: m.key, tournament: m.tournament || 'Cricket', venue: m.venue || '', format: m.matchType || 'T20' }))
+        .map((m: any) => ({ teamA: m.teamA, teamB: m.teamB, matchKey: m.key, tournament: m.tournament || 'Cricket', venue: m.venue || '', format: m.matchType || 'T20', round: m.round, dateTimeGMT: m.dateTimeGMT || '' }))
       if (upcoming.length > 0) slots = upcoming
     } catch {}
 
@@ -28,7 +28,7 @@ export async function GET() {
       const records = await prisma.matchAnalysis.findMany({
         orderBy: { createdAt: 'desc' },
         take: 80,
-        select: { matchKey: true, teamA: true, teamB: true, conditions: true },
+        select: { matchKey: true, teamA: true, teamB: true, conditions: true, rawData: true },
       })
       const seenKeys = new Set<string>()
       const seenT = new Set<string>()
@@ -37,11 +37,12 @@ export async function GET() {
         if (seenKeys.has(r.matchKey)) continue
         seenKeys.add(r.matchKey)
         const cond = (r.conditions as any) || {}
-        const t: string = cond.tournament || ''
+        const raw = (r.rawData as any) || {}
+        const t: string = raw.group || ''
         if (t.toLowerCase().includes('maharaja') || t.toLowerCase().includes('domestic')) continue
         if (seenT.has(t)) continue
         seenT.add(t)
-        slots.push({ teamA: r.teamA, teamB: r.teamB, matchKey: r.matchKey, tournament: t, venue: cond.venue || '', format: cond.format || 'T20' })
+        slots.push({ teamA: r.teamA, teamB: r.teamB, matchKey: r.matchKey, tournament: t, venue: cond.venue || raw.venue || '', format: 'T20', round: null, dateTimeGMT: raw.date || '' })
         if (slots.length >= 6) break
       }
     }
