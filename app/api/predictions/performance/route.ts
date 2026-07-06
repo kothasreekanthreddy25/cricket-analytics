@@ -177,10 +177,18 @@ export async function GET() {
         status = 'pending'
       }
 
+      // rawData.date is a Unix epoch (seconds) for legacy Roanuz-sourced
+      // predictions, but an ISO string for SportMonks-sourced ones — parse
+      // whichever shape is present rather than assuming the epoch format.
       const rawDateTs = rawData.date
-      const matchDate = rawDateTs
-        ? new Date(rawDateTs * 1000).toISOString()
-        : null
+      let matchDate: string | null = null
+      if (typeof rawDateTs === 'number') {
+        const d = new Date(rawDateTs * 1000)
+        if (!isNaN(d.getTime())) matchDate = d.toISOString()
+      } else if (typeof rawDateTs === 'string' && rawDateTs) {
+        const d = new Date(rawDateTs)
+        if (!isNaN(d.getTime())) matchDate = d.toISOString()
+      }
 
       records.push({
         id: analysis.id,
