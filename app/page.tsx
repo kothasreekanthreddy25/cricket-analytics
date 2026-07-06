@@ -47,6 +47,7 @@ import LatestNews from '@/components/LatestNews'
 import TopPredictionsCarousel from '@/components/TopPredictionsCarousel'
 import UpcomingFeaturedCarousel from '@/components/UpcomingFeaturedCarousel'
 import RecentWinningPredictions from '@/components/RecentWinningPredictions'
+import HeroTrustStrip from '@/components/HeroTrustStrip'
 import LiveScoreCard from '@/components/LiveScoreCard'
 import AIMatchMoodPredictor from '@/components/AIMatchMoodPredictor'
 import MatchPreviewTeaser from '@/components/MatchPreviewTeaser'
@@ -92,7 +93,7 @@ export default function Home() {
             </div>
 
             <h1 className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-white leading-tight">
-              Cricket Analysis{' '}
+              Cricket Predictions{' '}
               <br className="hidden sm:block" />
               Powered by{' '}
               <span className="bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent">
@@ -102,8 +103,8 @@ export default function Home() {
 
             <p className="text-base md:text-lg text-gray-400 max-w-xl mt-4">
               Real-time scores, TensorFlow.js match analysis, and data-driven
-              insights for every cricket match worldwide. For informational
-              purposes only — please gamble responsibly.
+              insights for every match — from the T20 World Cup 2026 to domestic
+              leagues. For informational purposes only — please gamble responsibly.
             </p>
 
             <div className="flex flex-wrap gap-3 mt-6">
@@ -122,6 +123,8 @@ export default function Home() {
                 Live Matches
               </Link>
             </div>
+
+            <HeroTrustStrip />
 
           </div>
 
