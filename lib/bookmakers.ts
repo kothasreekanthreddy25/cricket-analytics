@@ -5,8 +5,11 @@ export type Bookmaker = {
   logoBg: string
   badge: string
   badgeCls: string
-  bonus: string
-  detail: string
+  // bonus/detail are omitted for AU operators: NSW prohibits publishing sign-up
+  // inducements (bonus bets, deposit offers) on any site accessible from NSW,
+  // with no disclaimer defence — so AU cards carry no offer content at all.
+  bonus?: string
+  detail?: string
   promo?: string
   url: string
   btnCls: string
@@ -65,7 +68,9 @@ const SA_NZ: Bookmaker[] = [
   },
 ]
 
-// Australia — ACMA-licensed operators only
+// Australia — ACMA-licensed operators only. No bonus/detail/promo fields:
+// advertising sign-up inducements is illegal in NSW (and restricted in other
+// states) for any site accessible from there, so AU cards are offer-free.
 const AU: Bookmaker[] = [
   {
     id: 'bet365au',
@@ -74,8 +79,6 @@ const AU: Bookmaker[] = [
     logoBg: 'bg-green-700 text-white',
     badge: 'TOP',
     badgeCls: 'bg-green-600 text-white',
-    bonus: '$200 Bonus Bet',
-    detail: 'New customers only',
     url: 'https://www.bet365.com.au',
     btnCls: 'bg-green-700 hover:bg-green-600 text-white',
     borderCls: 'border-green-600/30',
@@ -89,8 +92,6 @@ const AU: Bookmaker[] = [
     logoBg: 'bg-blue-700 text-white',
     badge: 'HOT',
     badgeCls: 'bg-orange-500 text-white',
-    bonus: '$200 in Bonus Bets',
-    detail: 'Min $10 first deposit',
     url: 'https://www.sportsbet.com.au',
     btnCls: 'bg-blue-700 hover:bg-blue-600 text-white',
     borderCls: 'border-blue-600/30',
@@ -104,8 +105,6 @@ const AU: Bookmaker[] = [
     logoBg: 'bg-yellow-600 text-black',
     badge: 'NEW',
     badgeCls: 'bg-yellow-500 text-black',
-    bonus: '$100 Bonus Bet',
-    detail: 'New account offer',
     url: 'https://www.tab.com.au',
     btnCls: 'bg-yellow-600 hover:bg-yellow-500 text-black',
     borderCls: 'border-yellow-500/30',
@@ -185,4 +184,18 @@ export const UK_SAFER_GAMBLING = {
   helplinePhone: '0808 8020 133',
   helplineUrl: 'https://www.gamcare.org.uk',
   selfExcludeUrl: 'https://www.gamstop.co.uk',
+}
+
+// Australia's Consistent Gambling Messaging (mandatory since 30 March 2023)
+// replaced "Gamble responsibly" with seven rotating taglines plus a fixed
+// call-to-action. Websites must use a tagline + the support line verbatim.
+export const AU_SAFER_GAMBLING = {
+  tagline: 'Chances are you’re about to lose.',
+  callToAction:
+    'For free and confidential support call 1800 858 858 or visit gamblinghelponline.org.au',
+  helplineName: 'Gambling Help Online',
+  helplinePhone: '1800 858 858',
+  helplineUrl: 'https://www.gamblinghelponline.org.au',
+  selfExcludeName: 'BetStop',
+  selfExcludeUrl: 'https://www.betstop.gov.au',
 }

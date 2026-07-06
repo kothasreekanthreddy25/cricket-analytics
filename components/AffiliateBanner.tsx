@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { ExternalLink, Trophy, Shield, Tag } from 'lucide-react'
-import { getBookmakersByCountry, UK_SAFER_GAMBLING, type Bookmaker } from '@/lib/bookmakers'
+import { getBookmakersByCountry, UK_SAFER_GAMBLING, AU_SAFER_GAMBLING, type Bookmaker } from '@/lib/bookmakers'
 
 export default function AffiliateBanner() {
   // Empty until geo resolves — never default to a specific region's operators,
@@ -37,9 +37,11 @@ export default function AffiliateBanner() {
       <div className="flex items-center gap-2 px-4 py-3 border-b border-gray-800 bg-gray-900/80">
         <Shield className="w-3.5 h-3.5 text-emerald-400" />
         <span className="text-[10px] font-bold uppercase tracking-widest text-gray-500">
-          {country === 'GB' ? '🇬🇧 UKGC-Licensed Bookmakers' : 'Recommended Bookmakers'}
+          {country === 'GB' ? '🇬🇧 UKGC-Licensed Bookmakers' : country === 'AU' ? '🇦🇺 Licensed AU Bookmakers' : 'Recommended Bookmakers'}
         </span>
-        <span className="ml-auto text-[9px] text-gray-600">Ad · 18+ · Gamble Responsibly</span>
+        <span className="ml-auto text-[9px] text-gray-600">
+          {country === 'AU' ? `Ad · 18+ · ${AU_SAFER_GAMBLING.tagline}` : 'Ad · 18+ · Gamble Responsibly'}
+        </span>
       </div>
 
       {/* Cards */}
@@ -61,13 +63,16 @@ export default function AffiliateBanner() {
               </div>
             </div>
 
-            <div className={`flex items-center gap-2 bg-gray-800/60 rounded-lg px-3 py-2 mb-3 border ${o.borderCls}`}>
-              <Trophy className="w-3.5 h-3.5 text-amber-400 shrink-0" />
-              <div>
-                <p className="text-xs font-bold text-amber-400">{o.bonus}</p>
-                <p className="text-[10px] text-gray-400">{o.detail}</p>
+            {/* Bonus — absent for AU operators (NSW inducement ban) */}
+            {o.bonus && (
+              <div className={`flex items-center gap-2 bg-gray-800/60 rounded-lg px-3 py-2 mb-3 border ${o.borderCls}`}>
+                <Trophy className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                <div>
+                  <p className="text-xs font-bold text-amber-400">{o.bonus}</p>
+                  <p className="text-[10px] text-gray-400">{o.detail}</p>
+                </div>
               </div>
-            </div>
+            )}
 
             {o.promo && (
               <div className="flex items-center gap-1.5 bg-black/30 border border-amber-500/20 rounded-lg px-2.5 py-1.5 mb-2">
@@ -85,10 +90,10 @@ export default function AffiliateBanner() {
               rel="noopener noreferrer sponsored"
               className={`flex items-center justify-center gap-1.5 w-full py-2.5 rounded-lg text-xs font-bold transition-colors ${o.btnCls}`}
             >
-              Claim Bonus <ExternalLink className="w-3 h-3" />
+              {o.bonus ? 'Claim Bonus' : 'Visit Site'} <ExternalLink className="w-3 h-3" />
             </a>
             <p className="text-[9px] text-gray-600 text-center mt-2">
-              18+ · New customers only · T&Cs apply
+              {o.bonus ? '18+ · New customers only · T&Cs apply' : '18+ · T&Cs apply'}
             </p>
           </div>
         ))}
@@ -100,6 +105,9 @@ export default function AffiliateBanner() {
           These are paid partnerships. Betting involves risk — never bet more than you can afford to lose. T&Cs apply.
           {country === 'GB' && (
             <> {UK_SAFER_GAMBLING.helplineName}: <strong>{UK_SAFER_GAMBLING.helplinePhone}</strong> · Self-exclude at GAMSTOP.co.uk</>
+          )}
+          {country === 'AU' && (
+            <> {AU_SAFER_GAMBLING.callToAction}. Self-exclude at {AU_SAFER_GAMBLING.selfExcludeName} (betstop.gov.au).</>
           )}
         </p>
       </div>

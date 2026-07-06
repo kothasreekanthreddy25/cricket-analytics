@@ -1,6 +1,6 @@
 import { ExternalLink, Star, Zap, Shield, Trophy, Tag } from 'lucide-react'
 import { headers } from 'next/headers'
-import { getBookmakersByCountry, UK_SAFER_GAMBLING, type Bookmaker } from '@/lib/bookmakers'
+import { getBookmakersByCountry, UK_SAFER_GAMBLING, AU_SAFER_GAMBLING, type Bookmaker } from '@/lib/bookmakers'
 
 function StarRating({ rating }: { rating: number }) {
   return (
@@ -16,7 +16,7 @@ function StarRating({ rating }: { rating: number }) {
   )
 }
 
-function AffiliateCard({ site }: { site: Bookmaker }) {
+function AffiliateCard({ site, country }: { site: Bookmaker; country: string }) {
   return (
     <div className={`rounded-xl bg-gray-900 border ${site.borderCls} overflow-hidden`}>
       {/* Header */}
@@ -40,14 +40,16 @@ function AffiliateCard({ site }: { site: Bookmaker }) {
       <div className="p-4">
         <StarRating rating={4.7} />
 
-        {/* Bonus */}
-        <div className="mt-3 bg-gray-800/60 rounded-lg p-3">
-          <div className="flex items-center gap-1.5 mb-1">
-            <Trophy className="w-3.5 h-3.5 text-amber-400" />
-            <span className="text-xs font-bold text-amber-400">{site.bonus}</span>
+        {/* Bonus — absent for AU operators (NSW inducement ban) */}
+        {site.bonus && (
+          <div className="mt-3 bg-gray-800/60 rounded-lg p-3">
+            <div className="flex items-center gap-1.5 mb-1">
+              <Trophy className="w-3.5 h-3.5 text-amber-400" />
+              <span className="text-xs font-bold text-amber-400">{site.bonus}</span>
+            </div>
+            <p className="text-[10px] text-gray-400">{site.detail}</p>
           </div>
-          <p className="text-[10px] text-gray-400">{site.detail}</p>
-        </div>
+        )}
 
         {/* Promo code */}
         {site.promo && (
@@ -67,11 +69,13 @@ function AffiliateCard({ site }: { site: Bookmaker }) {
           rel="noopener noreferrer sponsored"
           className={`mt-3 flex items-center justify-center gap-1.5 w-full py-2.5 rounded-lg text-xs font-bold transition-colors ${site.btnCls}`}
         >
-          Claim Bonus <ExternalLink className="w-3 h-3" />
+          {site.bonus ? 'Claim Bonus' : 'Visit Site'} <ExternalLink className="w-3 h-3" />
         </a>
 
         <p className="text-[9px] text-gray-600 text-center mt-2">
-          18+ · T&Cs apply · Gamble responsibly
+          {country === 'AU'
+            ? `18+ · T&Cs apply · ${AU_SAFER_GAMBLING.tagline}`
+            : '18+ · T&Cs apply · Gamble responsibly'}
         </p>
       </div>
     </div>
@@ -102,20 +106,30 @@ export default async function AdSidebar() {
           🇬🇧 Licensed and regulated by the UK Gambling Commission
         </p>
       )}
+      {country === 'AU' && (
+        <p className="px-1 text-[10px] text-emerald-400 font-semibold">
+          🇦🇺 Licensed Australian wagering operators
+        </p>
+      )}
 
       {bookmakers.map((bk) => (
-        <AffiliateCard key={bk.id} site={bk} />
+        <AffiliateCard key={bk.id} site={bk} country={country} />
       ))}
 
       <div className="rounded-xl bg-gray-900/50 border border-gray-800 p-3">
         <div className="flex items-start gap-2">
           <Zap className="w-3.5 h-3.5 text-amber-500 shrink-0 mt-0.5" />
           <div>
-            <p className="text-[10px] font-semibold text-gray-400 mb-1">Bet Responsibly</p>
+            <p className="text-[10px] font-semibold text-gray-400 mb-1">
+              {country === 'AU' ? AU_SAFER_GAMBLING.tagline : 'Bet Responsibly'}
+            </p>
             <p className="text-[9px] text-gray-600 leading-relaxed">
               These are paid partnerships. Betting involves risk. Never bet more than you can afford to lose.
               {country === 'GB' && (
                 <> {UK_SAFER_GAMBLING.helplineName}: {UK_SAFER_GAMBLING.helplinePhone} · Self-exclude at GAMSTOP.co.uk</>
+              )}
+              {country === 'AU' && (
+                <> {AU_SAFER_GAMBLING.callToAction}. Self-exclude at {AU_SAFER_GAMBLING.selfExcludeName} (betstop.gov.au).</>
               )}
             </p>
           </div>

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { ExternalLink, Trophy, Tag } from 'lucide-react'
-import { getBookmakersByCountry, UK_SAFER_GAMBLING, type Bookmaker } from '@/lib/bookmakers'
+import { getBookmakersByCountry, UK_SAFER_GAMBLING, AU_SAFER_GAMBLING, type Bookmaker } from '@/lib/bookmakers'
 
 export default function MobileAdStrip() {
   // Empty until geo resolves — never default to a specific region's operators,
@@ -36,7 +36,7 @@ export default function MobileAdStrip() {
       {/* Header */}
       <div className="flex items-center justify-between px-3 py-2 border-b border-gray-800">
         <span className="text-[10px] font-bold uppercase tracking-widest text-gray-500">
-          {country === 'GB' ? '🇬🇧 UKGC-Licensed Bookmakers' : 'Recommended Bookmakers'}
+          {country === 'GB' ? '🇬🇧 UKGC-Licensed Bookmakers' : country === 'AU' ? '🇦🇺 Licensed AU Bookmakers' : 'Recommended Bookmakers'}
         </span>
         <span className="text-[9px] text-gray-600">Ad · 18+</span>
       </div>
@@ -63,14 +63,18 @@ export default function MobileAdStrip() {
               </div>
             </div>
 
-            {/* Bonus */}
-            <div className="flex items-center gap-1 mb-2">
-              <Trophy className="w-3 h-3 text-amber-400 shrink-0" />
-              <div>
-                <p className="text-[11px] font-bold text-amber-400 leading-tight">{o.bonus}</p>
-                <p className="text-[9px] text-gray-500">{o.detail}</p>
+            {/* Bonus — absent for AU operators (NSW inducement ban) */}
+            {o.bonus ? (
+              <div className="flex items-center gap-1 mb-2">
+                <Trophy className="w-3 h-3 text-amber-400 shrink-0" />
+                <div>
+                  <p className="text-[11px] font-bold text-amber-400 leading-tight">{o.bonus}</p>
+                  <p className="text-[9px] text-gray-500">{o.detail}</p>
+                </div>
               </div>
-            </div>
+            ) : (
+              <p className="text-[9px] text-gray-500 mb-2 leading-tight">{o.tagline}</p>
+            )}
 
             {/* Promo code */}
             {o.promo && (
@@ -87,7 +91,7 @@ export default function MobileAdStrip() {
               rel="noopener noreferrer sponsored"
               className={`flex items-center justify-center gap-1 w-full py-2 rounded-lg text-[11px] font-bold transition-colors ${o.btnCls}`}
             >
-              Claim <ExternalLink className="w-2.5 h-2.5" />
+              {o.bonus ? 'Claim' : 'Visit'} <ExternalLink className="w-2.5 h-2.5" />
             </a>
           </div>
         ))}
@@ -96,6 +100,7 @@ export default function MobileAdStrip() {
       {/* Disclaimer */}
       <div className="px-3 py-1.5 border-t border-gray-800">
         <p className="text-[9px] text-gray-600 text-center">
+          {country === 'AU' && <><span className="font-bold text-gray-500">{AU_SAFER_GAMBLING.tagline}</span> {AU_SAFER_GAMBLING.callToAction} · </>}
           Paid partnerships · Betting involves risk · T&Cs apply
           {country === 'GB' && <> · {UK_SAFER_GAMBLING.helplineName} {UK_SAFER_GAMBLING.helplinePhone}</>}
         </p>

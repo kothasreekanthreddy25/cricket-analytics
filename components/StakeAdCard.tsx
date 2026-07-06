@@ -1,6 +1,24 @@
 'use client'
 
+import { useEffect, useState } from 'react'
+
 const STAKE_URL = 'https://stake.ac/?c=jBxwjgeE'
+
+// Stake is an offshore operator. Advertising unlicensed operators is prohibited
+// in GB (UKGC/CAP Code) and AU (Interactive Gambling Act) — hide these ads there.
+// Fail closed: nothing renders until geo resolves.
+const STAKE_RESTRICTED = ['GB', 'AU']
+
+function useStakeAllowed(): boolean {
+  const [allowed, setAllowed] = useState(false)
+  useEffect(() => {
+    fetch('/api/geo')
+      .then(r => r.json())
+      .then(({ country }: { country: string }) => setAllowed(!STAKE_RESTRICTED.includes(country)))
+      .catch(() => {})
+  }, [])
+  return allowed
+}
 
 const STAKE_LOGO = (
   <svg viewBox="0 0 36 36" fill="none" className="w-full h-full">
@@ -11,6 +29,8 @@ const STAKE_LOGO = (
 
 // ── Ticker strip card ─────────────────────────────────────────────────────────
 export function StakeAdTicker() {
+  const allowed = useStakeAllowed()
+  if (!allowed) return null
   return (
     <a
       href={STAKE_URL}
@@ -39,6 +59,8 @@ export function StakeAdTicker() {
 
 // ── Carousel card ─────────────────────────────────────────────────────────────
 export function StakeAdCarousel() {
+  const allowed = useStakeAllowed()
+  if (!allowed) return null
   return (
     <a
       href={STAKE_URL}
@@ -103,6 +125,8 @@ export function StakeAdCarousel() {
 
 // ── Grid mini-card ────────────────────────────────────────────────────────────
 export function StakeAdGrid() {
+  const allowed = useStakeAllowed()
+  if (!allowed) return null
   return (
     <a
       href={STAKE_URL}

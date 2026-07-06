@@ -6,7 +6,7 @@ import { Trophy, Brain, MessageCircle, Bell, TrendingUp, CheckCircle2, ExternalL
 import { prisma } from '@/lib/prisma'
 import LiveMatchWidget from '@/components/LiveMatchWidget'
 import { SignOutButton } from '@/components/SignOutButton'
-import { getBookmakersByCountry, UK_SAFER_GAMBLING } from '@/lib/bookmakers'
+import { getBookmakersByCountry, UK_SAFER_GAMBLING, AU_SAFER_GAMBLING } from '@/lib/bookmakers'
 
 export const dynamic = 'force-dynamic'
 
@@ -167,7 +167,11 @@ export default async function ProDashboardPage() {
           </div>
         )}
         <p className="text-[10px] text-gray-600 text-center mb-4">
-          18+ · New customers only · T&Cs apply · Gamble responsibly
+          {country === 'AU' ? (
+            <><strong className="text-gray-500">{AU_SAFER_GAMBLING.tagline}</strong> 18+ · T&Cs apply · {AU_SAFER_GAMBLING.callToAction}</>
+          ) : (
+            <>18+ · New customers only · T&Cs apply · Gamble responsibly</>
+          )}
           {country === 'GB' && <> · {UK_SAFER_GAMBLING.helplineName} {UK_SAFER_GAMBLING.helplinePhone}</>}
         </p>
 

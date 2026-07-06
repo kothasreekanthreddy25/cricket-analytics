@@ -105,6 +105,9 @@ export default function TermsPage() {
             <strong className="text-white">United Kingdom:</strong> Contact the <strong className="text-white">National Gambling Helpline (GamCare)</strong> — Helpline: <strong className="text-white">0808 8020 133</strong> (free, 24/7) or visit <a href="https://www.gamcare.org.uk" target="_blank" rel="noopener noreferrer" className="text-emerald-400 underline hover:text-emerald-300">gamcare.org.uk</a>. To self-exclude from all UK-licensed operators, visit <a href="https://www.gamstop.co.uk" target="_blank" rel="noopener noreferrer" className="text-emerald-400 underline hover:text-emerald-300">GAMSTOP.co.uk</a>
           </p>
           <p>
+            <strong className="text-white">Australia:</strong> Contact <strong className="text-white">Gambling Help Online</strong> — Helpline: <strong className="text-white">1800 858 858</strong> (free, confidential, 24/7) or visit <a href="https://www.gamblinghelponline.org.au" target="_blank" rel="noopener noreferrer" className="text-emerald-400 underline hover:text-emerald-300">gamblinghelponline.org.au</a>. To self-exclude from all licensed Australian wagering services, register with <a href="https://www.betstop.gov.au" target="_blank" rel="noopener noreferrer" className="text-emerald-400 underline hover:text-emerald-300">BetStop</a>, the National Self-Exclusion Register.
+          </p>
+          <p>
             <strong className="text-white">International:</strong> <a href="https://www.gamblingtherapy.org" target="_blank" rel="noopener noreferrer" className="text-emerald-400 underline hover:text-emerald-300">GamblingTherapy.org</a>
           </p>
         </Section>

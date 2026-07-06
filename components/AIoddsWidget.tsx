@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { Brain, TrendingUp, ExternalLink, Star, ChevronRight, Tag } from 'lucide-react'
 import Link from 'next/link'
-import { getBookmakersByCountry, type Bookmaker } from '@/lib/bookmakers'
+import { getBookmakersByCountry, AU_SAFER_GAMBLING, type Bookmaker } from '@/lib/bookmakers'
 
 interface Match {
   matchKey: string
@@ -137,12 +137,19 @@ export default function AIoddsWidget() {
         <div className="bg-gray-900/60 border border-gray-800 rounded-2xl p-4">
           <div className="flex items-center gap-2 mb-3">
             <Star className="w-4 h-4 text-yellow-400" />
-            <span className="text-sm font-bold text-white">New to betting? Claim your welcome bonus</span>
+            <span className="text-sm font-bold text-white">
+              {country === 'AU' ? 'Bet at licensed Australian bookmakers' : 'New to betting? Claim your welcome bonus'}
+            </span>
             <span className="text-[10px] bg-amber-500 text-black font-bold px-1.5 py-0.5 rounded ml-auto">18+</span>
           </div>
           {country === 'GB' && (
             <p className="text-[10px] text-emerald-400 font-semibold mb-2.5">
               🇬🇧 Licensed and regulated by the UK Gambling Commission
+            </p>
+          )}
+          {country === 'AU' && (
+            <p className="text-[10px] text-emerald-400 font-semibold mb-2.5">
+              🇦🇺 Licensed Australian wagering operators
             </p>
           )}
           <div className="grid grid-cols-2 gap-2">
@@ -159,7 +166,7 @@ export default function AIoddsWidget() {
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-white text-xs font-bold">{o.name}</p>
-                  <p className="text-gray-400 text-[10px] truncate">{o.bonus}</p>
+                  <p className="text-gray-400 text-[10px] truncate">{o.bonus || o.tagline}</p>
                   {o.promo && (
                     <div className="flex items-center gap-1 mt-0.5">
                       <Tag className="w-2.5 h-2.5 text-amber-400 flex-shrink-0" />
@@ -172,7 +179,11 @@ export default function AIoddsWidget() {
             ))}
           </div>
           <p className="text-[10px] text-gray-600 mt-3 text-center">
-            18+ · New customers only · T&Cs apply · Gamble responsibly
+            {country === 'AU' ? (
+              <><strong className="text-gray-500">{AU_SAFER_GAMBLING.tagline}</strong> 18+ · T&Cs apply · {AU_SAFER_GAMBLING.callToAction}</>
+            ) : (
+              <>18+ · New customers only · T&Cs apply · Gamble responsibly</>
+            )}
             {country === 'GB' && <> · National Gambling Helpline (GamCare) <strong className="text-gray-500">0808 8020 133</strong></>}
           </p>
         </div>

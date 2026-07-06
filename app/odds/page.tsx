@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { Brain, TrendingUp, ExternalLink, Star, Zap, ChevronRight, AlertTriangle, CheckCircle2, Info, Tag } from 'lucide-react'
 import Link from 'next/link'
-import { getBookmakersByCountry, UK_SAFER_GAMBLING, type Bookmaker } from '@/lib/bookmakers'
+import { getBookmakersByCountry, UK_SAFER_GAMBLING, AU_SAFER_GAMBLING, type Bookmaker } from '@/lib/bookmakers'
 
 interface MatchOdds {
   matchKey: string
@@ -218,13 +218,18 @@ export default function OddsPage() {
           <div className="bg-gray-900 border border-gray-800 rounded-2xl p-5">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-sm font-bold text-white flex items-center gap-2">
-                <Star className="w-4 h-4 text-yellow-400" /> {country === 'GB' ? 'UKGC-Licensed Bookmakers' : 'Top Bookmakers'}
+                <Star className="w-4 h-4 text-yellow-400" /> {country === 'GB' ? 'UKGC-Licensed Bookmakers' : country === 'AU' ? 'Licensed AU Bookmakers' : 'Top Bookmakers'}
               </h3>
               <span className="text-[10px] bg-amber-500 text-black font-bold px-1.5 py-0.5 rounded">18+</span>
             </div>
             {country === 'GB' && (
               <p className="text-[10px] text-emerald-400 font-semibold mb-3">
                 🇬🇧 Licensed and regulated by the UK Gambling Commission
+              </p>
+            )}
+            {country === 'AU' && (
+              <p className="text-[10px] text-emerald-400 font-semibold mb-3">
+                🇦🇺 Licensed Australian wagering operators
               </p>
             )}
             <div className="space-y-2.5">
@@ -238,7 +243,7 @@ export default function OddsPage() {
                     <div className="flex items-center gap-1.5">
                       <p className="text-white text-xs font-bold">{o.name}</p>
                     </div>
-                    <p className="text-gray-400 text-[10px] truncate">{o.bonus}</p>
+                    <p className="text-gray-400 text-[10px] truncate">{o.bonus || o.tagline}</p>
                     {o.promo && (
                       <div className="flex items-center gap-1 mt-0.5">
                         <Tag className="w-2.5 h-2.5 text-amber-400 flex-shrink-0" />
@@ -251,7 +256,11 @@ export default function OddsPage() {
               ))}
             </div>
             <p className="text-[10px] text-gray-600 mt-3 text-center">
-              18+ · New customers only · T&Cs apply · Gamble responsibly
+              {country === 'AU' ? (
+                <><strong className="text-gray-500">{AU_SAFER_GAMBLING.tagline}</strong> 18+ · T&Cs apply · {AU_SAFER_GAMBLING.callToAction}</>
+              ) : (
+                <>18+ · New customers only · T&Cs apply · Gamble responsibly</>
+              )}
               {country === 'GB' && <> · {UK_SAFER_GAMBLING.helplineName} {UK_SAFER_GAMBLING.helplinePhone}</>}
             </p>
           </div>

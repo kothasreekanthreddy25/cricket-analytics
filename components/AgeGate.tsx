@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { Shield, ExternalLink } from 'lucide-react'
 import Link from 'next/link'
-import { UK_SAFER_GAMBLING } from '@/lib/bookmakers'
+import { UK_SAFER_GAMBLING, AU_SAFER_GAMBLING } from '@/lib/bookmakers'
 
 const STORAGE_KEY = 'ct_age_verified'
 
@@ -94,6 +94,17 @@ export default function AgeGate() {
                 <a href={UK_SAFER_GAMBLING.selfExcludeUrl} target="_blank" rel="noopener noreferrer"
                   className="text-[10px] text-gray-600 hover:text-amber-400 flex items-center gap-1 transition-colors">
                   GAMSTOP <ExternalLink className="w-2.5 h-2.5" />
+                </a>
+              </>
+            ) : country === 'AU' ? (
+              <>
+                <a href={AU_SAFER_GAMBLING.helplineUrl} target="_blank" rel="noopener noreferrer"
+                  className="text-[10px] text-gray-600 hover:text-amber-400 flex items-center gap-1 transition-colors">
+                  {AU_SAFER_GAMBLING.helplineName} · {AU_SAFER_GAMBLING.helplinePhone} <ExternalLink className="w-2.5 h-2.5" />
+                </a>
+                <a href={AU_SAFER_GAMBLING.selfExcludeUrl} target="_blank" rel="noopener noreferrer"
+                  className="text-[10px] text-gray-600 hover:text-amber-400 flex items-center gap-1 transition-colors">
+                  {AU_SAFER_GAMBLING.selfExcludeName} <ExternalLink className="w-2.5 h-2.5" />
                 </a>
               </>
             ) : (
