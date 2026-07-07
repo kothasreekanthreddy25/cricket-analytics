@@ -48,6 +48,9 @@ export interface SportMonksMatch {
   // e.g. "3rd T20I", "1st ODI", "Final" — SportMonks' round field, null for
   // leagues that don't expose it (some domestic T20s)
   round: string | null
+  // Numeric SportMonks team IDs — used to look up a team's recent lineup
+  teamAId: number | null
+  teamBId: number | null
 }
 
 function formatScore(innings: any): string | null {
@@ -89,6 +92,8 @@ export function normalizeSportMonksMatch(m: any): SportMonksMatch | null {
   const league = m.league?.data || m.league || {}
   const season = m.season?.data || m.season || {}
   const startAt = m.starting_at || m.start_date || ''
+  const teamAId = teamA.id || m.localteam_id || null
+  const teamBId = teamB.id || m.visitorteam_id || null
 
   return {
     key: String(m.id),
@@ -109,6 +114,8 @@ export function normalizeSportMonksMatch(m: any): SportMonksMatch | null {
     tournament: league.name || season.name || '',
     tournamentKey: String(league.id || season.id || ''),
     round: m.round || null,
+    teamAId,
+    teamBId,
   }
 }
 
@@ -146,6 +153,23 @@ export async function getFeaturedMatches() {
 export async function getMatchDetails(matchId: string) {
   return sportmonksGet(`fixtures/${matchId}`, {
     include: `${MATCH_INCLUDES},scoreboards,manofmatch,tosswon`,
+  })
+}
+
+/**
+ * Recent finished fixtures with lineup data — used to derive a team's likely
+ * XI from their actual last match instead of asking an AI model to guess.
+ * SportMonks' pre-match `lineup` include is empty until the toss, but
+ * completed matches carry the real submitted XI (with captain/wicketkeeper
+ * flags), which is the only reliably current source we have.
+ */
+export async function getRecentFixturesWithLineup(daysBack = 120) {
+  const today = new Date().toISOString().split('T')[0]
+  const from = new Date(Date.now() - daysBack * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+  return sportmonksGet('fixtures', {
+    'filter[starts_between]': `${from},${today}`,
+    include: 'lineup,localteam,visitorteam',
+    per_page: '100',
   })
 }
 

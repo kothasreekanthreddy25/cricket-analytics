@@ -6,19 +6,23 @@ import Link from 'next/link'
 import {
   Mic2, ArrowLeft, MapPin, Droplets, Sun, User, TrendingUp,
   History, Brain, Star, RefreshCw, Zap, Shield, Target, AlertTriangle,
-  Trophy, Calendar, ChevronLeft, ChevronRight,
+  Trophy, Calendar, ChevronLeft, ChevronRight, CheckCircle2, ListChecks, Database,
 } from 'lucide-react'
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 interface PitchReport { venue: string; surface: string; type: string; avgFirstInnings: number; chaseSuccessRate: number; dew: string; expectedBehavior: string; tossAdvantage: 'BAT' | 'BOWL'; tossReason: string }
-interface Player { name: string; team: string; role: string; reason: string; keyStats: string; threat: 'HIGH' | 'MEDIUM' }
+interface Player { name: string; team: string; role: string; reason: string; keyStats: string | string[]; threat: 'HIGH' | 'MEDIUM'; impactScore?: number }
 interface TeamHistory { totalMeetings: number; teamAWins: number; teamBWins: number; lastResult: string; currentStreak: string; keyRivalryFact: string }
 interface RecentForm { teamA: { last5: string; trend: string; avgScore: number }; teamB: { last5: string; trend: string; avgScore: number } }
 interface Prediction { winner: string; confidence: string; margin: string; winnerProbPct: number; keyFactor: string; xFactor: string }
+interface DataSources { squads: string; playerStats: string; winProbability: string; pitchAndNarrative: string }
 interface Preview {
   matchKey: string; teamA: string; teamB: string; tournament: string; format: string; venue?: string; startAt?: string | null
   probA: number; probB: number; confidence: string; commentatorIntro: string; commentatorSource: string
   pitchReport: PitchReport; playersToWatch: Player[]; teamHistory: TeamHistory; recentForm: RecentForm; prediction: Prediction
+  lineupSource?: { teamA: string | null; teamB: string | null }
+  lineupConfirmed?: { teamA: boolean; teamB: boolean }
+  dataSources?: DataSources
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -99,7 +103,52 @@ function PitchPanel({ p }: { p: PitchReport }) {
   )
 }
 
-function PlayersPanel({ players, teamA, teamB }: { players: Player[]; teamA: string; teamB: string }) {
+function keyStatsList(k: string | string[] | undefined): string[] {
+  if (!k) return []
+  return Array.isArray(k) ? k : [k]
+}
+
+function ImpactScore({ score }: { score?: number }) {
+  if (score == null) return null
+  const color = score >= 85 ? 'text-emerald-400' : score >= 65 ? 'text-amber-400' : 'text-gray-400'
+  const barColor = score >= 85 ? 'bg-emerald-500' : score >= 65 ? 'bg-amber-500' : 'bg-gray-500'
+  return (
+    <div className="flex items-center gap-2 flex-shrink-0">
+      <div className="w-14 h-1.5 bg-gray-700 rounded-full overflow-hidden">
+        <div className={`h-full ${barColor} rounded-full`} style={{ width: `${score}%` }} />
+      </div>
+      <span className={`text-xs font-extrabold font-mono ${color}`}>{score}/100</span>
+    </div>
+  )
+}
+
+function LineupBadge({ confirmed, hasSource }: { confirmed?: boolean; hasSource: boolean }) {
+  if (confirmed) {
+    return (
+      <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 px-2 py-0.5 rounded-full mb-2">
+        <CheckCircle2 className="w-3 h-3" /> Confirmed Playing XI
+      </span>
+    )
+  }
+  if (hasSource) {
+    return (
+      <span className="inline-flex items-center gap-1 text-[11px] font-bold text-amber-400 bg-amber-500/10 border border-amber-500/30 px-2 py-0.5 rounded-full mb-2">
+        <ListChecks className="w-3 h-3" /> Predicted Playing XI
+      </span>
+    )
+  }
+  return (
+    <span className="inline-flex items-center gap-1 text-[11px] font-bold text-gray-400 bg-gray-800 border border-gray-700 px-2 py-0.5 rounded-full mb-2">
+      🤖 AI Estimate — confirm closer to match time
+    </span>
+  )
+}
+
+function PlayersPanel({ players, teamA, teamB, lineupSource, lineupConfirmed }: {
+  players: Player[]; teamA: string; teamB: string
+  lineupSource?: { teamA: string | null; teamB: string | null }
+  lineupConfirmed?: { teamA: boolean; teamB: boolean }
+}) {
   if (!players?.length) return <p className="text-gray-500 text-sm py-8 text-center">Player data unavailable</p>
   const roleColor: Record<string, string> = {
     BAT: 'bg-blue-500/15 text-blue-300 border-blue-500/30',
@@ -110,19 +159,31 @@ function PlayersPanel({ players, teamA, teamB }: { players: Player[]; teamA: str
   const teamAPlayers = players.filter(p => p.team === teamA)
   const teamBPlayers = players.filter(p => p.team === teamB)
   function PlayerCard({ p }: { p: Player }) {
+    const stats = keyStatsList(p.keyStats)
     return (
       <div className="bg-gray-800/50 border border-gray-700/50 rounded-xl p-4 flex items-start gap-3">
         <div className="w-10 h-10 rounded-full bg-gradient-to-br from-emerald-500/20 to-blue-500/20 border border-gray-600 flex items-center justify-center flex-shrink-0">
           <User className="w-5 h-5 text-gray-400" />
         </div>
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 flex-wrap">
-            <p className="font-bold text-white">{p.name}</p>
-            {p.threat === 'HIGH' && <Star className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />}
-            <span className={`text-[10px] font-extrabold px-1.5 py-0.5 rounded-full border ${roleColor[p.role] || roleColor.BAT}`}>{p.role}</span>
+          <div className="flex items-center justify-between gap-2 flex-wrap">
+            <div className="flex items-center gap-2 flex-wrap">
+              <p className="font-bold text-white">{p.name}</p>
+              {p.threat === 'HIGH' && <Star className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />}
+              <span className={`text-[10px] font-extrabold px-1.5 py-0.5 rounded-full border ${roleColor[p.role] || roleColor.BAT}`}>{p.role}</span>
+            </div>
+            <ImpactScore score={p.impactScore} />
           </div>
           <p className="text-sm text-gray-400 mt-1 leading-relaxed">{p.reason}</p>
-          <p className="text-xs text-emerald-400 mt-1 font-medium">{p.keyStats}</p>
+          {stats.length > 0 && (
+            <ul className="mt-2 space-y-1">
+              {stats.map((s, i) => (
+                <li key={i} className="text-xs text-emerald-400 font-medium flex items-start gap-1.5">
+                  <span className="text-emerald-600 mt-0.5">▸</span>{s}
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
       </div>
     )
@@ -130,15 +191,19 @@ function PlayersPanel({ players, teamA, teamB }: { players: Player[]; teamA: str
   return (
     <div className="space-y-5">
       <div>
-        <p className="text-xs text-gray-500 uppercase font-bold tracking-wider mb-3 flex items-center gap-2">
-          <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" />{teamA}
-        </p>
+        <div className="flex items-center gap-2 mb-1">
+          <p className="text-xs text-gray-500 uppercase font-bold tracking-wider flex items-center gap-2">
+            <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" />{teamA}
+          </p>
+        </div>
+        <LineupBadge confirmed={lineupConfirmed?.teamA} hasSource={!!lineupSource?.teamA} />
         <div className="space-y-3">{teamAPlayers.map(p => <PlayerCard key={p.name} p={p} />)}</div>
       </div>
       <div>
-        <p className="text-xs text-gray-500 uppercase font-bold tracking-wider mb-3 flex items-center gap-2">
+        <p className="text-xs text-gray-500 uppercase font-bold tracking-wider mb-1 flex items-center gap-2">
           <span className="w-2.5 h-2.5 rounded-full bg-blue-500" />{teamB}
         </p>
+        <LineupBadge confirmed={lineupConfirmed?.teamB} hasSource={!!lineupSource?.teamB} />
         <div className="space-y-3">{teamBPlayers.map(p => <PlayerCard key={p.name} p={p} />)}</div>
       </div>
     </div>
@@ -259,6 +324,20 @@ function FullPreviewCard({ preview }: { preview: Preview }) {
             <MapPin className="w-3 h-3" />{preview.venue}
           </p>
         )}
+        {preview.dataSources && (
+          <div className="flex items-center gap-1.5 flex-wrap mt-3">
+            <Database className="w-3 h-3 text-gray-600 flex-shrink-0" />
+            {[
+              ['Squads', preview.dataSources.squads],
+              ['Stats', preview.dataSources.playerStats],
+              ['Predictions', preview.dataSources.winProbability],
+            ].map(([label, source]) => (
+              <span key={label} className="text-[10px] text-gray-500 bg-gray-800/80 border border-gray-700/60 px-1.5 py-0.5 rounded">
+                {label}: <span className="text-gray-400 font-medium">{source}</span>
+              </span>
+            ))}
+          </div>
+        )}
         {/* Prob bar */}
         <div className="mt-4">
           <div className="flex h-2 rounded-full overflow-hidden gap-0.5">
@@ -297,7 +376,7 @@ function FullPreviewCard({ preview }: { preview: Preview }) {
       {/* Tab content */}
       <div className="p-6 min-h-[320px]">
         {tab === 'pitch' && <PitchPanel p={preview.pitchReport} />}
-        {tab === 'players' && <PlayersPanel players={preview.playersToWatch} teamA={preview.teamA} teamB={preview.teamB} />}
+        {tab === 'players' && <PlayersPanel players={preview.playersToWatch} teamA={preview.teamA} teamB={preview.teamB} lineupSource={preview.lineupSource} lineupConfirmed={preview.lineupConfirmed} />}
         {tab === 'history' && <HistoryPanel h={preview.teamHistory} form={preview.recentForm} teamA={preview.teamA} teamB={preview.teamB} />}
         {tab === 'prediction' && <PredictionPanel pred={preview.prediction} teamA={preview.teamA} teamB={preview.teamB} probA={preview.probA} probB={preview.probB} />}
       </div>

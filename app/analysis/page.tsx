@@ -3,127 +3,151 @@
 import { useState, useEffect, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
-import { ArrowLeft, Brain, Home, Handshake } from 'lucide-react'
+import {
+  ArrowLeft, Brain, Home, Mic2, MapPin, Droplets, Target, Star, User,
+  History, Calendar, Trophy, AlertTriangle, Shield, TrendingUp, Zap,
+  CheckCircle2, ListChecks, Database,
+} from 'lucide-react'
+import {
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell,
+} from 'recharts'
 
-interface H2HMatch {
-  key: string
-  name: string
-  date: string | null
-  venue: string | null
-  winner: string | null
-  teamAScore: string | null
-  teamBScore: string | null
-  teamAName: string | null
-  teamBName: string | null
-  resultText: string | null
+interface PitchReport {
+  venue: string; surface: string; type: string; avgFirstInnings: number
+  chaseSuccessRate: number; dew: string; expectedBehavior: string
+  tossAdvantage: 'BAT' | 'BOWL'; tossReason: string
 }
-
-interface H2HSummary {
-  teamA: string
-  teamB: string
-  teamAWins: number
-  teamBWins: number
-  noResult: number
-  totalMatches: number
-  matches: H2HMatch[]
+interface RichPlayer {
+  name: string; team: string; role: string; reason: string; keyStats: string | string[]; threat: 'HIGH' | 'MEDIUM'; impactScore?: number
 }
-
-interface Player {
-  name: string
-  role: string
-  reason: string
-  impact: 'high' | 'medium' | 'low'
-  stats?: {
-    runs?: number
-    wickets?: number
-    strikeRate?: number
-    economy?: number
-    catches?: number
-    ranking?: { category: string; rank: number }
-  }
+interface TeamHistory {
+  totalMeetings: number; teamAWins: number; teamBWins: number
+  lastResult: string; currentStreak: string; keyRivalryFact: string
 }
+interface RecentFormSide { last5: string; trend: string; avgScore: number }
+interface RecentForm { teamA: RecentFormSide; teamB: RecentFormSide }
+interface Prediction {
+  winner: string; confidence: string; margin: string; winnerProbPct: number
+  keyFactor: string; xFactor: string
+}
+interface DataSources { squads: string; playerStats: string; winProbability: string; pitchAndNarrative: string }
 
 interface Analysis {
   matchKey: string
   teamA: string
   teamB: string
+  tournament: string
+  format: string
+  venue: string
+  startAt: string | null
   winProbabilityA: number
   winProbabilityB: number
   confidence: 'high' | 'medium' | 'low'
   tips: string[]
-  playersToWatch: {
-    teamA: Player[]
-    teamB: Player[]
-  }
-  conditions: {
-    venue: string
-    pitchType: string
-    weatherImpact: string
-    tossAdvice: string
-  }
-  recentForm: {
-    teamA: { wins: number; losses: number; trend: string }
-    teamB: { wins: number; losses: number; trend: string }
-  }
   reasoning: string
+  pitchReport?: PitchReport
+  playersToWatch?: RichPlayer[]
+  teamHistory?: TeamHistory
+  recentForm?: RecentForm
+  prediction?: Prediction
+  commentatorIntro?: string
+  commentatorSource?: string
+  lineupSource?: { teamA: string | null; teamB: string | null }
+  lineupConfirmed?: { teamA: boolean; teamB: boolean }
+  dataSources?: DataSources
 }
 
-function PlayerCard({ player, accent }: { player: Player; accent: 'blue' | 'red' }) {
-  const impactDot =
-    player.impact === 'high'
-      ? 'bg-emerald-400'
-      : player.impact === 'medium'
-      ? 'bg-yellow-400'
-      : 'bg-gray-500'
-  const roleBadge =
-    accent === 'blue' ? 'bg-blue-500/20 text-blue-300' : 'bg-red-500/20 text-red-300'
-
+const CustomTooltip = ({ active, payload, label }: any) => {
+  if (!active || !payload?.length) return null
   return (
-    <div className="bg-gray-800/50 rounded-lg p-4">
-      <div className="flex items-center justify-between mb-2">
-        <div className="flex items-center gap-2">
-          <span className={`w-2 h-2 rounded-full ${impactDot}`} />
-          <span className="font-semibold text-white">{player.name}</span>
-        </div>
-        <span className={`text-xs ${roleBadge} px-2 py-0.5 rounded`}>{player.role}</span>
+    <div className="bg-gray-900 border border-gray-700 rounded-xl px-3 py-2 text-xs shadow-xl">
+      <p className="text-gray-400 mb-1">{label}</p>
+      {payload.map((p: any) => (
+        <p key={p.name} style={{ color: p.color }} className="font-bold">{p.name}: {p.value}</p>
+      ))}
+    </div>
+  )
+}
+
+function FormBadge({ result }: { result: string }) {
+  const cls = result === 'W' ? 'bg-emerald-500 text-white' : result === 'L' ? 'bg-red-500 text-white' : 'bg-gray-600 text-gray-300'
+  return <span className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-extrabold shrink-0 ${cls}`}>{result}</span>
+}
+
+function keyStatsList(k: string | string[] | undefined): string[] {
+  if (!k) return []
+  return Array.isArray(k) ? k : [k]
+}
+
+function ImpactScore({ score }: { score?: number }) {
+  if (score == null) return null
+  const color = score >= 85 ? 'text-emerald-400' : score >= 65 ? 'text-amber-400' : 'text-gray-400'
+  const barColor = score >= 85 ? 'bg-emerald-500' : score >= 65 ? 'bg-amber-500' : 'bg-gray-500'
+  return (
+    <div className="flex items-center gap-2 flex-shrink-0">
+      <div className="w-14 h-1.5 bg-gray-700 rounded-full overflow-hidden">
+        <div className={`h-full ${barColor} rounded-full`} style={{ width: `${score}%` }} />
       </div>
+      <span className={`text-xs font-extrabold font-mono ${color}`}>{score}/100</span>
+    </div>
+  )
+}
 
-      {player.stats && (
-        <div className="flex flex-wrap gap-1.5 mb-2">
-          {player.stats.runs != null && (
-            <span className="text-xs bg-emerald-500/15 text-emerald-300 px-2 py-0.5 rounded-full">
-              {player.stats.runs} runs
-            </span>
-          )}
-          {player.stats.wickets != null && (
-            <span className="text-xs bg-purple-500/15 text-purple-300 px-2 py-0.5 rounded-full">
-              {player.stats.wickets} wkts
-            </span>
-          )}
-          {player.stats.strikeRate != null && (
-            <span className="text-xs bg-orange-500/15 text-orange-300 px-2 py-0.5 rounded-full">
-              SR {player.stats.strikeRate}
-            </span>
-          )}
-          {player.stats.economy != null && (
-            <span className="text-xs bg-cyan-500/15 text-cyan-300 px-2 py-0.5 rounded-full">
-              Econ {player.stats.economy}
-            </span>
-          )}
-          {player.stats.catches != null && (
-            <span className="text-xs bg-yellow-500/15 text-yellow-300 px-2 py-0.5 rounded-full">
-              {player.stats.catches} catches
-            </span>
-          )}
-          {player.stats.ranking && (
-            <span className="text-xs bg-white/10 text-gray-300 px-2 py-0.5 rounded-full">
-              #{player.stats.ranking.rank} {player.stats.ranking.category}
-            </span>
-          )}
+function LineupBadge({ confirmed, hasSource }: { confirmed?: boolean; hasSource: boolean }) {
+  if (confirmed) {
+    return (
+      <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 px-2 py-0.5 rounded-full mb-2">
+        <CheckCircle2 className="w-3 h-3" /> Confirmed Playing XI
+      </span>
+    )
+  }
+  if (hasSource) {
+    return (
+      <span className="inline-flex items-center gap-1 text-[11px] font-bold text-amber-400 bg-amber-500/10 border border-amber-500/30 px-2 py-0.5 rounded-full mb-2">
+        <ListChecks className="w-3 h-3" /> Predicted Playing XI
+      </span>
+    )
+  }
+  return (
+    <span className="inline-flex items-center gap-1 text-[11px] font-bold text-gray-400 bg-gray-800 border border-gray-700 px-2 py-0.5 rounded-full mb-2">
+      🤖 AI Estimate — confirm closer to match time
+    </span>
+  )
+}
+
+function PlayerCard({ player }: { player: RichPlayer }) {
+  const roleColor: Record<string, string> = {
+    BAT: 'bg-blue-500/15 text-blue-300 border-blue-500/30',
+    BOWL: 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30',
+    AR: 'bg-purple-500/15 text-purple-300 border-purple-500/30',
+    WK: 'bg-amber-500/15 text-amber-300 border-amber-500/40',
+  }
+  const stats = keyStatsList(player.keyStats)
+  return (
+    <div className="bg-gray-800/50 border border-gray-700/50 rounded-xl p-4 flex items-start gap-3">
+      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-emerald-500/20 to-blue-500/20 border border-gray-600 flex items-center justify-center flex-shrink-0">
+        <User className="w-5 h-5 text-gray-400" />
+      </div>
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center justify-between gap-2 flex-wrap">
+          <div className="flex items-center gap-2 flex-wrap">
+            <p className="font-bold text-white">{player.name}</p>
+            {player.threat === 'HIGH' && <Star className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />}
+            <span className={`text-[10px] font-extrabold px-1.5 py-0.5 rounded-full border ${roleColor[player.role] || roleColor.BAT}`}>{player.role}</span>
+          </div>
+          <ImpactScore score={player.impactScore} />
         </div>
-      )}
-
-      <p className="text-sm text-gray-400">{player.reason}</p>
+        <p className="text-sm text-gray-400 mt-1 leading-relaxed">{player.reason}</p>
+        {stats.length > 0 && (
+          <ul className="mt-2 space-y-1">
+            {stats.map((s, i) => (
+              <li key={i} className="text-xs text-emerald-400 font-medium flex items-start gap-1.5">
+                <span className="text-emerald-600 mt-0.5">▸</span>{s}
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
     </div>
   )
 }
@@ -131,14 +155,9 @@ function PlayerCard({ player, accent }: { player: Player; accent: 'blue' | 'red'
 function AnalysisContent() {
   const searchParams = useSearchParams()
   const [selectedMatch, setSelectedMatch] = useState<string>('')
-  const [matchName, setMatchName] = useState<string>('')
   const [analysis, setAnalysis] = useState<Analysis | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [h2h, setH2h] = useState<H2HSummary | null>(null)
-  const [h2hLoading, setH2hLoading] = useState(false)
-  const [h2hError, setH2hError] = useState<string | null>(null)
-  const [h2hRaw, setH2hRaw] = useState<any>(null)
 
   const matchParam = searchParams?.get('match') ?? null
 
@@ -148,40 +167,11 @@ function AnalysisContent() {
     }
   }, [matchParam])
 
-  async function fetchH2H(matchKey: string, teamA: string, teamB: string) {
-    setH2hLoading(true)
-    setH2h(null)
-    setH2hError(null)
-    setH2hRaw(null)
-    try {
-      const res = await fetch(
-        `/api/analysis/insights?match=${encodeURIComponent(matchKey)}&teamA=${encodeURIComponent(teamA)}&teamB=${encodeURIComponent(teamB)}`
-      )
-      const data = await res.json()
-      console.log('[H2H] raw API response:', JSON.stringify(data, null, 2))
-      setH2hRaw(data.raw)
-      if (data.h2h) {
-        setH2h(data.h2h)
-      } else if (!res.ok) {
-        setH2hError(data.detail || data.error || 'Insights API error')
-      } else {
-        setH2hError('No H2H data found in API response')
-      }
-    } catch (err: any) {
-      setH2hError(err.message || 'Failed to fetch H2H data')
-    } finally {
-      setH2hLoading(false)
-    }
-  }
-
   async function runAnalysis(matchKey: string) {
     setSelectedMatch(matchKey)
     setLoading(true)
     setError(null)
     setAnalysis(null)
-    setH2h(null)
-    setH2hError(null)
-    setH2hRaw(null)
 
     try {
       const res = await fetch(`/api/analysis?match=${encodeURIComponent(matchKey)}`)
@@ -192,11 +182,6 @@ function AnalysisContent() {
       }
 
       setAnalysis(data.analysis)
-      if (data.analysis?.teamA && data.analysis?.teamB) {
-        setMatchName(`${data.analysis.teamA} vs ${data.analysis.teamB}`)
-        // Fetch H2H in parallel after we know team names
-        fetchH2H(matchKey, data.analysis.teamA, data.analysis.teamB)
-      }
     } catch (err: any) {
       setError(err.message || 'Failed to run analysis')
     } finally {
@@ -204,10 +189,16 @@ function AnalysisContent() {
     }
   }
 
-  const confidenceColor = {
+  const confidenceColor: Record<string, string> = {
     high: 'text-green-400 bg-green-400/10 border-green-400/30',
     medium: 'text-yellow-400 bg-yellow-400/10 border-yellow-400/30',
     low: 'text-red-400 bg-red-400/10 border-red-400/30',
+  }
+  const PITCH_ICON: Record<string, React.ReactNode> = {
+    'Spin-friendly': <Zap className="w-4 h-4 text-amber-400" />,
+    'Batting paradise': <TrendingUp className="w-4 h-4 text-emerald-400" />,
+    'Pace-friendly': <Zap className="w-4 h-4 text-blue-400" />,
+    'Balanced': <Shield className="w-4 h-4 text-purple-400" />,
   }
 
   // ── No match selected — direct users to pick one from home ──
@@ -235,9 +226,25 @@ function AnalysisContent() {
     )
   }
 
+  const h = analysis?.teamHistory
+  const form = analysis?.recentForm
+  const pitch = analysis?.pitchReport
+  const pred = analysis?.prediction
+  const players = analysis?.playersToWatch || []
+
+  const formChartData = form && analysis ? [
+    { name: analysis.teamA.split(' ').slice(-1)[0], avg: form.teamA.avgScore, fill: '#10b981' },
+    { name: analysis.teamB.split(' ').slice(-1)[0], avg: form.teamB.avgScore, fill: '#3b82f6' },
+  ] : []
+
+  const h2hChartData = h && analysis ? [
+    { name: analysis.teamA.split(' ').slice(-1)[0], wins: h.teamAWins, fill: '#10b981' },
+    { name: analysis.teamB.split(' ').slice(-1)[0], wins: h.teamBWins, fill: '#3b82f6' },
+  ] : []
+
   return (
     <div className="min-h-screen bg-gray-950 text-white">
-      <div className="max-w-6xl mx-auto px-4 py-8">
+      <div className="max-w-4xl mx-auto px-4 py-8">
         {/* Header */}
         <div className="mb-8">
           <Link
@@ -247,18 +254,55 @@ function AnalysisContent() {
             <ArrowLeft className="w-4 h-4" />
             Back to Home
           </Link>
-          <div className="flex items-center gap-3 mb-2">
+          <div className="flex items-center gap-3 mb-2 flex-wrap">
             <h1 className="text-3xl font-bold bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent">
               AI Match Analysis
             </h1>
-            <span className="text-xs bg-purple-500/20 text-purple-300 px-2 py-1 rounded-full border border-purple-500/30">
-              T20 World Cup 2026
-            </span>
+            {analysis?.tournament && (
+              <span className="text-xs bg-purple-500/20 text-purple-300 px-2 py-1 rounded-full border border-purple-500/30">
+                {analysis.tournament}
+              </span>
+            )}
+            {analysis?.format && (
+              <span className="text-xs bg-gray-800 text-gray-400 px-2 py-1 rounded-full border border-gray-700">
+                {analysis.format}
+              </span>
+            )}
           </div>
-          {matchName && (
-            <p className="text-gray-400 font-medium">{matchName}</p>
+          {analysis && (
+            <>
+              <p className="text-gray-300 font-semibold text-lg">{analysis.teamA} vs {analysis.teamB}</p>
+              <div className="flex items-center gap-4 mt-1 flex-wrap">
+                {analysis.startAt && (
+                  <p className="text-gray-500 text-sm flex items-center gap-1.5">
+                    <Calendar className="w-3.5 h-3.5" />
+                    {new Date(analysis.startAt).toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit', hour12: true })}
+                  </p>
+                )}
+                {analysis.venue && (
+                  <p className="text-gray-500 text-sm flex items-center gap-1.5">
+                    <MapPin className="w-3.5 h-3.5" />
+                    {analysis.venue}
+                  </p>
+                )}
+              </div>
+              {analysis.dataSources && (
+                <div className="flex items-center gap-1.5 flex-wrap mt-3">
+                  <Database className="w-3 h-3 text-gray-600 flex-shrink-0" />
+                  {[
+                    ['Squads', analysis.dataSources.squads],
+                    ['Stats', analysis.dataSources.playerStats],
+                    ['Predictions', analysis.dataSources.winProbability],
+                  ].map(([label, source]) => (
+                    <span key={label} className="text-[10px] text-gray-500 bg-gray-800/80 border border-gray-700/60 px-1.5 py-0.5 rounded">
+                      {label}: <span className="text-gray-400 font-medium">{source}</span>
+                    </span>
+                  ))}
+                </div>
+              )}
+            </>
           )}
-          {!matchName && loading && (
+          {!analysis && loading && (
             <p className="text-gray-500 text-sm">Loading analysis...</p>
           )}
         </div>
@@ -284,10 +328,8 @@ function AnalysisContent() {
               <div className="w-16 h-16 border-4 border-gray-700 rounded-full" />
               <div className="w-16 h-16 border-4 border-transparent border-t-purple-500 rounded-full animate-spin absolute top-0" />
             </div>
-            <p className="text-gray-400">Running TensorFlow.js model...</p>
-            <p className="text-gray-600 text-sm">
-              Analyzing team strength, form, and conditions
-            </p>
+            <p className="text-gray-400">Analyzing team strength, form, and conditions...</p>
+            <p className="text-gray-600 text-sm">Pulling pitch reports and player data from GPT-4o + Gemini</p>
           </div>
         )}
 
@@ -297,27 +339,17 @@ function AnalysisContent() {
             {/* Win Probability Card */}
             <div className="bg-gray-900 rounded-xl border border-gray-800 p-6">
               <div className="flex items-center justify-between mb-6">
-                <div>
-                  <h2 className="text-xl font-bold">Win Probability</h2>
-                  <p className="text-sm text-gray-500 mt-1">ICC T20 World Cup 2026</p>
-                </div>
-                <span
-                  className={`px-3 py-1 rounded-full text-sm font-medium border ${
-                    confidenceColor[analysis.confidence]
-                  }`}
-                >
+                <h2 className="text-xl font-bold">Win Probability</h2>
+                <span className={`px-3 py-1 rounded-full text-sm font-medium border ${confidenceColor[analysis.confidence]}`}>
                   {analysis.confidence.toUpperCase()} Confidence
                 </span>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
-                {/* Team A */}
                 <div className="text-center">
                   <p className="text-2xl font-bold text-blue-400">{analysis.teamA}</p>
                   <p className="text-4xl font-black mt-2">{analysis.winProbabilityA}%</p>
                 </div>
-
-                {/* VS bar */}
                 <div className="text-center">
                   <div className="relative h-4 bg-gray-800 rounded-full overflow-hidden">
                     <div
@@ -331,8 +363,6 @@ function AnalysisContent() {
                   </div>
                   <p className="text-gray-500 text-sm mt-2">VS</p>
                 </div>
-
-                {/* Team B */}
                 <div className="text-center">
                   <p className="text-2xl font-bold text-red-400">{analysis.teamB}</p>
                   <p className="text-4xl font-black mt-2">{analysis.winProbabilityB}%</p>
@@ -340,65 +370,52 @@ function AnalysisContent() {
               </div>
             </div>
 
-            {/* ── Recent H2H — compact stats bar ── */}
-            <div className="bg-gray-900 rounded-xl border border-gray-800 p-4">
-              {/* Loading skeleton */}
-              {h2hLoading && (
-                <div className="h-10 bg-gray-800 rounded-lg animate-pulse" />
-              )}
-
-              {/* Error — subtle one-liner */}
-              {!h2hLoading && h2hError && (
-                <div className="flex items-center gap-2 text-sm text-gray-500">
-                  <Handshake className="w-4 h-4 text-gray-600" />
-                  <span>H2H stats unavailable</span>
-                </div>
-              )}
-
-              {/* Compact H2H stats bar */}
-              {!h2hLoading && h2h && (
-                <div className="flex items-center gap-3">
-                  {/* Icon + label */}
-                  <div className="flex items-center gap-2 shrink-0">
-                    <Handshake className="w-4 h-4 text-violet-400" />
-                    <span className="text-sm font-semibold text-gray-300">H2H</span>
+            {/* Commentator intro */}
+            {analysis.commentatorIntro && (
+              <div className="bg-gray-900 rounded-xl border border-purple-900/40 p-5 bg-purple-500/5">
+                <div className="flex items-start gap-3">
+                  <div className="w-8 h-8 rounded-full bg-purple-500/20 flex items-center justify-center flex-shrink-0">
+                    <Mic2 className="w-4 h-4 text-purple-400" />
                   </div>
-
-                  {/* Team A wins */}
-                  <span className="text-sm font-bold text-blue-400 shrink-0">
-                    {analysis?.teamA} {h2h.teamAWins}
-                  </span>
-
-                  {/* Progress bar */}
-                  <div className="flex-1 flex rounded-full overflow-hidden h-2 bg-gray-800">
-                    <div
-                      className="bg-blue-500 transition-all duration-700"
-                      style={{ width: h2h.totalMatches > 0 ? `${(h2h.teamAWins / h2h.totalMatches) * 100}%` : '50%' }}
-                    />
-                    {h2h.noResult > 0 && (
-                      <div
-                        className="bg-gray-500 transition-all duration-700"
-                        style={{ width: `${(h2h.noResult / h2h.totalMatches) * 100}%` }}
-                      />
+                  <div>
+                    <p className="text-gray-200 leading-relaxed italic">"{analysis.commentatorIntro}"</p>
+                    {analysis.commentatorSource && (
+                      <p className="text-xs text-gray-600 mt-2">— {analysis.commentatorSource}</p>
                     )}
-                    <div
-                      className="bg-red-500 transition-all duration-700"
-                      style={{ width: h2h.totalMatches > 0 ? `${(h2h.teamBWins / h2h.totalMatches) * 100}%` : '50%' }}
-                    />
                   </div>
-
-                  {/* Team B wins */}
-                  <span className="text-sm font-bold text-red-400 shrink-0">
-                    {h2h.teamBWins} {analysis?.teamB}
-                  </span>
-
-                  {/* Match count + draw */}
-                  <span className="text-xs text-gray-500 shrink-0">
-                    ({h2h.matches.length} match{h2h.matches.length !== 1 ? 'es' : ''}{h2h.noResult > 0 ? `, ${h2h.noResult} NR` : ''})
-                  </span>
                 </div>
-              )}
-            </div>
+              </div>
+            )}
+
+            {/* Why each team could win */}
+            {pred?.winner && (
+              <div className="bg-gray-900 rounded-xl border border-gray-800 p-6">
+                <h2 className="text-xl font-bold mb-4">Why {pred.winner} Could Win</h2>
+                <div className="space-y-3">
+                  <div className="flex items-start gap-3 bg-gray-800/50 rounded-xl px-4 py-4">
+                    <Target className="w-4 h-4 text-emerald-400 flex-shrink-0 mt-0.5" />
+                    <div>
+                      <p className="text-xs text-gray-500 mb-1">Key Factor</p>
+                      <p className="text-sm text-gray-200">{pred.keyFactor}</p>
+                    </div>
+                  </div>
+                  {pred.xFactor && (
+                    <div className="flex items-start gap-3 bg-amber-500/5 border border-amber-500/20 rounded-xl px-4 py-4">
+                      <AlertTriangle className="w-4 h-4 text-amber-400 flex-shrink-0 mt-0.5" />
+                      <div>
+                        <p className="text-xs text-amber-400 mb-1">X-Factor / Wildcard</p>
+                        <p className="text-sm text-gray-200">{pred.xFactor}</p>
+                      </div>
+                    </div>
+                  )}
+                  {pred.margin && (
+                    <p className="text-sm text-gray-400">
+                      Predicted margin: <span className="text-white font-semibold">{pred.margin}</span>
+                    </p>
+                  )}
+                </div>
+              </div>
+            )}
 
             {/* Match Tips */}
             <div className="bg-gray-900 rounded-xl border border-gray-800 p-6">
@@ -415,97 +432,154 @@ function AnalysisContent() {
               </div>
             </div>
 
+            {/* Pitch Report */}
+            {pitch?.venue && (
+              <div className="bg-gray-900 rounded-xl border border-gray-800 p-6">
+                <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
+                  <MapPin className="w-5 h-5 text-gray-500" />Pitch Report
+                </h2>
+                <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
+                  <p className="text-gray-300">{pitch.venue}</p>
+                  <span className="flex items-center gap-1.5 text-sm font-bold bg-gray-800 border border-gray-700 px-3 py-1 rounded-full">
+                    {PITCH_ICON[pitch.type] || <Shield className="w-4 h-4 text-gray-400" />}{pitch.type}
+                  </span>
+                </div>
+                <div className="bg-amber-500/5 border border-amber-500/20 rounded-xl p-4 mb-4">
+                  <p className="text-sm text-amber-300 font-semibold mb-1">Surface: {pitch.surface}</p>
+                  <p className="text-sm text-gray-300 leading-relaxed">{pitch.expectedBehavior}</p>
+                </div>
+
+                {/* Pitch stats graph */}
+                <ResponsiveContainer width="100%" height={160}>
+                  <BarChart
+                    data={[
+                      { name: 'Avg 1st Innings', value: pitch.avgFirstInnings, fill: '#f59e0b' },
+                      { name: 'Chase Win %', value: pitch.chaseSuccessRate, fill: '#06b6d4' },
+                    ]}
+                    layout="vertical"
+                    margin={{ left: 10 }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" stroke="#1f2937" horizontal={false} />
+                    <XAxis type="number" tick={{ fill: '#6b7280', fontSize: 11 }} axisLine={false} tickLine={false} />
+                    <YAxis dataKey="name" type="category" tick={{ fill: '#9ca3af', fontSize: 12 }} axisLine={false} tickLine={false} width={110} />
+                    <Tooltip content={<CustomTooltip />} />
+                    <Bar dataKey="value" radius={[0, 6, 6, 0]} barSize={28}>
+                      {[0, 1].map(i => <Cell key={i} fill={i === 0 ? '#f59e0b' : '#06b6d4'} />)}
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
+
+                <div className="grid grid-cols-2 gap-3 mt-4">
+                  <div className="flex items-start gap-2 bg-blue-500/5 border border-blue-500/20 rounded-xl px-4 py-3">
+                    <Droplets className="w-4 h-4 text-blue-400 flex-shrink-0 mt-0.5" />
+                    <p className="text-sm text-gray-300">{pitch.dew}</p>
+                  </div>
+                  <div className="flex items-start gap-2 bg-gray-800/50 rounded-xl px-4 py-3">
+                    <Target className="w-4 h-4 text-amber-400 flex-shrink-0 mt-0.5" />
+                    <p className="text-sm text-gray-300"><span className="text-amber-300 font-semibold">Toss ({pitch.tossAdvantage}): </span>{pitch.tossReason}</p>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* Players to Watch */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Team A Players */}
-              <div className="bg-gray-900 rounded-xl border border-blue-900/50 p-6">
-                <h3 className="text-lg font-bold text-blue-400 mb-4">
-                  {analysis.teamA} — Key Players
-                </h3>
-                <div className="space-y-3">
-                  {analysis.playersToWatch.teamA.map((player, i) => (
-                    <PlayerCard key={i} player={player} accent="blue" />
-                  ))}
-                </div>
-              </div>
-
-              {/* Team B Players */}
-              <div className="bg-gray-900 rounded-xl border border-red-900/50 p-6">
-                <h3 className="text-lg font-bold text-red-400 mb-4">
-                  {analysis.teamB} — Key Players
-                </h3>
-                <div className="space-y-3">
-                  {analysis.playersToWatch.teamB.map((player, i) => (
-                    <PlayerCard key={i} player={player} accent="red" />
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            {/* Conditions & Recent Form */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {players.length > 0 && (
               <div className="bg-gray-900 rounded-xl border border-gray-800 p-6">
-                <h3 className="text-lg font-bold mb-4">Match Conditions</h3>
-                <div className="space-y-3">
+                <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
+                  <User className="w-5 h-5 text-gray-500" />Players to Watch
+                </h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <p className="text-sm text-gray-500">Venue</p>
-                    <p className="text-gray-200">{analysis.conditions.venue}</p>
+                    <p className="text-xs text-gray-500 uppercase font-bold tracking-wider mb-1 flex items-center gap-2">
+                      <span className="w-2.5 h-2.5 rounded-full bg-blue-500" />{analysis.teamA}
+                    </p>
+                    <LineupBadge confirmed={analysis.lineupConfirmed?.teamA} hasSource={!!analysis.lineupSource?.teamA} />
+                    <div className="space-y-3">
+                      {players.filter(p => p.team === analysis.teamA).map((p, i) => <PlayerCard key={i} player={p} />)}
+                    </div>
                   </div>
                   <div>
-                    <p className="text-sm text-gray-500">Pitch</p>
-                    <p className="text-gray-200">{analysis.conditions.pitchType}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-500">Weather</p>
-                    <p className="text-gray-200">{analysis.conditions.weatherImpact}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-500">Toss Advice</p>
-                    <p className="text-yellow-300">{analysis.conditions.tossAdvice}</p>
+                    <p className="text-xs text-gray-500 uppercase font-bold tracking-wider mb-1 flex items-center gap-2">
+                      <span className="w-2.5 h-2.5 rounded-full bg-red-500" />{analysis.teamB}
+                    </p>
+                    <LineupBadge confirmed={analysis.lineupConfirmed?.teamB} hasSource={!!analysis.lineupSource?.teamB} />
+                    <div className="space-y-3">
+                      {players.filter(p => p.team === analysis.teamB).map((p, i) => <PlayerCard key={i} player={p} />)}
+                    </div>
                   </div>
                 </div>
               </div>
+            )}
 
+            {/* Head-to-Head + Recent Form */}
+            {(h?.totalMeetings || form?.teamA) && (
               <div className="bg-gray-900 rounded-xl border border-gray-800 p-6">
-                <h3 className="text-lg font-bold mb-4">Recent Form (Last 7 matches)</h3>
-                <div className="space-y-4">
-                  <div>
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-blue-400 font-semibold">{analysis.teamA}</span>
-                      <span className="text-sm">
-                        <span className="text-green-400">{analysis.recentForm.teamA.wins}W</span>
-                        {' - '}
-                        <span className="text-red-400">{analysis.recentForm.teamA.losses}L</span>
-                      </span>
+                <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
+                  <History className="w-5 h-5 text-gray-500" />Head-to-Head &amp; Recent Form
+                </h2>
+
+                {h?.totalMeetings ? (
+                  <div className="mb-6">
+                    <p className="text-xs text-gray-500 uppercase font-bold mb-3">{h.totalMeetings} Historic Meetings</p>
+                    <ResponsiveContainer width="100%" height={120}>
+                      <BarChart data={h2hChartData} layout="vertical" margin={{ left: 10 }}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="#1f2937" horizontal={false} />
+                        <XAxis type="number" tick={{ fill: '#6b7280', fontSize: 11 }} axisLine={false} tickLine={false} />
+                        <YAxis dataKey="name" type="category" tick={{ fill: '#9ca3af', fontSize: 12 }} axisLine={false} tickLine={false} width={80} />
+                        <Tooltip content={<CustomTooltip />} />
+                        <Bar dataKey="wins" name="Wins" radius={[0, 6, 6, 0]} barSize={28}>
+                          {h2hChartData.map((d, i) => <Cell key={i} fill={d.fill} />)}
+                        </Bar>
+                      </BarChart>
+                    </ResponsiveContainer>
+                    <div className="grid grid-cols-2 gap-3 mt-3">
+                      <div className="bg-gray-800/50 rounded-xl px-4 py-3">
+                        <p className="text-xs text-gray-500 mb-1">Current Streak</p>
+                        <p className="text-sm text-white font-semibold">{h.currentStreak}</p>
+                      </div>
+                      <div className="bg-gray-800/50 rounded-xl px-4 py-3">
+                        <p className="text-xs text-gray-500 mb-1">Last Meeting</p>
+                        <p className="text-sm text-white font-semibold">{h.lastResult}</p>
+                      </div>
                     </div>
-                    <div className="h-2 bg-gray-800 rounded-full overflow-hidden">
-                      <div
-                        className="h-full bg-gradient-to-r from-green-500 to-green-400 rounded-full transition-all"
-                        style={{ width: `${(analysis.recentForm.teamA.wins / 7) * 100}%` }}
-                      />
-                    </div>
-                    <p className="text-xs text-gray-500 mt-1">{analysis.recentForm.teamA.trend}</p>
+                    {h.keyRivalryFact && (
+                      <div className="bg-amber-500/5 border border-amber-500/20 rounded-xl px-4 py-3 mt-3">
+                        <p className="text-xs text-amber-400 mb-1 flex items-center gap-1"><Trophy className="w-3 h-3" />Rivalry Fact</p>
+                        <p className="text-sm text-gray-300">{h.keyRivalryFact}</p>
+                      </div>
+                    )}
                   </div>
+                ) : (
+                  <p className="text-gray-500 text-sm mb-6">Head-to-head history unavailable for this matchup.</p>
+                )}
+
+                {form?.teamA && (
                   <div>
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-red-400 font-semibold">{analysis.teamB}</span>
-                      <span className="text-sm">
-                        <span className="text-green-400">{analysis.recentForm.teamB.wins}W</span>
-                        {' - '}
-                        <span className="text-red-400">{analysis.recentForm.teamB.losses}L</span>
-                      </span>
+                    <p className="text-xs text-gray-500 uppercase font-bold mb-3">Recent Form (last 5)</p>
+                    <div className="space-y-3 mb-4">
+                      {[{ team: analysis.teamA, data: form.teamA }, { team: analysis.teamB, data: form.teamB }].map(({ team, data }) => (
+                        <div key={team} className="flex items-center gap-3">
+                          <span className="text-sm text-gray-400 w-28 truncate">{team}</span>
+                          <div className="flex gap-1.5">{data.last5.split(' ').map((r, i) => <FormBadge key={i} result={r} />)}</div>
+                          <span className={`text-xs font-bold ml-1 ${data.trend === 'Strong' ? 'text-emerald-400' : data.trend === 'Poor' ? 'text-red-400' : 'text-amber-400'}`}>{data.trend}</span>
+                        </div>
+                      ))}
                     </div>
-                    <div className="h-2 bg-gray-800 rounded-full overflow-hidden">
-                      <div
-                        className="h-full bg-gradient-to-r from-green-500 to-green-400 rounded-full transition-all"
-                        style={{ width: `${(analysis.recentForm.teamB.wins / 7) * 100}%` }}
-                      />
-                    </div>
-                    <p className="text-xs text-gray-500 mt-1">{analysis.recentForm.teamB.trend}</p>
+                    <ResponsiveContainer width="100%" height={140}>
+                      <BarChart data={formChartData} barCategoryGap="35%">
+                        <CartesianGrid strokeDasharray="3 3" stroke="#1f2937" />
+                        <XAxis dataKey="name" tick={{ fill: '#6b7280', fontSize: 11 }} axisLine={false} tickLine={false} />
+                        <YAxis tick={{ fill: '#6b7280', fontSize: 11 }} axisLine={false} tickLine={false} />
+                        <Tooltip content={<CustomTooltip />} />
+                        <Bar dataKey="avg" name="Avg Score" radius={[6, 6, 0, 0]} barSize={40}>
+                          {formChartData.map((d, i) => <Cell key={i} fill={d.fill} />)}
+                        </Bar>
+                      </BarChart>
+                    </ResponsiveContainer>
                   </div>
-                </div>
+                )}
               </div>
-            </div>
+            )}
 
             {/* AI Reasoning */}
             <div className="bg-gray-900 rounded-xl border border-purple-900/50 p-6">
@@ -523,8 +597,9 @@ function AnalysisContent() {
 
             {/* Disclaimer */}
             <div className="text-center text-gray-600 text-xs py-4">
-              Predictions are generated by a TensorFlow.js neural network model and are for
-              informational purposes only. Past performance does not guarantee future results.
+              Win probability from our internal prediction model; pitch, player, and history
+              details generated by OpenAI GPT-4o and Google Gemini from real cricket knowledge.
+              For informational purposes only — past performance does not guarantee future results.
             </div>
           </div>
         )}

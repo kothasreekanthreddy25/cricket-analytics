@@ -1,21 +1,18 @@
 import { NextResponse } from 'next/server'
-import OpenAI from 'openai'
-import { GoogleGenerativeAI } from '@google/generative-ai'
 import { prisma } from '@/lib/prisma'
 import { getFeaturedMatches, normalizeSportMonksMatch } from '@/lib/sportmonks'
+import { isDummy, openaiPreview, getCommentatorIntro, getPredictedXIs, enrichPlayersWithRealStats } from '@/lib/ai-match-preview'
 
 export const dynamic = 'force-dynamic'
 
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
-
-const DUMMY = new Set(['team a', 'team b', 'teama', 'teamb', 'tbd', 'test', 'unknown'])
-const isDummy = (n: string) => DUMMY.has(n.toLowerCase().trim())
 const norm = (p: number) => p > 1 ? p / 100 : p
 
 interface MatchSlot {
   teamA: string; teamB: string; matchKey: string
   tournament: string; venue: string; format: string
   startAt?: string | null
+  teamAId?: number | null
+  teamBId?: number | null
 }
 
 // ── Step 1: get upcoming matches (real API first, DB fallback) ─────────────────
@@ -34,6 +31,8 @@ async function getUpcomingMatches(): Promise<MatchSlot[]> {
         venue: m.venue || '',
         format: m.matchType || 'T20',
         startAt: m.dateTimeGMT || null,
+        teamAId: m.teamAId,
+        teamBId: m.teamBId,
       }))
     if (upcoming.length > 0) return upcoming.slice(0, 5)
   } catch {}
@@ -81,122 +80,6 @@ async function getUpcomingMatches(): Promise<MatchSlot[]> {
   return results
 }
 
-// ── Gemini commentator voice ──────────────────────────────────────────────────
-async function geminiCommentatorIntro(teamA: string, teamB: string, tournament: string, venue: string, format: string): Promise<string | null> {
-  const key = process.env.GEMINI_API_KEY
-  if (!key) return null
-  try {
-    const genAI = new GoogleGenerativeAI(key)
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' })
-    const result = await model.generateContent(
-      `You are a legendary cricket commentator like Richie Benaud or Tony Greig.
-Write a dramatic, vivid 2-sentence pre-match introduction specifically for ${teamA} vs ${teamB} in the ${tournament} (${format}) at ${venue || 'the venue'}.
-Be specific: mention actual players, team strengths, recent rivalry moments. No generic phrases.
-Family-friendly, broadcast quality.`
-    )
-    return result.response.text().trim()
-  } catch {
-    return null
-  }
-}
-
-// ── OpenAI structured preview — specific to THIS match ───────────────────────
-async function openaiPreview(teamA: string, teamB: string, tournament: string, venue: string, format: string, winContext: string) {
-  const resp = await openai.chat.completions.create({
-    model: 'gpt-4o',
-    response_format: { type: 'json_object' },
-    temperature: 0.6,
-    max_tokens: 1500,
-    messages: [
-      {
-        role: 'system',
-        content: `You are a cricket analyst specialising in ${format} cricket.
-Generate preview data SPECIFIC to ${teamA} vs ${teamB} in the ${tournament}.
-Use real cricket knowledge: actual player names, real historical results between these teams, actual venues.
-Do NOT use generic placeholders like "Player A" or "Stadium X".`,
-      },
-      {
-        role: 'user',
-        content: `Generate a detailed pre-match preview for ${teamA} vs ${teamB}.
-Tournament: ${tournament}
-Format: ${format}
-Venue: ${venue || 'TBD'}
-Win context: ${winContext}
-
-Return ONLY this JSON (no extra text):
-{
-  "pitchReport": {
-    "venue": "actual stadium name, city",
-    "surface": "Dry and dusty | Flat and true | Green-tinged | Hard and bouncy",
-    "type": "Spin-friendly | Batting paradise | Pace-friendly | Balanced",
-    "avgFirstInnings": 155,
-    "chaseSuccessRate": 45,
-    "dew": "Yes — dew expected in second innings | No significant dew",
-    "expectedBehavior": "2 specific sentences about how this pitch plays for ${format}",
-    "tossAdvantage": "BAT | BOWL",
-    "tossReason": "specific reason for this venue"
-  },
-  "playersToWatch": [
-    {
-      "name": "Real player full name",
-      "team": "${teamA}",
-      "role": "BAT | BOWL | AR | WK",
-      "reason": "specific reason why this player is key in this match",
-      "keyStats": "real career/recent stats",
-      "threat": "HIGH | MEDIUM"
-    },
-    {
-      "name": "Real player full name",
-      "team": "${teamA}",
-      "role": "BAT | BOWL | AR | WK",
-      "reason": "specific reason why this player is key in this match",
-      "keyStats": "real career/recent stats",
-      "threat": "HIGH | MEDIUM"
-    },
-    {
-      "name": "Real player full name",
-      "team": "${teamB}",
-      "role": "BAT | BOWL | AR | WK",
-      "reason": "specific reason why this player is key in this match",
-      "keyStats": "real career/recent stats",
-      "threat": "HIGH | MEDIUM"
-    },
-    {
-      "name": "Real player full name",
-      "team": "${teamB}",
-      "role": "BAT | BOWL | AR | WK",
-      "reason": "specific reason why this player is key in this match",
-      "keyStats": "real career/recent stats",
-      "threat": "HIGH | MEDIUM"
-    }
-  ],
-  "teamHistory": {
-    "totalMeetings": 0,
-    "teamAWins": 0,
-    "teamBWins": 0,
-    "lastResult": "specific last meeting result",
-    "currentStreak": "which team is in better form currently",
-    "keyRivalryFact": "interesting real historical fact about ${teamA} vs ${teamB}"
-  },
-  "recentForm": {
-    "teamA": { "last5": "W W L W W", "trend": "Strong | Inconsistent | Poor", "avgScore": 0 },
-    "teamB": { "last5": "L W W L W", "trend": "Strong | Inconsistent | Poor", "avgScore": 0 }
-  },
-  "prediction": {
-    "winner": "${teamA} or ${teamB} (choose one)",
-    "confidence": "HIGH | MEDIUM | LOW",
-    "margin": "by X runs | by X wickets",
-    "winnerProbPct": 60,
-    "keyFactor": "the single most important factor deciding this match",
-    "xFactor": "one wildcard player/event that could swing it"
-  }
-}`,
-      },
-    ],
-  })
-  return JSON.parse(resp.choices[0].message.content || '{}')
-}
-
 // ── Route handler ─────────────────────────────────────────────────────────────
 export async function GET() {
   try {
@@ -240,23 +123,18 @@ export async function GET() {
       const favourite = probA > probB ? m.teamA : m.teamB
       const winContext = `${favourite} are favourites at ${Math.max(probA, probB)}% probability. Confidence: ${confidence}.`
 
-      const [structured, geminiIntro] = await Promise.all([
-        openaiPreview(m.teamA, m.teamB, m.tournament, m.venue, m.format, winContext),
-        geminiCommentatorIntro(m.teamA, m.teamB, m.tournament, m.venue, m.format),
+      // Ground "players to watch" in each team's actual last submitted XI
+      // instead of asking the model to recall the current squad from memory.
+      // (These are all genuinely upcoming matches, so there's never a "toss
+      // has happened" confirmed lineup available yet — always tier 2.)
+      const knownXIs = await getPredictedXIs(m.teamAId, m.teamBId)
+
+      const [structured, commentator] = await Promise.all([
+        openaiPreview(m.teamA, m.teamB, m.tournament, m.venue, m.format, winContext, m.startAt, knownXIs),
+        getCommentatorIntro(m.teamA, m.teamB, m.tournament, m.venue, m.format, m.startAt),
       ])
 
-      let commentatorIntro = geminiIntro
-      if (!commentatorIntro) {
-        const fallback = await openai.chat.completions.create({
-          model: 'gpt-4o',
-          max_tokens: 100,
-          messages: [
-            { role: 'system', content: 'Cricket commentator. 2 sentences. Specific to these teams. No generic phrases.' },
-            { role: 'user', content: `Pre-match intro for ${m.teamA} vs ${m.teamB}, ${m.tournament}, ${m.format} at ${m.venue || 'the venue'}. Mention specific players and team strengths.` },
-          ],
-        })
-        commentatorIntro = fallback.choices[0].message.content || ''
-      }
+      const playersToWatch = await enrichPlayersWithRealStats(structured.playersToWatch || [], knownXIs, m.format)
 
       previews.push({
         matchKey: m.matchKey,
@@ -269,10 +147,18 @@ export async function GET() {
         probA,
         probB,
         confidence,
-        commentatorIntro,
-        commentatorSource: geminiIntro ? 'Gemini 2.0 Flash' : 'OpenAI GPT-4o',
+        commentatorIntro: commentator.text,
+        commentatorSource: commentator.source,
+        lineupSource: { teamA: knownXIs.teamASource, teamB: knownXIs.teamBSource },
+        lineupConfirmed: { teamA: knownXIs.teamAConfirmed, teamB: knownXIs.teamBConfirmed },
+        dataSources: {
+          squads: knownXIs.teamA.length || knownXIs.teamB.length ? 'SportMonks' : 'AI estimate',
+          playerStats: 'SportMonks',
+          winProbability: 'CricketTips AI Model',
+          pitchAndNarrative: commentator.source === 'OpenAI GPT-4o' ? 'OpenAI GPT-4o' : `${commentator.source} + OpenAI GPT-4o`,
+        },
         pitchReport: structured.pitchReport || {},
-        playersToWatch: structured.playersToWatch || [],
+        playersToWatch,
         teamHistory: structured.teamHistory || {},
         recentForm: structured.recentForm || {},
         prediction: {
