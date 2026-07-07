@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { getFeaturedMatches, normalizeSportMonksMatch } from '@/lib/sportmonks'
-import { isDummy, openaiPreview, getCommentatorIntro, getPredictedXIs, enrichPlayersWithRealStats } from '@/lib/ai-match-preview'
+import { isDummy, openaiPreview, getCommentatorIntro, getPredictedXIs, enrichPlayersWithRealStats, buildFantasyXI } from '@/lib/ai-match-preview'
 
 export const dynamic = 'force-dynamic'
 
@@ -135,6 +135,7 @@ export async function GET() {
       ])
 
       const playersToWatch = await enrichPlayersWithRealStats(structured.playersToWatch || [], knownXIs, m.format)
+      const fantasyXI = await buildFantasyXI(knownXIs, m.teamA, m.teamB, m.format, structured.pitchReport)
 
       previews.push({
         matchKey: m.matchKey,
@@ -151,6 +152,7 @@ export async function GET() {
         commentatorSource: commentator.source,
         lineupSource: { teamA: knownXIs.teamASource, teamB: knownXIs.teamBSource },
         lineupConfirmed: { teamA: knownXIs.teamAConfirmed, teamB: knownXIs.teamBConfirmed },
+        fantasyXI,
         dataSources: {
           squads: knownXIs.teamA.length || knownXIs.teamB.length ? 'SportMonks' : 'AI estimate',
           playerStats: 'SportMonks',

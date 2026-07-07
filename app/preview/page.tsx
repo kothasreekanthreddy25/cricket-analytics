@@ -7,6 +7,7 @@ import {
   Mic2, ArrowLeft, MapPin, Droplets, Sun, User, TrendingUp,
   History, Brain, Star, RefreshCw, Zap, Shield, Target, AlertTriangle,
   Trophy, Calendar, ChevronLeft, ChevronRight, CheckCircle2, ListChecks, Database,
+  Sparkles, Crown, Award,
 } from 'lucide-react'
 
 // ── Types ─────────────────────────────────────────────────────────────────────
@@ -16,17 +17,20 @@ interface TeamHistory { totalMeetings: number; teamAWins: number; teamBWins: num
 interface RecentForm { teamA: { last5: string; trend: string; avgScore: number }; teamB: { last5: string; trend: string; avgScore: number } }
 interface Prediction { winner: string; confidence: string; margin: string; winnerProbPct: number; keyFactor: string; xFactor: string }
 interface DataSources { squads: string; playerStats: string; winProbability: string; pitchAndNarrative: string }
+interface FantasyPlayer { id: number | null; name: string; team: string; role: 'WK' | 'BAT' | 'AR' | 'BOWL'; value: number; isCaptain: boolean; isViceCaptain: boolean; statLine: string | null }
+interface FantasyRecommendation { xi: FantasyPlayer[]; captain: FantasyPlayer; viceCaptain: FantasyPlayer; reasoning: string[]; source: string }
 interface Preview {
   matchKey: string; teamA: string; teamB: string; tournament: string; format: string; venue?: string; startAt?: string | null
   probA: number; probB: number; confidence: string; commentatorIntro: string; commentatorSource: string
   pitchReport: PitchReport; playersToWatch: Player[]; teamHistory: TeamHistory; recentForm: RecentForm; prediction: Prediction
   lineupSource?: { teamA: string | null; teamB: string | null }
   lineupConfirmed?: { teamA: boolean; teamB: boolean }
+  fantasyXI?: FantasyRecommendation | null
   dataSources?: DataSources
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
-type Tab = 'pitch' | 'players' | 'history' | 'prediction'
+type Tab = 'pitch' | 'players' | 'fantasy' | 'history' | 'prediction'
 
 const CONF_CLS: Record<string, string> = {
   HIGH: 'text-emerald-400 bg-emerald-500/10 border-emerald-500/30',
@@ -210,6 +214,85 @@ function PlayersPanel({ players, teamA, teamB, lineupSource, lineupConfirmed }: 
   )
 }
 
+const FANTASY_ROLE_COLOR: Record<string, string> = {
+  BAT: 'bg-blue-500/15 text-blue-300 border-blue-500/30',
+  BOWL: 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30',
+  AR: 'bg-purple-500/15 text-purple-300 border-purple-500/30',
+  WK: 'bg-amber-500/15 text-amber-300 border-amber-500/40',
+}
+
+function FantasyPanel({ fantasy }: { fantasy?: FantasyRecommendation | null }) {
+  if (!fantasy) {
+    return (
+      <div className="py-8 text-center">
+        <p className="text-gray-500 text-sm">Fantasy XI needs a confirmed or recent lineup for both teams.</p>
+        <p className="text-gray-600 text-xs mt-1">Check back closer to match time.</p>
+      </div>
+    )
+  }
+  return (
+    <div className="space-y-5">
+      <div className="bg-amber-500/5 border border-amber-500/20 rounded-xl p-3">
+        <p className="text-xs text-amber-300 leading-relaxed">
+          Free advisory content, not affiliated with Dream11, MPL, or any fantasy platform.
+          Player values are computed from real career stats for this match only — not real
+          money advice.
+        </p>
+      </div>
+
+      <div className="grid grid-cols-2 gap-3">
+        {[
+          { label: 'Captain (2x)', p: fantasy.captain, icon: <Crown className="w-4 h-4 text-amber-400" /> },
+          { label: 'Vice-Captain (1.5x)', p: fantasy.viceCaptain, icon: <Award className="w-4 h-4 text-gray-300" /> },
+        ].map(({ label, p, icon }) => (
+          <div key={label} className="bg-gray-800/60 border border-gray-700/50 rounded-xl p-3">
+            <div className="flex items-center gap-1.5 text-[10px] text-gray-500 uppercase font-bold tracking-wider mb-1">
+              {icon}{label}
+            </div>
+            <p className="font-bold text-white text-sm">{p.name}</p>
+            <p className="text-xs text-gray-500">{p.team} · {p.role}</p>
+          </div>
+        ))}
+      </div>
+
+      <div>
+        <p className="text-xs text-gray-500 uppercase font-bold tracking-wider mb-2">Recommended XI</p>
+        <div className="space-y-2">
+          {fantasy.xi.map((p) => (
+            <div key={`${p.team}-${p.name}`} className="flex items-center gap-2.5 bg-gray-800/40 border border-gray-700/40 rounded-lg px-3 py-2">
+              <span className={`text-[9px] font-extrabold px-1.5 py-0.5 rounded-full border flex-shrink-0 ${FANTASY_ROLE_COLOR[p.role]}`}>{p.role}</span>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-1.5">
+                  <p className="text-sm font-semibold text-white truncate">{p.name}</p>
+                  {p.isCaptain && <span className="text-[9px] font-extrabold text-amber-400 flex-shrink-0">C</span>}
+                  {p.isViceCaptain && <span className="text-[9px] font-extrabold text-gray-300 flex-shrink-0">VC</span>}
+                </div>
+                <p className="text-[10px] text-gray-500 truncate">{p.team}{p.statLine ? ` · ${p.statLine}` : ''}</p>
+              </div>
+              <div className="flex items-center gap-1.5 flex-shrink-0">
+                <div className="w-10 h-1 bg-gray-700 rounded-full overflow-hidden">
+                  <div className="h-full bg-emerald-500 rounded-full" style={{ width: `${p.value}%` }} />
+                </div>
+                <span className="text-[10px] font-mono text-emerald-400 font-bold w-7 text-right">{p.value}</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="space-y-1.5">
+        {fantasy.reasoning.map((r, i) => (
+          <div key={i} className="flex items-start gap-2 bg-gray-800/40 rounded-lg px-3 py-2">
+            <Sparkles className="w-3 h-3 text-purple-400 flex-shrink-0 mt-0.5" />
+            <p className="text-xs text-gray-400">{r}</p>
+          </div>
+        ))}
+      </div>
+      <p className="text-center text-[10px] text-gray-600">{fantasy.source}</p>
+    </div>
+  )
+}
+
 function HistoryPanel({ h, form, teamA, teamB }: { h: TeamHistory; form: RecentForm; teamA: string; teamB: string }) {
   if (!h?.totalMeetings) return <p className="text-gray-500 text-sm py-8 text-center">History unavailable</p>
   const aWinPct = Math.round((h.teamAWins / h.totalMeetings) * 100)
@@ -295,6 +378,7 @@ function FullPreviewCard({ preview }: { preview: Preview }) {
   const TABS: { key: Tab; label: string; icon: React.ReactNode }[] = [
     { key: 'pitch', label: 'Pitch Report', icon: <MapPin className="w-4 h-4" /> },
     { key: 'players', label: 'Players to Watch', icon: <User className="w-4 h-4" /> },
+    { key: 'fantasy', label: 'Fantasy XI', icon: <Sparkles className="w-4 h-4" /> },
     { key: 'history', label: 'Head-to-Head', icon: <History className="w-4 h-4" /> },
     { key: 'prediction', label: 'AI Prediction', icon: <Brain className="w-4 h-4" /> },
   ]
@@ -377,6 +461,7 @@ function FullPreviewCard({ preview }: { preview: Preview }) {
       <div className="p-6 min-h-[320px]">
         {tab === 'pitch' && <PitchPanel p={preview.pitchReport} />}
         {tab === 'players' && <PlayersPanel players={preview.playersToWatch} teamA={preview.teamA} teamB={preview.teamB} lineupSource={preview.lineupSource} lineupConfirmed={preview.lineupConfirmed} />}
+        {tab === 'fantasy' && <FantasyPanel fantasy={preview.fantasyXI} />}
         {tab === 'history' && <HistoryPanel h={preview.teamHistory} form={preview.recentForm} teamA={preview.teamA} teamB={preview.teamB} />}
         {tab === 'prediction' && <PredictionPanel pred={preview.prediction} teamA={preview.teamA} teamB={preview.teamB} probA={preview.probA} probB={preview.probB} />}
       </div>

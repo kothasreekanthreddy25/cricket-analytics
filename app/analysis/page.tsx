@@ -6,7 +6,7 @@ import Link from 'next/link'
 import {
   ArrowLeft, Brain, Home, Mic2, MapPin, Droplets, Target, Star, User,
   History, Calendar, Trophy, AlertTriangle, Shield, TrendingUp, Zap,
-  CheckCircle2, ListChecks, Database,
+  CheckCircle2, ListChecks, Database, Sparkles, Crown, Award,
 } from 'lucide-react'
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell,
@@ -31,6 +31,8 @@ interface Prediction {
   keyFactor: string; xFactor: string
 }
 interface DataSources { squads: string; playerStats: string; winProbability: string; pitchAndNarrative: string }
+interface FantasyPlayer { id: number | null; name: string; team: string; role: 'WK' | 'BAT' | 'AR' | 'BOWL'; value: number; isCaptain: boolean; isViceCaptain: boolean; statLine: string | null }
+interface FantasyRecommendation { xi: FantasyPlayer[]; captain: FantasyPlayer; viceCaptain: FantasyPlayer; reasoning: string[]; source: string }
 
 interface Analysis {
   matchKey: string
@@ -54,6 +56,7 @@ interface Analysis {
   commentatorSource?: string
   lineupSource?: { teamA: string | null; teamB: string | null }
   lineupConfirmed?: { teamA: boolean; teamB: boolean }
+  fantasyXI?: FantasyRecommendation | null
   dataSources?: DataSources
 }
 
@@ -148,6 +151,79 @@ function PlayerCard({ player }: { player: RichPlayer }) {
           </ul>
         )}
       </div>
+    </div>
+  )
+}
+
+const FANTASY_ROLE_COLOR: Record<string, string> = {
+  BAT: 'bg-blue-500/15 text-blue-300 border-blue-500/30',
+  BOWL: 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30',
+  AR: 'bg-purple-500/15 text-purple-300 border-purple-500/30',
+  WK: 'bg-amber-500/15 text-amber-300 border-amber-500/40',
+}
+
+function FantasyXICard({ fantasy }: { fantasy?: FantasyRecommendation | null }) {
+  if (!fantasy) return null
+  return (
+    <div className="bg-gray-900 rounded-xl border border-gray-800 p-6">
+      <h2 className="text-xl font-bold mb-1 flex items-center gap-2">
+        <Sparkles className="w-5 h-5 text-purple-400" />Fantasy XI
+      </h2>
+      <div className="bg-amber-500/5 border border-amber-500/20 rounded-xl p-3 mb-4 mt-3">
+        <p className="text-xs text-amber-300 leading-relaxed">
+          Free advisory content, not affiliated with Dream11, MPL, or any fantasy platform.
+          Player values are computed from real career stats for this match only — not real
+          money advice.
+        </p>
+      </div>
+
+      <div className="grid grid-cols-2 gap-3 mb-5">
+        {[
+          { label: 'Captain (2x)', p: fantasy.captain, icon: <Crown className="w-4 h-4 text-amber-400" /> },
+          { label: 'Vice-Captain (1.5x)', p: fantasy.viceCaptain, icon: <Award className="w-4 h-4 text-gray-300" /> },
+        ].map(({ label, p, icon }) => (
+          <div key={label} className="bg-gray-800/60 border border-gray-700/50 rounded-xl p-3">
+            <div className="flex items-center gap-1.5 text-[10px] text-gray-500 uppercase font-bold tracking-wider mb-1">
+              {icon}{label}
+            </div>
+            <p className="font-bold text-white text-sm">{p.name}</p>
+            <p className="text-xs text-gray-500">{p.team} · {p.role}</p>
+          </div>
+        ))}
+      </div>
+
+      <p className="text-xs text-gray-500 uppercase font-bold tracking-wider mb-2">Recommended XI</p>
+      <div className="space-y-2 mb-4">
+        {fantasy.xi.map((p) => (
+          <div key={`${p.team}-${p.name}`} className="flex items-center gap-2.5 bg-gray-800/40 border border-gray-700/40 rounded-lg px-3 py-2">
+            <span className={`text-[9px] font-extrabold px-1.5 py-0.5 rounded-full border flex-shrink-0 ${FANTASY_ROLE_COLOR[p.role]}`}>{p.role}</span>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-1.5">
+                <p className="text-sm font-semibold text-white truncate">{p.name}</p>
+                {p.isCaptain && <span className="text-[9px] font-extrabold text-amber-400 flex-shrink-0">C</span>}
+                {p.isViceCaptain && <span className="text-[9px] font-extrabold text-gray-300 flex-shrink-0">VC</span>}
+              </div>
+              <p className="text-[10px] text-gray-500 truncate">{p.team}{p.statLine ? ` · ${p.statLine}` : ''}</p>
+            </div>
+            <div className="flex items-center gap-1.5 flex-shrink-0">
+              <div className="w-10 h-1 bg-gray-700 rounded-full overflow-hidden">
+                <div className="h-full bg-emerald-500 rounded-full" style={{ width: `${p.value}%` }} />
+              </div>
+              <span className="text-[10px] font-mono text-emerald-400 font-bold w-7 text-right">{p.value}</span>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="space-y-1.5">
+        {fantasy.reasoning.map((r, i) => (
+          <div key={i} className="flex items-start gap-2 bg-gray-800/40 rounded-lg px-3 py-2">
+            <Sparkles className="w-3 h-3 text-purple-400 flex-shrink-0 mt-0.5" />
+            <p className="text-xs text-gray-400">{r}</p>
+          </div>
+        ))}
+      </div>
+      <p className="text-center text-[10px] text-gray-600 mt-3">{fantasy.source}</p>
     </div>
   )
 }
@@ -510,6 +586,8 @@ function AnalysisContent() {
                 </div>
               </div>
             )}
+
+            <FantasyXICard fantasy={analysis.fantasyXI} />
 
             {/* Head-to-Head + Recent Form */}
             {(h?.totalMeetings || form?.teamA) && (

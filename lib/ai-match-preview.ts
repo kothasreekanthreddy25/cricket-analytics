@@ -202,15 +202,33 @@ export async function getPredictedXIs(
 }
 
 // ── Real per-player career stats (batting/bowling) ────────────────────────────
-// Replaces AI-guessed "keyStats" strings with actual SportMonks career figures
-// for any player we resolved via getPredictedXIs. Aggregates across every
-// season chunk SportMonks returns for the matching format (T20/T20I/ODI/Test)
-// since career stats come split by season, not as one running total.
-export async function getRealPlayerStatBullets(playerId: number, format: string): Promise<string[]> {
+// Ground truth for both the "players to watch" keyStats bullets AND the
+// Fantasy XI value score below. Aggregates across every season chunk
+// SportMonks returns for the matching format (T20/T20I/ODI/Test) since career
+// stats come split by season, not as one running total.
+export interface AggregatedCareerStats {
+  battingMatches: number
+  runs: number
+  battingAvg: number
+  strikeRate: number
+  fifties: number
+  hundreds: number
+  bowlingMatches: number
+  wickets: number
+  economy: number
+  bowlingAvg: number
+}
+
+const EMPTY_STATS: AggregatedCareerStats = {
+  battingMatches: 0, runs: 0, battingAvg: 0, strikeRate: 0, fifties: 0, hundreds: 0,
+  bowlingMatches: 0, wickets: 0, economy: 0, bowlingAvg: 0,
+}
+
+export async function getAggregatedCareerStats(playerId: number, format: string): Promise<AggregatedCareerStats | null> {
   try {
     const data = await getPlayerCareer(String(playerId))
     const career: any[] = data?.data?.career || []
-    if (career.length === 0) return []
+    if (career.length === 0) return null
 
     // Prefer an exact format match (e.g. "T20I"); fall back to the T20 family
     // for franchise-heavy players, since not everyone has international caps.
@@ -219,9 +237,9 @@ export async function getRealPlayerStatBullets(playerId: number, format: string)
     if (entries.length === 0 && fmt.startsWith('T20')) {
       entries = career.filter(c => (c.type || '').toUpperCase().startsWith('T20'))
     }
-    if (entries.length === 0) return []
+    if (entries.length === 0) return null
 
-    const bullets: string[] = []
+    const stats = { ...EMPTY_STATS }
 
     const battingEntries = entries.map(e => e.batting).filter(Boolean)
     if (battingEntries.length > 0) {
@@ -230,15 +248,13 @@ export async function getRealPlayerStatBullets(playerId: number, format: string)
       const innings = battingEntries.reduce((s, b) => s + (b.innings || 0), 0)
       const notOuts = battingEntries.reduce((s, b) => s + (b.not_outs || 0), 0)
       const balls = battingEntries.reduce((s, b) => s + (b.balls_faced || 0), 0)
-      const fifties = battingEntries.reduce((s, b) => s + (b.fifties || 0), 0)
-      const hundreds = battingEntries.reduce((s, b) => s + (b.hundreds || 0), 0)
       const dismissals = innings - notOuts
-      const avg = dismissals > 0 ? runs / dismissals : runs
-      const sr = balls > 0 ? (runs / balls) * 100 : 0
-      if (runs > 0) {
-        bullets.push(`${runs} runs in ${matches} ${fmt} matches, avg ${avg.toFixed(1)}, SR ${sr.toFixed(1)}`)
-        if (fifties > 0 || hundreds > 0) bullets.push(`${hundreds} hundred${hundreds === 1 ? '' : 's'}, ${fifties} fifties`)
-      }
+      stats.battingMatches = matches
+      stats.runs = runs
+      stats.battingAvg = dismissals > 0 ? runs / dismissals : runs
+      stats.strikeRate = balls > 0 ? (runs / balls) * 100 : 0
+      stats.fifties = battingEntries.reduce((s, b) => s + (b.fifties || 0), 0)
+      stats.hundreds = battingEntries.reduce((s, b) => s + (b.hundreds || 0), 0)
     }
 
     const bowlingEntries = entries.map(e => e.bowling).filter(Boolean)
@@ -247,17 +263,52 @@ export async function getRealPlayerStatBullets(playerId: number, format: string)
       const wickets = bowlingEntries.reduce((s, b) => s + (b.wickets || 0), 0)
       const runsConceded = bowlingEntries.reduce((s, b) => s + (b.runs || 0), 0)
       const overs = bowlingEntries.reduce((s, b) => s + (b.overs || 0), 0)
-      const econ = overs > 0 ? runsConceded / overs : 0
-      const avg = wickets > 0 ? runsConceded / wickets : 0
-      if (wickets > 0) {
-        bullets.push(`${wickets} wickets in ${matches} ${fmt} matches, econ ${econ.toFixed(2)}${avg > 0 ? `, avg ${avg.toFixed(1)}` : ''}`)
-      }
+      stats.bowlingMatches = matches
+      stats.wickets = wickets
+      stats.economy = overs > 0 ? runsConceded / overs : 0
+      stats.bowlingAvg = wickets > 0 ? runsConceded / wickets : 0
     }
 
-    return bullets
+    return stats.runs > 0 || stats.wickets > 0 ? stats : null
   } catch {
-    return []
+    return null
   }
+}
+
+function statsToBullets(stats: AggregatedCareerStats | null, fmt: string): string[] {
+  if (!stats) return []
+  const bullets: string[] = []
+  if (stats.runs > 0) {
+    bullets.push(`${stats.runs} runs in ${stats.battingMatches} ${fmt} matches, avg ${stats.battingAvg.toFixed(1)}, SR ${stats.strikeRate.toFixed(1)}`)
+    if (stats.fifties > 0 || stats.hundreds > 0) {
+      bullets.push(`${stats.hundreds} hundred${stats.hundreds === 1 ? '' : 's'}, ${stats.fifties} fifties`)
+    }
+  }
+  if (stats.wickets > 0) {
+    bullets.push(`${stats.wickets} wickets in ${stats.bowlingMatches} ${fmt} matches, econ ${stats.economy.toFixed(2)}${stats.bowlingAvg > 0 ? `, avg ${stats.bowlingAvg.toFixed(1)}` : ''}`)
+  }
+  return bullets
+}
+
+export async function getRealPlayerStatBullets(playerId: number, format: string): Promise<string[]> {
+  const stats = await getAggregatedCareerStats(playerId, format)
+  return statsToBullets(stats, (format || 'T20').toUpperCase())
+}
+
+// Bowlers often have a handful of career batting stats too (tail-enders bat
+// a little) — statsToBullets always puts batting first, which would surface
+// a specialist bowler's meaningless batting average instead of their actual
+// wickets/economy. Pick the line that matches why this player was selected.
+function primaryStatLine(stats: AggregatedCareerStats | null, fmt: string, role: FantasyRole): string | null {
+  if (!stats) return null
+  const bowlingLine = stats.wickets > 0
+    ? `${stats.wickets} wickets in ${stats.bowlingMatches} ${fmt} matches, econ ${stats.economy.toFixed(2)}${stats.bowlingAvg > 0 ? `, avg ${stats.bowlingAvg.toFixed(1)}` : ''}`
+    : null
+  const battingLine = stats.runs > 0
+    ? `${stats.runs} runs in ${stats.battingMatches} ${fmt} matches, avg ${stats.battingAvg.toFixed(1)}, SR ${stats.strikeRate.toFixed(1)}`
+    : null
+  if (role === 'BOWL') return bowlingLine || battingLine
+  return battingLine || bowlingLine
 }
 
 // Overwrite GPT's own "keyStats" guess with real career figures for any
@@ -289,6 +340,166 @@ export async function enrichPlayersWithRealStats(
     }
     return { ...p, keyStats: Array.isArray(p.keyStats) ? p.keyStats : [p.keyStats].filter(Boolean) }
   }))
+}
+
+// ── Fantasy XI (free advisory content — deterministic, no AI call) ────────────
+// Built entirely from getPredictedXIs + real SportMonks career stats, same
+// grounding as playersToWatch. No GPT/Gemini involved in player selection —
+// a wrong "recommended pick" is worse here than in narrative commentary, so
+// this stays fully deterministic and skips itself rather than guessing.
+
+export type FantasyRole = 'WK' | 'BAT' | 'AR' | 'BOWL'
+
+export interface FantasyPlayer {
+  id: number | null
+  name: string
+  team: string
+  role: FantasyRole
+  value: number // 0-100, this match's pool only — not comparable across matches
+  isCaptain: boolean
+  isViceCaptain: boolean
+  statLine: string | null
+}
+
+export interface FantasyRecommendation {
+  xi: FantasyPlayer[]
+  captain: FantasyPlayer
+  viceCaptain: FantasyPlayer
+  reasoning: string[]
+  source: string
+}
+
+function normalizeFantasyRole(positionName: string): FantasyRole {
+  const p = (positionName || '').toLowerCase()
+  if (p.includes('keeper')) return 'WK'
+  if (p.includes('all')) return 'AR'
+  if (p.includes('bowl')) return 'BOWL'
+  return 'BAT'
+}
+
+// Min-max normalized within this match's own candidate pool (not an absolute
+// scale) — a T20I average of 30 and an ODI average of 30 aren't the same
+// quality of player, so comparing everyone in the same match/format keeps
+// the score meaningful without needing a cross-format calibration model.
+function rawFantasyValue(role: FantasyRole, stats: AggregatedCareerStats | null): number {
+  if (!stats) return 0
+  const battingRaw = stats.runs > 0 ? stats.battingAvg * 0.6 + (stats.strikeRate - 100) * 0.3 : 0
+  const bowlingRaw = stats.wickets > 0
+    ? (stats.bowlingMatches > 0 ? (stats.wickets / stats.bowlingMatches) * 25 : 0) - stats.economy
+    : 0
+  if (role === 'BOWL') return Math.max(bowlingRaw, 0)
+  if (role === 'AR') return Math.max(battingRaw * 0.6 + bowlingRaw * 0.6, 0)
+  if (role === 'WK') return Math.max(battingRaw + 5, 0) // small keeping bonus — not in career batting/bowling data
+  return Math.max(battingRaw, 0)
+}
+
+export async function buildFantasyXI(
+  knownXIs: KnownXIs,
+  teamAName: string,
+  teamBName: string,
+  format: string,
+  pitchReport?: { type?: string; dew?: string; tossAdvantage?: string } | null
+): Promise<FantasyRecommendation | null> {
+  // Both teams need a real lineup — a fantasy pick built on a guessed XI is
+  // worse than no pick at all, so this feature simply doesn't render rather
+  // than fall back to AI-estimated players.
+  if (knownXIs.teamA.length === 0 || knownXIs.teamB.length === 0) return null
+
+  const fmt = (format || 'T20').toUpperCase()
+  const candidates = [
+    ...knownXIs.teamA.map(p => ({ ...p, team: teamAName })),
+    ...knownXIs.teamB.map(p => ({ ...p, team: teamBName })),
+  ]
+
+  const withStats = await Promise.all(candidates.map(async (p) => {
+    const stats = p.id ? await getAggregatedCareerStats(p.id, fmt) : null
+    const role = normalizeFantasyRole(p.role)
+    return { ...p, role, stats, raw: rawFantasyValue(role, stats) }
+  }))
+
+  const maxRaw = Math.max(1, ...withStats.map(p => p.raw))
+  const scored = withStats.map(p => ({ ...p, value: Math.round((p.raw / maxRaw) * 100) }))
+
+  // Fill role minimums first, then top up by score, respecting role maximums.
+  const MIN: Record<FantasyRole, number> = { WK: 1, BAT: 3, AR: 1, BOWL: 3 }
+  const MAX: Record<FantasyRole, number> = { WK: 2, BAT: 5, AR: 3, BOWL: 5 }
+  const byRole: Record<FantasyRole, typeof scored> = { WK: [], BAT: [], AR: [], BOWL: [] }
+  for (const p of scored) byRole[p.role].push(p)
+  for (const role of Object.keys(byRole) as FantasyRole[]) byRole[role].sort((a, b) => b.value - a.value)
+
+  const chosen: typeof scored = []
+  const chosenIds = new Set<string>()
+  const pick = (p: (typeof scored)[number]) => {
+    const key = `${p.team}:${p.name}`
+    if (chosenIds.has(key)) return
+    chosenIds.add(key)
+    chosen.push(p)
+  }
+
+  for (const role of ['BAT', 'BOWL', 'AR', 'WK'] as FantasyRole[]) {
+    byRole[role].slice(0, MIN[role]).forEach(pick)
+  }
+
+  const remaining = scored
+    .filter(p => !chosenIds.has(`${p.team}:${p.name}`))
+    .sort((a, b) => b.value - a.value)
+  for (const p of remaining) {
+    if (chosen.length >= 11) break
+    const roleCount = chosen.filter(c => c.role === p.role).length
+    if (roleCount >= MAX[p.role]) continue
+    pick(p)
+  }
+  // Best-effort backfill if role caps left us short (small/incomplete squads)
+  if (chosen.length < 11) {
+    for (const p of remaining) {
+      if (chosen.length >= 11) break
+      pick(p)
+    }
+  }
+
+  const xi = chosen
+    .slice(0, 11)
+    .sort((a, b) => b.value - a.value)
+    .map((p): FantasyPlayer => ({
+      id: p.id,
+      name: p.name,
+      team: p.team,
+      role: p.role,
+      value: p.value,
+      isCaptain: false,
+      isViceCaptain: false,
+      statLine: primaryStatLine(p.stats, fmt, p.role),
+    }))
+
+  if (xi.length < 2) return null
+
+  xi[0].isCaptain = true
+  xi[1].isViceCaptain = true
+
+  const reasoning: string[] = []
+  if (pitchReport?.type === 'Spin-friendly') {
+    reasoning.push('Pitch favors spin — spin-bowling all-rounders and strike-rotators are weighted up.')
+  } else if (pitchReport?.type === 'Pace-friendly') {
+    reasoning.push('Pace-friendly surface — quick bowlers get extra weight in the value score.')
+  } else if (pitchReport?.type === 'Batting paradise') {
+    reasoning.push('Batting-friendly surface — top-order runs carry more weight than economy here.')
+  }
+  if (pitchReport?.dew?.toLowerCase().startsWith('yes')) {
+    reasoning.push('Dew expected in the second innings — chasing batters get a slight edge over bowlers.')
+  }
+  reasoning.push(`Captain and vice-captain picked by this match's Fantasy Value Score, computed from real ${fmt} career stats — not a general reputation ranking.`)
+  const missingData = withStats.filter(p => !p.stats).length
+  if (missingData > 0) {
+    reasoning.push(`${missingData} player${missingData === 1 ? '' : 's'} had no recent ${fmt} stats on file and were included on role need only.`)
+  }
+
+  return {
+    xi,
+    captain: xi[0],
+    viceCaptain: xi[1],
+    reasoning,
+    source: 'CricketTips Fantasy Value — computed from SportMonks career stats',
+  }
 }
 
 // ── Gemini commentator voice ──────────────────────────────────────────────────

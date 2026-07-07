@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { analyzeMatch, getAvailableMatches } from '@/lib/analysis-engine'
 import { prisma } from '@/lib/prisma'
-import { resolveMatchInfo, openaiPreview, getCommentatorIntro, getPredictedXIs, enrichPlayersWithRealStats } from '@/lib/ai-match-preview'
+import { resolveMatchInfo, openaiPreview, getCommentatorIntro, getPredictedXIs, enrichPlayersWithRealStats, buildFantasyXI } from '@/lib/ai-match-preview'
 
 export const dynamic = 'force-dynamic'
 
@@ -82,6 +82,11 @@ export async function GET(request: NextRequest) {
       // for any player we resolved via the known XIs.
       const playersToWatch = await enrichPlayersWithRealStats(structured.playersToWatch || [], knownXIs, info.format)
 
+      // Free fantasy XI advisory — fully deterministic, built from the same
+      // real lineup + career-stat data, no separate AI call. Renders null
+      // (and the UI hides the section) unless both teams have a real lineup.
+      const fantasyXI = await buildFantasyXI(knownXIs, info.teamA, info.teamB, info.format, structured.pitchReport)
+
       rich = {
         pitchReport: structured.pitchReport || {},
         playersToWatch,
@@ -92,6 +97,7 @@ export async function GET(request: NextRequest) {
         commentatorSource: commentator.source,
         lineupSource: { teamA: knownXIs.teamASource, teamB: knownXIs.teamBSource },
         lineupConfirmed: { teamA: knownXIs.teamAConfirmed, teamB: knownXIs.teamBConfirmed },
+        fantasyXI,
         dataSources: {
           squads: knownXIs.teamA.length || knownXIs.teamB.length ? 'SportMonks' : 'AI estimate',
           playerStats: 'SportMonks',
