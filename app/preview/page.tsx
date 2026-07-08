@@ -9,6 +9,7 @@ import {
   Trophy, Calendar, ChevronLeft, ChevronRight, CheckCircle2, ListChecks, Database,
   Sparkles, Crown, Award,
 } from 'lucide-react'
+import ShareButtons from '@/components/ShareButtons'
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 interface PitchReport { venue: string; surface: string; type: string; avgFirstInnings: number; chaseSuccessRate: number; dew: string; expectedBehavior: string; tossAdvantage: 'BAT' | 'BOWL'; tossReason: string }
@@ -394,9 +395,16 @@ function FullPreviewCard({ preview }: { preview: Preview }) {
           </div>
           <span className="text-xs text-gray-600">{preview.commentatorSource}</span>
         </div>
-        <h2 className="text-2xl font-extrabold text-white">
-          {preview.teamA} <span className="text-gray-500 font-normal text-xl">vs</span> {preview.teamB}
-        </h2>
+        <div className="flex items-center justify-between gap-3 flex-wrap">
+          <h2 className="text-2xl font-extrabold text-white">
+            {preview.teamA} <span className="text-gray-500 font-normal text-xl">vs</span> {preview.teamB}
+          </h2>
+          <ShareButtons
+            source="preview-page"
+            text={`${preview.teamA} vs ${preview.teamB} — AI predicts ${preview.probA >= preview.probB ? preview.teamA : preview.teamB} to win (${Math.max(preview.probA, preview.probB)}%)`}
+            url={`https://crickettips.ai/analysis?match=${preview.matchKey}`}
+          />
+        </div>
         {preview.startAt && (
           <p className="text-xs text-gray-500 mt-1 flex items-center gap-1">
             <Calendar className="w-3 h-3" />
