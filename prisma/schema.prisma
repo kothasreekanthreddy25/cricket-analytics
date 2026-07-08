@@ -176,14 +176,34 @@ model MatchAnalysis {
 }
 
 model PredictionLead {
-  id        String   @id @default(cuid())
-  whatsapp  String?
-  telegram  String?
-  name      String?
-  source    String   @default("popup")
-  createdAt DateTime @default(now())
+  id             String   @id @default(cuid())
+  whatsapp       String?
+  telegram       String?
+  // Telegram bots can only message users who've sent /start to the bot —
+  // there's no way to DM a raw @username. Set once the lead follows the
+  // deep-link ("Activate on Telegram") shown after signup and the scheduler
+  // picks up the resulting /start update. Null means reminders can't reach
+  // them yet, no matter what they typed into the popup.
+  telegramChatId String?
+  name           String?
+  source         String   @default("popup")
+  createdAt      DateTime @default(now())
 
   @@index([createdAt])
+  @@index([telegramChatId])
+}
+
+// One row per (lead, match) reminder actually sent — the unique constraint
+// is what prevents double-sending if the scheduler job runs again before
+// the match starts.
+model MatchReminder {
+  id       String   @id @default(cuid())
+  leadId   String
+  matchKey String
+  sentAt   DateTime @default(now())
+
+  @@unique([leadId, matchKey])
+  @@index([matchKey])
 }
 
 // First-party click log for outbound bookmaker/affiliate links. UK/AU

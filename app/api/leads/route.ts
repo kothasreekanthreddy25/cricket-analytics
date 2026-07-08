@@ -15,7 +15,7 @@ export async function POST(req: Request) {
     const cleanNumber = whatsapp ? whatsapp.replace(/[\s\-().]/g, '') : null
     const cleanTelegram = telegram ? telegram.replace(/^@/, '').trim() : null
 
-    await prisma.predictionLead.create({
+    const lead = await prisma.predictionLead.create({
       data: {
         whatsapp: cleanNumber || null,
         telegram: cleanTelegram || null,
@@ -24,7 +24,7 @@ export async function POST(req: Request) {
       },
     })
 
-    return NextResponse.json({ success: true })
+    return NextResponse.json({ success: true, leadId: lead.id })
   } catch (e: any) {
     return NextResponse.json({ success: false, error: e.message }, { status: 500 })
   }

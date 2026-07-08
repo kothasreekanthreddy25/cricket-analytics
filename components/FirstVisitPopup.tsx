@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { Brain, MessageCircle, ChevronRight, CheckCircle2, Trophy, Zap } from 'lucide-react'
 
 const STORAGE_KEY = 'ct_popup_dismissed'
+const TELEGRAM_BOT_USERNAME = process.env.NEXT_PUBLIC_TELEGRAM_BOT_USERNAME
 
 const COUNTRY_CODES = [
   { code: '+91',  flag: '🇮🇳', name: 'India' },
@@ -47,6 +48,7 @@ export default function FirstVisitPopup() {
   const [countryCode, setCountryCode] = useState('+91')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [leadId, setLeadId] = useState<string | null>(null)
 
   useEffect(() => {
     // Show after 3 seconds on first visit
@@ -81,6 +83,7 @@ export default function FirstVisitPopup() {
       })
       const data = await res.json()
       if (!data.success) throw new Error(data.error || 'Failed')
+      setLeadId(data.leadId || null)
       setStep('success')
       localStorage.setItem(STORAGE_KEY, '1')
     } catch {
@@ -293,10 +296,31 @@ export default function FirstVisitPopup() {
               <CheckCircle2 className="w-8 h-8 text-emerald-400" />
             </div>
             <h2 className="text-white font-extrabold text-xl mb-2">You're In! 🎉</h2>
-            <p className="text-gray-400 text-sm mb-1">
-              We'll send your first AI prediction shortly on WhatsApp.
-            </p>
-            <p className="text-gray-600 text-xs mb-6">Check your messages before the next match starts.</p>
+
+            {channel === 'telegram' && leadId && TELEGRAM_BOT_USERNAME ? (
+              <>
+                <p className="text-gray-400 text-sm mb-1">One more step — Telegram only lets bots message people who've said hi first.</p>
+                <p className="text-gray-600 text-xs mb-5">Tap below and hit Start — takes 2 seconds.</p>
+                <a
+                  href={`https://t.me/${TELEGRAM_BOT_USERNAME}?start=${leadId}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={dismiss}
+                  className="flex items-center justify-center gap-2 w-full bg-[#229ED9] hover:bg-[#1e8dc2] text-white px-4 py-3 rounded-xl font-bold text-sm transition-colors mb-2"
+                >
+                  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12L7.43 13.625l-2.95-.924c-.64-.203-.658-.64.136-.954l11.57-4.461c.537-.194 1.006.131.708.935z"/></svg>
+                  Activate on Telegram
+                </a>
+              </>
+            ) : (
+              <>
+                <p className="text-gray-400 text-sm mb-1">
+                  We'll send your first AI prediction shortly on WhatsApp.
+                </p>
+                <p className="text-gray-600 text-xs mb-6">Check your messages before the next match starts.</p>
+              </>
+            )}
+
             <button
               onClick={dismiss}
               className="w-full bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2.5 rounded-xl font-bold text-sm transition-colors"

@@ -13,12 +13,21 @@
  *
  *   3. generateBlogPosts — once daily at ~6:00 AM IST
  *      Scrapes RSS feeds → AI rewrites → publishes to Sanity.
+ *
+ *   4. pollTelegramStarts — every 1 minute (only if TELEGRAM_BOT_TOKEN set)
+ *      Picks up /start <leadId> updates and links the lead to a real
+ *      chat_id, so match reminders can actually reach them.
+ *
+ *   5. sendMatchReminders — every 30 minutes (only if TELEGRAM_BOT_TOKEN set)
+ *      Messages opted-in leads about recognizable international matches
+ *      starting soon.
  */
 
 import { prisma } from './prisma'
 import { roanuzGet } from './roanuz'
-import { getMatchDetails as getSportMonksMatch } from './sportmonks'
+import { getMatchDetails as getSportMonksMatch, getFeaturedMatches, normalizeSportMonksMatch } from './sportmonks'
 import { runPredictionGeneration } from './prediction-generator'
+import { isTelegramConfigured, getTelegramUpdates, sendTelegramMessage } from './telegram'
 
 // ──────────────────────────────────────────────
 // Job 1: Update prediction results
@@ -245,6 +254,122 @@ async function generateBlogPosts() {
 }
 
 // ──────────────────────────────────────────────
+// Job 4: Pick up Telegram /start updates
+// ──────────────────────────────────────────────
+// Telegram bots can only message users who've messaged them first — this
+// job is what turns "typed a Telegram username into the popup" into
+// "can actually receive reminders": it watches for /start <leadId> (sent
+// via the deep-link button shown after signup) and records the resulting
+// chat_id against that lead.
+
+let telegramUpdateOffset: number | undefined
+
+async function pollTelegramStarts() {
+  if (!isTelegramConfigured()) return
+  try {
+    const { updates, nextOffset } = await getTelegramUpdates(telegramUpdateOffset)
+    telegramUpdateOffset = nextOffset
+
+    for (const u of updates) {
+      const text = u.message?.text || ''
+      const chatId = u.message?.chat?.id
+      if (!chatId || !text.startsWith('/start')) continue
+
+      const leadId = text.split(' ')[1]
+      if (!leadId) continue
+
+      try {
+        await prisma.predictionLead.update({
+          where: { id: leadId },
+          data: { telegramChatId: String(chatId) },
+        })
+        await sendTelegramMessage(
+          String(chatId),
+          "✅ You're in! We'll message you before big matches with the AI prediction."
+        )
+      } catch {
+        // Bad/stale leadId in the deep link — nothing to link, skip silently
+      }
+    }
+  } catch (err: any) {
+    console.error('[Scheduler] Telegram poll failed:', err.message)
+  }
+}
+
+// ──────────────────────────────────────────────
+// Job 5: Send match reminders
+// ──────────────────────────────────────────────
+
+const REMINDER_TEAMS = new Set([
+  'india', 'england', 'australia', 'south africa', 'new zealand', 'pakistan',
+  'sri lanka', 'bangladesh', 'west indies', 'afghanistan', 'ireland', 'zimbabwe',
+])
+function isReminderWorthy(team: string): boolean {
+  const t = team.toLowerCase().replace(/\s+(w|women)$/i, '').trim()
+  return REMINDER_TEAMS.has(t)
+}
+
+async function sendMatchReminders() {
+  if (!isTelegramConfigured()) return
+  try {
+    const leads = await prisma.predictionLead.findMany({
+      where: { telegramChatId: { not: null } },
+      select: { id: true, telegramChatId: true },
+    })
+    if (leads.length === 0) return
+
+    const data = await getFeaturedMatches()
+    const matches = (data?.data || [])
+      .map(normalizeSportMonksMatch)
+      .filter((m): m is NonNullable<typeof m> => !!m)
+      .filter(m => m.status === 'upcoming' && isReminderWorthy(m.teamA) && isReminderWorthy(m.teamB))
+
+    const now = Date.now()
+    const dueSoon = matches.filter(m => {
+      if (!m.dateTimeGMT) return false
+      const startsAt = new Date(m.dateTimeGMT).getTime()
+      const minutesUntil = (startsAt - now) / 60000
+      // Remind 30-90 minutes before start — wide enough that a 30-min job
+      // cadence can't skip a match entirely between runs
+      return minutesUntil > 30 && minutesUntil <= 90
+    })
+
+    if (dueSoon.length === 0) return
+
+    for (const match of dueSoon) {
+      const prediction = await prisma.matchAnalysis.findFirst({
+        where: { matchKey: match.key },
+        orderBy: { createdAt: 'desc' },
+        select: { winProbabilityA: true, winProbabilityB: true },
+      })
+      const predictionLine = prediction
+        ? `\n\n🤖 AI: ${match.teamA} ${prediction.winProbabilityA}% — ${match.teamB} ${prediction.winProbabilityB}%`
+        : ''
+      const text =
+        `🏏 <b>${match.teamA} vs ${match.teamB}</b> starts soon (${match.tournament || 'Cricket'})` +
+        predictionLine +
+        `\n\nFull analysis: https://crickettips.ai/analysis?match=${match.key}`
+
+      for (const lead of leads) {
+        if (!lead.telegramChatId) continue
+        try {
+          // @@unique([leadId, matchKey]) — this throws if already sent,
+          // which is exactly the dedupe check: only message on success.
+          await prisma.matchReminder.create({ data: { leadId: lead.id, matchKey: match.key } })
+          await sendTelegramMessage(lead.telegramChatId, text)
+        } catch {
+          // Unique constraint hit (already reminded) or send failed — skip
+        }
+      }
+    }
+
+    console.log(`[Scheduler] Match reminders: ${dueSoon.length} match(es) due, ${leads.length} opted-in lead(s)`)
+  } catch (err: any) {
+    console.error('[Scheduler] Match reminders failed:', err.message)
+  }
+}
+
+// ──────────────────────────────────────────────
 // Scheduler Engine
 // ──────────────────────────────────────────────
 
@@ -293,8 +418,25 @@ export function startScheduler() {
     }
   }, ONE_HOUR)
 
+  // ── Job 4 & 5: Telegram reminders — only if a bot token is configured ──
+  if (isTelegramConfigured()) {
+    const ONE_MINUTE = 60 * 1000
+    const THIRTY_MINUTES = 30 * 60 * 1000
+
+    setTimeout(() => pollTelegramStarts(), 5_000)
+    setInterval(() => pollTelegramStarts(), ONE_MINUTE)
+
+    setTimeout(() => sendMatchReminders(), 60_000)
+    setInterval(() => sendMatchReminders(), THIRTY_MINUTES)
+  }
+
   console.log('[Scheduler] Jobs registered:')
   console.log('  - Prediction results: every 6 hours (+ on startup)')
   console.log('  - New predictions: every 6 hours (+ on startup)')
   console.log('  - Blog generation: daily at ~6 AM IST')
+  console.log(
+    isTelegramConfigured()
+      ? '  - Telegram reminders: polling every 1 min, sending every 30 min'
+      : '  - Telegram reminders: skipped (TELEGRAM_BOT_TOKEN not set)'
+  )
 }
