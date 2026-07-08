@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { Fragment, useEffect, useState } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { Radio, ChevronDown, ChevronRight } from 'lucide-react'
@@ -178,10 +178,10 @@ export default function LiveMatchesTicker() {
           </button>
 
           {tickerCards.map((match, i) => (
-            <>
-              <MatchCard key={match.key || match.id} match={match} />
-              {i === 2 && <StakeAdTicker key="stake-ad" />}
-            </>
+            <Fragment key={match.key || match.id}>
+              <MatchCard match={match} />
+              {i === 2 && <StakeAdTicker />}
+            </Fragment>
           ))}
         </div>
       )}

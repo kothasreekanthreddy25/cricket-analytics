@@ -78,8 +78,12 @@ async function runPipeline(maxPosts: number) {
     const articles = await scrapeAllFeeds()
 
     if (articles.length === 0) {
+      // All feeds failed or returned nothing — this is the "news isn't
+      // updating" symptom in log form. A 200 with generated:0 previously
+      // looked identical to "nothing new today," burying real feed outages.
+      console.error('[Generate] All RSS feeds returned zero articles — check feed URLs/reachability')
       return NextResponse.json({
-        message: 'No articles found from RSS feeds',
+        message: 'No articles found from RSS feeds — all sources may be unreachable',
         generated: 0,
         skipped: 0,
       })
@@ -94,8 +98,15 @@ async function runPipeline(maxPosts: number) {
       existingTitles = existing.map((e) =>
         e.title.toLowerCase().replace(/[^a-z0-9]/g, '')
       )
-    } catch {
-      // Sanity might not have data yet — proceed anyway
+    } catch (err: any) {
+      // A failed dedup query is not "no data yet" (an empty dataset returns
+      // [] just fine) — it's Sanity being unreachable, which would silently
+      // republish every article on the next run if we proceeded anyway.
+      console.error('[Generate] Dedup query failed, aborting run:', err.message)
+      return NextResponse.json(
+        { error: `Could not fetch existing posts for dedup: ${err.message}` },
+        { status: 502 }
+      )
     }
 
     // 3. Get or create categories

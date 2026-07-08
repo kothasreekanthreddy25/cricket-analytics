@@ -11,22 +11,27 @@ export interface ScrapedArticle {
   pubDate: string | null
 }
 
+// Cricbuzz's feed now returns 200 with an empty body (likely bot-gated), and
+// both the ICC and Feedburner/CricketWorld URLs 404 — verified live on
+// 2026-07-09, and matching the site having published zero new posts since
+// 2026-03-25 despite the scheduler running daily. Replaced with feeds
+// confirmed working and returning same-day articles.
 const RSS_FEEDS = [
   {
     url: 'https://www.espncricinfo.com/rss/content/story/feeds/0.xml',
     source: 'ESPNcricinfo',
   },
   {
-    url: 'https://www.cricbuzz.com/rss/cb-top-stories',
-    source: 'Cricbuzz',
+    url: 'https://feeds.bbci.co.uk/sport/cricket/rss.xml',
+    source: 'BBC Sport',
   },
   {
-    url: 'https://www.icc-cricket.com/rss',
-    source: 'ICC',
+    url: 'https://www.wisden.com/feed',
+    source: 'Wisden',
   },
   {
-    url: 'https://feeds.feedburner.com/CricketWorldLiveFeed',
-    source: 'CricketWorld',
+    url: 'https://www.crictracker.com/feed/',
+    source: 'CricTracker',
   },
 ]
 
