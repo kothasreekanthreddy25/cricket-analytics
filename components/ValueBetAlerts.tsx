@@ -59,8 +59,8 @@ export default function ValueBetAlerts() {
             <Zap className="w-3.5 h-3.5 text-yellow-400" />
           </div>
           <div>
-            <p className="text-sm font-bold text-white">Value Bet Alerts</p>
-            <p className="text-[10px] text-gray-500">AI spotted {matches.length} opportunity{matches.length !== 1 ? 'ies' : 'y'} today</p>
+            <p className="text-sm font-bold text-white">High-Confidence AI Picks</p>
+            <p className="text-[10px] text-gray-500">{matches.length} high-confidence pick{matches.length !== 1 ? 's' : ''} today</p>
           </div>
         </div>
         <Link href="/odds?tab=value" className="text-xs text-emerald-400 hover:text-emerald-300 flex items-center gap-1">

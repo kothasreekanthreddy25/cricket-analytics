@@ -27,11 +27,15 @@ const CONFIDENCE_META: Record<string, { color: string; icon: React.ReactNode; la
   LOW:       { color: 'text-gray-400',    icon: <AlertTriangle className="w-3.5 h-3.5" />,  label: 'Low' },
 }
 
+// Labeled by AI confidence, not a real bookmaker-odds comparison — this site
+// has no live market-odds feed (SportMonks' odds endpoint returns empty for
+// every match tested), so "value bet" language was overclaiming what these
+// tiers actually measure.
 const VALUE_META = {
-  STRONG: { bg: 'bg-emerald-500/15 border-emerald-500/30', text: 'text-emerald-400', badge: 'bg-emerald-500 text-white', label: '🔥 Strong Value' },
-  GOOD:   { bg: 'bg-blue-500/10 border-blue-500/20',       text: 'text-blue-400',    badge: 'bg-blue-500 text-white',    label: '✅ Good Value' },
-  FAIR:   { bg: 'bg-gray-800/80 border-gray-700',          text: 'text-gray-400',    badge: 'bg-gray-700 text-gray-300', label: 'Fair Odds' },
-  AVOID:  { bg: 'bg-red-500/5 border-red-500/10',          text: 'text-red-400',     badge: 'bg-red-900 text-red-300',   label: 'Low Value' },
+  STRONG: { bg: 'bg-emerald-500/15 border-emerald-500/30', text: 'text-emerald-400', badge: 'bg-emerald-500 text-white', label: '🔥 High Confidence' },
+  GOOD:   { bg: 'bg-blue-500/10 border-blue-500/20',       text: 'text-blue-400',    badge: 'bg-blue-500 text-white',    label: '✅ Good Confidence' },
+  FAIR:   { bg: 'bg-gray-800/80 border-gray-700',          text: 'text-gray-400',    badge: 'bg-gray-700 text-gray-300', label: 'Even Match' },
+  AVOID:  { bg: 'bg-red-500/5 border-red-500/10',          text: 'text-red-400',     badge: 'bg-red-900 text-red-300',   label: 'Low Confidence' },
 }
 
 export default function OddsPage() {
@@ -72,7 +76,7 @@ export default function OddsPage() {
               <TrendingUp className="w-5 h-5 text-emerald-400" />
               <h1 className="text-lg font-extrabold text-white">Best Odds Comparison</h1>
             </div>
-            <p className="text-gray-500 text-xs mt-0.5">AI-implied odds · Compare bookmakers · Find value bets · 18+</p>
+            <p className="text-gray-500 text-xs mt-0.5">AI-implied odds · Compare bookmakers · 18+</p>
           </div>
           <Link href="/" className="text-xs text-gray-500 hover:text-white border border-gray-800 px-3 py-1.5 rounded-lg transition-colors">← Home</Link>
         </div>
@@ -81,7 +85,7 @@ export default function OddsPage() {
         <div className="max-w-6xl mx-auto px-4 pb-3 flex gap-2">
           {[
             { key: 'all',    label: 'All Matches', count: matches.length },
-            { key: 'value',  label: '🔥 Value Bets', count: matches.filter(m => m.valueRating === 'STRONG' || m.valueRating === 'GOOD').length },
+            { key: 'value',  label: '🔥 High Confidence', count: matches.filter(m => m.valueRating === 'STRONG' || m.valueRating === 'GOOD').length },
             { key: 'strong', label: '⚡ Strong Only', count: matches.filter(m => m.valueRating === 'STRONG').length },
           ].map(t => (
             <button
@@ -190,23 +194,23 @@ export default function OddsPage() {
         {/* Sidebar */}
         <div className="space-y-5">
 
-          {/* Value bet explanation */}
+          {/* Confidence tier explanation */}
           <div className="bg-gray-900 border border-gray-800 rounded-2xl p-5">
             <h3 className="text-sm font-bold text-white mb-3 flex items-center gap-2">
-              <Zap className="w-4 h-4 text-yellow-400" /> What is a Value Bet?
+              <Zap className="w-4 h-4 text-yellow-400" /> How These Odds Are Calculated
             </h3>
             <div className="space-y-2.5 text-xs text-gray-400">
-              <p>A <span className="text-white font-semibold">value bet</span> is when our AI gives a team higher win probability than the bookmaker's implied odds suggest.</p>
-              <p>Example: AI says 65% chance → fair odds = <span className="text-emerald-400 font-bold">1.54</span>. If the bookmaker offers <span className="text-emerald-400 font-bold">1.80+</span>, that's a value bet.</p>
+              <p>The odds shown here are <span className="text-white font-semibold">AI-implied odds</span> — our model's win probability converted to decimal odds format, not real bookmaker prices.</p>
+              <p>The confidence tiers below reflect how strongly our AI backs its own pick, not a comparison against any bookmaker's actual odds — we don't currently have a live odds feed to compare against.</p>
               <div className="pt-1 space-y-1.5">
                 {Object.entries(VALUE_META).map(([k, v]) => (
                   <div key={k} className="flex items-center gap-2">
                     <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${v.badge}`}>{v.label}</span>
                     <span className="text-gray-500 text-[10px]">{
-                      k === 'STRONG' ? 'AI confidence >70%, high edge' :
-                      k === 'GOOD'   ? 'AI confidence 60–70%, good edge' :
-                      k === 'FAIR'   ? 'Even match, normal odds expected' :
-                                       'Low AI confidence, skip or small stake'
+                      k === 'STRONG' ? 'AI win probability >70%, high confidence' :
+                      k === 'GOOD'   ? 'AI win probability 60–70%' :
+                      k === 'FAIR'   ? 'Close match, no strong lean' :
+                                       'Low AI confidence in either side'
                     }</span>
                   </div>
                 ))}
