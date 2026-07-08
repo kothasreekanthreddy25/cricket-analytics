@@ -95,7 +95,7 @@ export default function PredictionStatsWidget() {
             </p>
           </div>
           <Link
-            href="/predictions"
+            href="/predictions/history"
             className="hidden sm:inline-flex items-center gap-1 text-emerald-400 hover:text-emerald-300 font-medium text-sm transition-colors"
           >
             Full Report <ArrowRight className="w-4 h-4" />
@@ -226,7 +226,7 @@ export default function PredictionStatsWidget() {
                 </div>
 
                 <Link
-                  href="/predictions"
+                  href="/predictions/history"
                   className="inline-flex items-center gap-2 bg-gray-800 hover:bg-gray-700 border border-gray-700 text-white px-5 py-2.5 rounded-lg text-sm font-semibold transition-colors shrink-0"
                 >
                   View Full Report
@@ -237,7 +237,7 @@ export default function PredictionStatsWidget() {
 
             {/* Mobile "Full Report" link */}
             <div className="mt-4 sm:hidden text-center">
-              <Link href="/predictions" className="text-emerald-400 text-sm font-medium inline-flex items-center gap-1">
+              <Link href="/predictions/history" className="text-emerald-400 text-sm font-medium inline-flex items-center gap-1">
                 Full Prediction Report <ArrowRight className="w-4 h-4" />
               </Link>
             </div>
