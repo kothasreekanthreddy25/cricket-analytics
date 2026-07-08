@@ -189,8 +189,16 @@ model PredictionLead {
   source         String   @default("popup")
   createdAt      DateTime @default(now())
 
+  // Weekly digest email opt-in. Separate from whatsapp/telegram since a lead
+  // can subscribe to any combination of channels — emailOptIn is what the
+  // weekly digest job actually checks, so an unsubscribe just flips this
+  // rather than deleting the row (keeps whatsapp/telegram reminders intact).
+  email      String?
+  emailOptIn Boolean @default(false)
+
   @@index([createdAt])
   @@index([telegramChatId])
+  @@index([emailOptIn])
 }
 
 // One row per (lead, match) reminder actually sent — the unique constraint

@@ -6,19 +6,22 @@ export const dynamic = 'force-dynamic'
 export async function POST(req: Request) {
   try {
     const body = await req.json()
-    const { whatsapp, telegram, name } = body
+    const { whatsapp, telegram, email, name } = body
 
-    if (!whatsapp && !telegram) {
-      return NextResponse.json({ success: false, error: 'Provide WhatsApp number or Telegram ID' }, { status: 400 })
+    if (!whatsapp && !telegram && !email) {
+      return NextResponse.json({ success: false, error: 'Provide WhatsApp number, Telegram ID, or email' }, { status: 400 })
     }
 
     const cleanNumber = whatsapp ? whatsapp.replace(/[\s\-().]/g, '') : null
     const cleanTelegram = telegram ? telegram.replace(/^@/, '').trim() : null
+    const cleanEmail = email ? email.trim().toLowerCase() : null
 
     const lead = await prisma.predictionLead.create({
       data: {
         whatsapp: cleanNumber || null,
         telegram: cleanTelegram || null,
+        email: cleanEmail || null,
+        emailOptIn: !!cleanEmail,
         name: name || null,
         source: 'popup',
       },

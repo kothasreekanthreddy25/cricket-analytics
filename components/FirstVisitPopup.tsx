@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { Brain, MessageCircle, ChevronRight, CheckCircle2, Trophy, Zap } from 'lucide-react'
+import { Brain, MessageCircle, ChevronRight, CheckCircle2, Trophy, Zap, Mail } from 'lucide-react'
 
 const STORAGE_KEY = 'ct_popup_dismissed'
 const TELEGRAM_BOT_USERNAME = process.env.NEXT_PUBLIC_TELEGRAM_BOT_USERNAME
@@ -42,9 +42,10 @@ export default function FirstVisitPopup() {
   const [open, setOpen] = useState(false)
   const [step, setStep] = useState<'choice' | 'whatsapp' | 'success'>('choice')
   const [name, setName] = useState('')
-  const [channel, setChannel] = useState<'whatsapp' | 'telegram'>('whatsapp')
+  const [channel, setChannel] = useState<'whatsapp' | 'telegram' | 'email'>('whatsapp')
   const [whatsapp, setWhatsapp] = useState('')
   const [telegram, setTelegram] = useState('')
+  const [email, setEmail] = useState('')
   const [countryCode, setCountryCode] = useState('+91')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -69,6 +70,7 @@ export default function FirstVisitPopup() {
     setError('')
     if (channel === 'whatsapp' && !whatsapp.trim()) { setError('Please enter your WhatsApp number'); return }
     if (channel === 'telegram' && !telegram.trim()) { setError('Please enter your Telegram username'); return }
+    if (channel === 'email' && !/^\S+@\S+\.\S+$/.test(email.trim())) { setError('Please enter a valid email address'); return }
 
     setLoading(true)
     try {
@@ -78,6 +80,7 @@ export default function FirstVisitPopup() {
         body: JSON.stringify({
           whatsapp: channel === 'whatsapp' ? `${countryCode}${whatsapp.trim()}` : undefined,
           telegram: channel === 'telegram' ? telegram.trim() : undefined,
+          email: channel === 'email' ? email.trim() : undefined,
           name: name.trim() || undefined,
         }),
       })
@@ -211,6 +214,13 @@ export default function FirstVisitPopup() {
                 <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12L7.43 13.625l-2.95-.924c-.64-.203-.658-.64.136-.954l11.57-4.461c.537-.194 1.006.131.708.935z"/></svg>
                 Telegram
               </button>
+              <button
+                type="button"
+                onClick={() => { setChannel('email'); setError('') }}
+                className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-xs font-bold transition-colors ${channel === 'email' ? 'bg-purple-600 text-white' : 'text-gray-400 hover:text-white'}`}
+              >
+                <Mail className="w-3.5 h-3.5" /> Email
+              </button>
             </div>
 
             <div className="space-y-3 mb-4">
@@ -250,7 +260,7 @@ export default function FirstVisitPopup() {
                     />
                   </div>
                 </div>
-              ) : (
+              ) : channel === 'telegram' ? (
                 <div>
                   <label className="text-xs text-gray-400 font-medium mb-1.5 block">Telegram Username <span className="text-red-400">*</span></label>
                   <div className="relative">
@@ -265,6 +275,18 @@ export default function FirstVisitPopup() {
                   </div>
                   <p className="text-gray-600 text-[10px] mt-1">Find your username in Telegram → Settings → Username</p>
                 </div>
+              ) : (
+                <div>
+                  <label className="text-xs text-gray-400 font-medium mb-1.5 block">Email Address <span className="text-red-400">*</span></label>
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={e => setEmail(e.target.value)}
+                    placeholder="you@example.com"
+                    className="w-full bg-gray-800 border border-gray-700 focus:border-purple-500 text-white placeholder-gray-600 rounded-xl px-4 py-2.5 text-sm outline-none transition-colors"
+                  />
+                  <p className="text-gray-600 text-[10px] mt-1">A weekly digest of top AI predictions, once a week</p>
+                </div>
               )}
 
               {error && <p className="text-red-400 text-xs">{error}</p>}
@@ -273,14 +295,16 @@ export default function FirstVisitPopup() {
             <button
               type="submit"
               disabled={loading}
-              className={`flex items-center justify-center gap-2 w-full disabled:opacity-50 text-white px-4 py-3 rounded-xl font-bold text-sm transition-colors ${channel === 'whatsapp' ? 'bg-green-600 hover:bg-green-500' : 'bg-blue-600 hover:bg-blue-500'}`}
+              className={`flex items-center justify-center gap-2 w-full disabled:opacity-50 text-white px-4 py-3 rounded-xl font-bold text-sm transition-colors ${channel === 'whatsapp' ? 'bg-green-600 hover:bg-green-500' : channel === 'telegram' ? 'bg-blue-600 hover:bg-blue-500' : 'bg-purple-600 hover:bg-purple-500'}`}
             >
               {loading ? (
                 <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+              ) : channel === 'email' ? (
+                <Mail className="w-4 h-4" />
               ) : (
                 <MessageCircle className="w-4 h-4" />
               )}
-              {loading ? 'Sending…' : `Get Predictions via ${channel === 'whatsapp' ? 'WhatsApp' : 'Telegram'}`}
+              {loading ? 'Sending…' : `Get Predictions via ${channel === 'whatsapp' ? 'WhatsApp' : channel === 'telegram' ? 'Telegram' : 'Email'}`}
             </button>
 
             <p className="text-center text-[10px] text-gray-600 mt-3">
@@ -311,6 +335,13 @@ export default function FirstVisitPopup() {
                   <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12L7.43 13.625l-2.95-.924c-.64-.203-.658-.64.136-.954l11.57-4.461c.537-.194 1.006.131.708.935z"/></svg>
                   Activate on Telegram
                 </a>
+              </>
+            ) : channel === 'email' ? (
+              <>
+                <p className="text-gray-400 text-sm mb-1">
+                  You're subscribed to the weekly digest — top AI predictions and accuracy stats, once a week.
+                </p>
+                <p className="text-gray-600 text-xs mb-6">You can unsubscribe anytime from the link in any email.</p>
               </>
             ) : (
               <>

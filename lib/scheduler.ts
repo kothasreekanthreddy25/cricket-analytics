@@ -21,6 +21,9 @@
  *   5. sendMatchReminders — every 30 minutes (only if TELEGRAM_BOT_TOKEN set)
  *      Messages opted-in leads about recognizable international matches
  *      starting soon.
+ *
+ *   6. runWeeklyDigest — once weekly, Mondays ~8 AM IST (only if RESEND_API_KEY set)
+ *      Emails opted-in leads the top predictions of the week + accuracy stats.
  */
 
 import { prisma } from './prisma'
@@ -28,6 +31,8 @@ import { roanuzGet } from './roanuz'
 import { getMatchDetails as getSportMonksMatch, getFeaturedMatches, normalizeSportMonksMatch } from './sportmonks'
 import { runPredictionGeneration } from './prediction-generator'
 import { isTelegramConfigured, getTelegramUpdates, sendTelegramMessage } from './telegram'
+import { isResendConfigured } from './resend'
+import { sendWeeklyDigest } from './weekly-digest'
 
 // ──────────────────────────────────────────────
 // Job 1: Update prediction results
@@ -370,6 +375,20 @@ async function sendMatchReminders() {
 }
 
 // ──────────────────────────────────────────────
+// Job 6: Weekly digest email (only if RESEND_API_KEY set)
+// ──────────────────────────────────────────────
+
+async function runWeeklyDigest() {
+  if (!isResendConfigured()) return
+  try {
+    const { sent, failed } = await sendWeeklyDigest()
+    console.log(`[Scheduler] Weekly digest: ${sent} sent, ${failed} failed`)
+  } catch (err: any) {
+    console.error('[Scheduler] Weekly digest failed:', err.message)
+  }
+}
+
+// ──────────────────────────────────────────────
 // Scheduler Engine
 // ──────────────────────────────────────────────
 
@@ -430,6 +449,27 @@ export function startScheduler() {
     setInterval(() => sendMatchReminders(), THIRTY_MINUTES)
   }
 
+  // ── Job 6: Weekly digest — check every hour, run once per week (Monday ~8 AM IST) ──
+  if (isResendConfigured()) {
+    let lastDigestRunDate = ''
+
+    setInterval(() => {
+      const now = new Date()
+      const istDate = new Date(now.getTime() + (5 * 60 + 30) * 60 * 1000)
+      const istHour = istDate.getUTCHours()
+      const istDay = istDate.getUTCDay() // 0=Sun..6=Sat, in IST
+      const todayStr = now.toISOString().slice(0, 10)
+
+      // Monday only, 8-9 AM IST, at most once per calendar day (mirrors the
+      // blog job's lastBlogRunDate dedupe — a run can't repeat until the
+      // date string changes, which only happens again the following Monday)
+      if (istDay === 1 && istHour >= 8 && istHour < 9 && lastDigestRunDate !== todayStr) {
+        lastDigestRunDate = todayStr
+        runWeeklyDigest()
+      }
+    }, ONE_HOUR)
+  }
+
   console.log('[Scheduler] Jobs registered:')
   console.log('  - Prediction results: every 6 hours (+ on startup)')
   console.log('  - New predictions: every 6 hours (+ on startup)')
@@ -438,5 +478,10 @@ export function startScheduler() {
     isTelegramConfigured()
       ? '  - Telegram reminders: polling every 1 min, sending every 30 min'
       : '  - Telegram reminders: skipped (TELEGRAM_BOT_TOKEN not set)'
+  )
+  console.log(
+    isResendConfigured()
+      ? '  - Weekly digest: Mondays ~8 AM IST'
+      : '  - Weekly digest: skipped (RESEND_API_KEY not set)'
   )
 }
