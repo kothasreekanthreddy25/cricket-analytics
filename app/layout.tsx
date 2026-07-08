@@ -110,8 +110,8 @@ export const metadata: Metadata = {
     languages: {
       'en-ZA': `${BASE_URL}`,
       'en-NZ': `${BASE_URL}`,
-      'en-AU': `${BASE_URL}`,
-      'en-GB': `${BASE_URL}`,
+      'en-AU': `${BASE_URL}/au`,
+      'en-GB': `${BASE_URL}/uk`,
       'x-default': `${BASE_URL}`,
     },
   },
