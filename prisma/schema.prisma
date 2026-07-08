@@ -186,6 +186,26 @@ model PredictionLead {
   @@index([createdAt])
 }
 
+// First-party click log for outbound bookmaker/affiliate links. UK/AU
+// operators currently have no affiliate partner IDs of their own (unlike
+// SA/NZ, whose URLs carry real tracking tags) — this exists so click volume
+// is measurable regardless, and slots real affiliate IDs in later without
+// losing the historical data.
+model AffiliateClick {
+  id             String   @id @default(cuid())
+  bookmakerId    String
+  bookmakerName  String
+  country        String
+  source         String // which component: sidebar, mobile-strip, banner
+  matchKey       String?
+  referer        String?
+  createdAt      DateTime @default(now())
+
+  @@index([bookmakerId])
+  @@index([country])
+  @@index([createdAt])
+}
+
 model Subscription {
   id                String   @id @default(cuid())
   razorpayOrderId   String   @unique

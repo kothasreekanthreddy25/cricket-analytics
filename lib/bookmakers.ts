@@ -169,6 +169,15 @@ export function getBookmakersByCountry(country: string): Bookmaker[] {
   return SA_NZ  // ZA, NZ, and everywhere else
 }
 
+// Every id is unique across all region lists (e.g. 'bet365uk' vs 'bet365au'),
+// so a single flat lookup works regardless of the viewer's detected country —
+// used by /api/out to resolve the real destination server-side before
+// redirecting, so click-through links never carry a raw external URL.
+const ALL_BOOKMAKERS = [...SA_NZ, ...AU, ...UK]
+export function getBookmakerById(id: string): Bookmaker | undefined {
+  return ALL_BOOKMAKERS.find(b => b.id === id)
+}
+
 export const COUNTRY_LABELS: Record<string, string> = {
   ZA: 'South Africa',
   NZ: 'New Zealand',

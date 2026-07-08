@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { ExternalLink, Trophy, Shield, Tag } from 'lucide-react'
 import { getBookmakersByCountry, UK_SAFER_GAMBLING, AU_SAFER_GAMBLING, type Bookmaker } from '@/lib/bookmakers'
+import { trackEvent } from '@/components/GoogleAnalytics'
 
 export default function AffiliateBanner() {
   // Empty until geo resolves — never default to a specific region's operators,
@@ -85,9 +86,10 @@ export default function AffiliateBanner() {
             )}
 
             <a
-              href={o.url}
+              href={`/api/out?id=${o.id}&src=banner`}
               target="_blank"
               rel="noopener noreferrer sponsored"
+              onClick={() => trackEvent('affiliate_click', { bookmaker: o.id, source: 'banner' })}
               className={`flex items-center justify-center gap-1.5 w-full py-2.5 rounded-lg text-xs font-bold transition-colors ${o.btnCls}`}
             >
               {o.bonus ? 'Claim Bonus' : 'Visit Site'} <ExternalLink className="w-3 h-3" />

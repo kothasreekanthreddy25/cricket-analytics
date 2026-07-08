@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { ExternalLink, Trophy, Tag } from 'lucide-react'
 import { getBookmakersByCountry, UK_SAFER_GAMBLING, AU_SAFER_GAMBLING, type Bookmaker } from '@/lib/bookmakers'
+import { trackEvent } from '@/components/GoogleAnalytics'
 
 export default function MobileAdStrip() {
   // Empty until geo resolves — never default to a specific region's operators,
@@ -86,9 +87,10 @@ export default function MobileAdStrip() {
 
             {/* CTA */}
             <a
-              href={o.url}
+              href={`/api/out?id=${o.id}&src=mobile-strip`}
               target="_blank"
               rel="noopener noreferrer sponsored"
+              onClick={() => trackEvent('affiliate_click', { bookmaker: o.id, source: 'mobile-strip' })}
               className={`flex items-center justify-center gap-1 w-full py-2 rounded-lg text-[11px] font-bold transition-colors ${o.btnCls}`}
             >
               {o.bonus ? 'Claim' : 'Visit'} <ExternalLink className="w-2.5 h-2.5" />

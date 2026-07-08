@@ -64,7 +64,7 @@ function AffiliateCard({ site, country }: { site: Bookmaker; country: string }) 
 
         {/* CTA */}
         <a
-          href={site.url}
+          href={`/api/out?id=${site.id}&src=sidebar`}
           target="_blank"
           rel="noopener noreferrer sponsored"
           className={`mt-3 flex items-center justify-center gap-1.5 w-full py-2.5 rounded-lg text-xs font-bold transition-colors ${site.btnCls}`}

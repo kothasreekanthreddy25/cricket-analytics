@@ -8,6 +8,7 @@ import PageWithSidebar from '@/components/PageWithSidebar'
 import Footer from '@/components/Footer'
 import FirstVisitPopup from '@/components/FirstVisitPopup'
 import AgeGate from '@/components/AgeGate'
+import GoogleAnalytics from '@/components/GoogleAnalytics'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -80,14 +81,10 @@ export const metadata: Metadata = {
     title: 'CricketTips.ai – AI Cricket Predictions & Live Scores',
     description:
       'Free AI-powered cricket predictions, live scores, T20 WC 2026 tips, win probability analysis, and ball-by-ball commentary. 18+ Gamble responsibly.',
-    images: [
-      {
-        url: `${BASE_URL}/og-image.png`,
-        width: 1200,
-        height: 630,
-        alt: 'CricketTips.ai – AI Cricket Predictions',
-      },
-    ],
+    // No `images` override here — app/opengraph-image.tsx (file convention)
+    // generates a real image and Next.js wires it into this metadata
+    // automatically. The old array pointed at /og-image.png, a file that
+    // never existed in public/, so every social share had no preview image.
   },
   twitter: {
     card: 'summary_large_image',
@@ -96,7 +93,6 @@ export const metadata: Metadata = {
     title: 'CricketTips.ai – AI Cricket Predictions & Live Scores',
     description:
       'Free AI-powered cricket predictions, live scores, T20 WC 2026 tips & win probability. 18+ Gamble responsibly.',
-    images: [`${BASE_URL}/og-image.png`],
   },
   robots: {
     index: true,
@@ -142,6 +138,7 @@ export default function RootLayout({
         <Footer />
         <FirstVisitPopup />
         <AgeGate />
+        <GoogleAnalytics />
       </body>
     </html>
   )
