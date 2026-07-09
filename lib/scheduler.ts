@@ -24,6 +24,11 @@
  *
  *   6. runWeeklyDigest — once weekly, Mondays ~8 AM IST (only if RESEND_API_KEY set)
  *      Emails opted-in leads the top predictions of the week + accuracy stats.
+ *
+ *   7. runVideoGeneration — once daily ~7 AM IST (only if OPENAI_API_KEY set)
+ *      Generates compliant match-preview video scripts for today's top
+ *      international matches and hands them to the render service if
+ *      STREAMING_SERVICE_URL is set (see lib/match-video.ts).
  */
 
 import { prisma } from './prisma'
@@ -33,6 +38,7 @@ import { runPredictionGeneration } from './prediction-generator'
 import { isTelegramConfigured, getTelegramUpdates, sendTelegramMessage } from './telegram'
 import { isResendConfigured } from './resend'
 import { sendWeeklyDigest } from './weekly-digest'
+import { isVideoPipelineConfigured, runDailyVideoGeneration } from './match-video'
 
 // ──────────────────────────────────────────────
 // Job 1: Update prediction results
@@ -389,6 +395,20 @@ async function runWeeklyDigest() {
 }
 
 // ──────────────────────────────────────────────
+// Job 7: Daily match-preview video scripts (only if OPENAI_API_KEY set)
+// ──────────────────────────────────────────────
+
+async function runVideoGeneration() {
+  if (!isVideoPipelineConfigured()) return
+  try {
+    const { created, skipped, failed } = await runDailyVideoGeneration()
+    console.log(`[Scheduler] Video generation: ${created} created, ${skipped} skipped, ${failed} failed`)
+  } catch (err: any) {
+    console.error('[Scheduler] Video generation failed:', err.message)
+  }
+}
+
+// ──────────────────────────────────────────────
 // Scheduler Engine
 // ──────────────────────────────────────────────
 
@@ -470,6 +490,25 @@ export function startScheduler() {
     }, ONE_HOUR)
   }
 
+  // ── Job 7: Match-preview video scripts — check hourly, run once per day ~7-8 AM IST ──
+  // After blog gen (6-7 AM) and prediction gen, so the day's predictions
+  // exist before scripts are written from them.
+  if (isVideoPipelineConfigured()) {
+    let lastVideoRunDate = ''
+
+    setInterval(() => {
+      const now = new Date()
+      const istDate = new Date(now.getTime() + (5 * 60 + 30) * 60 * 1000)
+      const istHour = istDate.getUTCHours()
+      const todayStr = now.toISOString().slice(0, 10)
+
+      if (istHour >= 7 && istHour < 8 && lastVideoRunDate !== todayStr) {
+        lastVideoRunDate = todayStr
+        runVideoGeneration()
+      }
+    }, ONE_HOUR)
+  }
+
   console.log('[Scheduler] Jobs registered:')
   console.log('  - Prediction results: every 6 hours (+ on startup)')
   console.log('  - New predictions: every 6 hours (+ on startup)')
@@ -483,5 +522,10 @@ export function startScheduler() {
     isResendConfigured()
       ? '  - Weekly digest: Mondays ~8 AM IST'
       : '  - Weekly digest: skipped (RESEND_API_KEY not set)'
+  )
+  console.log(
+    isVideoPipelineConfigured()
+      ? '  - Match-preview videos: daily ~7 AM IST'
+      : '  - Match-preview videos: skipped (OPENAI_API_KEY not set)'
   )
 }

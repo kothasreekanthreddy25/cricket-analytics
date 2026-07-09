@@ -214,6 +214,35 @@ model MatchReminder {
   @@index([matchKey])
 }
 
+// One row per (match, kind) video ever attempted — the unique constraint is
+// the dedupe that guarantees a match can never be turned into two videos of
+// the same kind, no matter how often the daily job or manual trigger runs.
+// Status flow: script_ready → render_triggered → uploaded (ids filled in by
+// the render service callback in a later phase) | render_failed | script_failed
+model VideoJob {
+  id               String   @id @default(cuid())
+  matchKey         String
+  kind             String   @default("match_preview")
+  teamA            String
+  teamB            String
+  tournament       String?
+  matchDate        DateTime?
+  title            String
+  // Full structured script (scenes, narration, disclaimer) as produced by
+  // generateVideoScript — the render service consumes this verbatim.
+  script           Json
+  status           String   @default("script_ready")
+  error            String?
+  youtubeVideoId   String?
+  instagramMediaId String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@unique([matchKey, kind])
+  @@index([status])
+  @@index([createdAt])
+}
+
 // First-party click log for outbound bookmaker/affiliate links. UK/AU
 // operators currently have no affiliate partner IDs of their own (unlike
 // SA/NZ, whose URLs carry real tracking tags) — this exists so click volume
