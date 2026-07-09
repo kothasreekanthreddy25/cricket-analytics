@@ -359,15 +359,26 @@ export async function runDailyVideoGeneration(): Promise<VideoRunResult> {
         },
       })
 
-      // Hand off to the render service if it's configured — phase 2 adds the
-      // actual /video/match-preview implementation on the Hetzner box.
+      // Hand off to the render service if it's configured. The render itself
+      // (TTS + FFmpeg + upload) routinely takes 60-90s+, so this is a fire-
+      // and-forget trigger, not a wait — the render service is expected to
+      // respond as soon as it *accepts* the job and report the real outcome
+      // later via callbackUrl (POST /api/videos/callback). Same pattern as
+      // the blog pipeline's YouTube video trigger in app/api/blog/generate.
       const renderUrl = process.env.STREAMING_SERVICE_URL
       if (renderUrl) {
+        const appBaseUrl =
+          process.env.NEXT_PUBLIC_BETTER_AUTH_URL || process.env.BETTER_AUTH_URL || 'http://localhost:3000'
         try {
           const res = await fetch(`${renderUrl}/video/match-preview`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ jobId: job.id, ...script }),
+            body: JSON.stringify({
+              jobId: job.id,
+              callbackUrl: `${appBaseUrl}/api/videos/callback`,
+              secret: process.env.VIDEO_GENERATE_SECRET || undefined,
+              ...script,
+            }),
             signal: AbortSignal.timeout(10_000),
           })
           await prisma.videoJob.update({
