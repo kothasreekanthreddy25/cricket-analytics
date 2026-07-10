@@ -51,6 +51,12 @@ export async function getRealRecentForm(teamName: string): Promise<RecentFormRes
     const key = normalizeForMatch(teamName)
     if (!key) return null
 
+    // Exact match (post-normalization), not substring — "England W" and
+    // "England A" both normalize to strings that CONTAIN "england" (as a
+    // substring of "englandw"/"englanda"), so a substring check silently
+    // folded women's/A-team results into the senior men's team's "recent
+    // form" and vice versa. Team names in SportMonks fixtures are
+    // consistent enough that exact match after normalization is correct.
     const finished = fixtures
       .filter(f => {
         const status = f.status || ''
@@ -59,8 +65,7 @@ export async function getRealRecentForm(teamName: string): Promise<RecentFormRes
       .filter(f => {
         const local = normalizeForMatch(f.localteam?.name || f.localteam?.data?.name)
         const visitor = normalizeForMatch(f.visitorteam?.name || f.visitorteam?.data?.name)
-        return (local && (local.includes(key) || key.includes(local))) ||
-          (visitor && (visitor.includes(key) || key.includes(visitor)))
+        return local === key || visitor === key
       })
       .sort((a, b) => new Date(b.starting_at).getTime() - new Date(a.starting_at).getTime())
       .slice(0, 5)
@@ -75,7 +80,7 @@ export async function getRealRecentForm(teamName: string): Promise<RecentFormRes
       const local = f.localteam?.data || f.localteam || {}
       const visitor = f.visitorteam?.data || f.visitorteam || {}
       const localName = normalizeForMatch(local.name)
-      const isLocal = localName && (localName.includes(key) || key.includes(localName))
+      const isLocal = localName === key
       const teamId = isLocal ? local.id : visitor.id
       const won = !!teamId && f.winner_team_id === teamId
       if (won) wins++

@@ -158,10 +158,18 @@ export async function getMatchDetails(matchId: string) {
 
 /**
  * Recent finished fixtures with lineup data — used to derive a team's likely
- * XI from their actual last match instead of asking an AI model to guess.
- * SportMonks' pre-match `lineup` include is empty until the toss, but
- * completed matches carry the real submitted XI (with captain/wicketkeeper
- * flags), which is the only reliably current source we have.
+ * XI from their actual last match instead of asking an AI model to guess,
+ * and (via getRealRecentForm in lib/analysis-engine.ts) each team's real
+ * last-5-matches form.
+ *
+ * SportMonks returns fixtures oldest-first within the date window by
+ * default and this endpoint is capped at per_page=100 — with world cricket
+ * routinely producing 1000+ fixtures across a `daysBack`-sized window, page
+ * 1 without an explicit sort was silently returning the OLDEST 100
+ * fixtures in range, not the newest. That meant "recent" fixtures/form were
+ * actually being computed from months-old matches. `sort: '-starting_at'`
+ * makes page 1 the newest fixtures instead, which is what every caller of
+ * this function actually wants.
  */
 export async function getRecentFixturesWithLineup(daysBack = 120) {
   const today = new Date().toISOString().split('T')[0]
@@ -170,6 +178,7 @@ export async function getRecentFixturesWithLineup(daysBack = 120) {
     'filter[starts_between]': `${from},${today}`,
     include: 'lineup,localteam,visitorteam',
     per_page: '100',
+    sort: '-starting_at',
   })
 }
 
