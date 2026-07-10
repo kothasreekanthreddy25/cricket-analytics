@@ -10,8 +10,78 @@ import {
   roanuzGet,
 } from './roanuz'
 import { getKeyPlayersForTeam } from './player-database'
+import { getRecentFixturesWithLineup } from './sportmonks'
 
 const T20_WC_KEY = 'a-rz--cricket--icc--iccwct20--2026-YaNA'
+
+// ── Real recent form ────────────────────────────────────────────────────────
+// getTeamStats()'s momentum/winRate come from public/model/team-stats.json, a
+// static snapshot frozen at training time — it never reflects what a team
+// has actually done since. This is the genuine last-5-finished-matches
+// signal that was missing: fetched fresh per prediction, recency-weighted
+// (most recent match counts most), normalized to roughly the 0..1 range the
+// trained model's other features use.
+interface RecentFormResult {
+  score: number // ~0..1, recency-weighted win rate over the sample
+  wins: number
+  losses: number
+  sample: number
+}
+
+function normalizeForMatch(name: string): string {
+  return (name || '').toLowerCase().replace(/[^a-z]/g, '')
+}
+
+async function getRealRecentForm(teamName: string): Promise<RecentFormResult | null> {
+  try {
+    const data = await getRecentFixturesWithLineup(200)
+    const fixtures: any[] = data?.data || []
+    const key = normalizeForMatch(teamName)
+    if (!key) return null
+
+    const finished = fixtures
+      .filter(f => {
+        const status = f.status || ''
+        return (status === 'Finished' || status === 'Completed') && !f.draw_noresult
+      })
+      .filter(f => {
+        const local = normalizeForMatch(f.localteam?.name || f.localteam?.data?.name)
+        const visitor = normalizeForMatch(f.visitorteam?.name || f.visitorteam?.data?.name)
+        return (local && (local.includes(key) || key.includes(local))) ||
+          (visitor && (visitor.includes(key) || key.includes(visitor)))
+      })
+      .sort((a, b) => new Date(b.starting_at).getTime() - new Date(a.starting_at).getTime())
+      .slice(0, 5)
+
+    if (finished.length === 0) return null
+
+    let weightedWins = 0
+    let totalWeight = 0
+    let wins = 0
+    finished.forEach((f, idx) => {
+      const local = f.localteam?.data || f.localteam || {}
+      const visitor = f.visitorteam?.data || f.visitorteam || {}
+      const localName = normalizeForMatch(local.name)
+      const isLocal = localName && (localName.includes(key) || key.includes(localName))
+      const teamId = isLocal ? local.id : visitor.id
+      const won = !!teamId && f.winner_team_id === teamId
+      if (won) wins++
+      const weight = 1 - idx * 0.15 // most recent match weighted highest, 5th match weighted 0.4x
+      weightedWins += (won ? 1 : 0) * weight
+      totalWeight += weight
+    })
+
+    return {
+      score: totalWeight > 0 ? weightedWins / totalWeight : 0.5,
+      wins,
+      losses: finished.length - wins,
+      sample: finished.length,
+    }
+  } catch (err) {
+    console.warn('[analysis-engine] Could not fetch real recent form:', err)
+    return null
+  }
+}
 
 // ICC Rankings approximation (updated periodically)
 const TEAM_RANKINGS: Record<string, Record<string, number>> = {
@@ -902,21 +972,36 @@ export async function analyzeMatch(matchKey: string, seed?: MatchSeed): Promise<
   const statsB = getTeamStats(teamB)
   const trainedH2H = getTrainedH2H(teamA, teamB)
 
+  // Real last-5-finished-matches form — fetched fresh per prediction, not the
+  // frozen training-time snapshot in statsA/statsB. See getRealRecentForm's
+  // comment for why this was the actual gap.
+  const [formA, formB] = await Promise.all([getRealRecentForm(teamA), getRealRecentForm(teamB)])
+
+  const baseRecentWinRateA = statsA
+    ? (oddsInformedWinRateA !== 0.5 ? oddsInformedWinRateA * 0.4 + statsA.winRate * 0.6 : statsA.winRate)
+    : (oddsInformedWinRateA !== 0.5 ? oddsInformedWinRateA * 0.6 + teamARankNorm * 0.4 : teamARankNorm * 0.8 + 0.1)
+  const baseRecentWinRateB = statsB
+    ? (oddsInformedWinRateB !== 0.5 ? oddsInformedWinRateB * 0.4 + statsB.winRate * 0.6 : statsB.winRate)
+    : (oddsInformedWinRateB !== 0.5 ? oddsInformedWinRateB * 0.6 + teamBRankNorm * 0.4 : teamBRankNorm * 0.8 + 0.1)
+  const baseMomentumA = statsA ? statsA.momentum : teamARankNorm * 0.7 + (teamAIsHost ? 0.2 : 0.1)
+  const baseMomentumB = statsB ? statsB.momentum : teamBRankNorm * 0.7 + (teamBIsHost ? 0.2 : 0.1)
+
   const features: MatchFeatures = {
     teamARanking: teamARankNorm,
     teamBRanking: teamBRankNorm,
-    teamARecentWinRate: statsA
-      ? (oddsInformedWinRateA !== 0.5 ? oddsInformedWinRateA * 0.4 + statsA.winRate * 0.6 : statsA.winRate)
-      : (oddsInformedWinRateA !== 0.5 ? oddsInformedWinRateA * 0.6 + teamARankNorm * 0.4 : teamARankNorm * 0.8 + 0.1),
-    teamBRecentWinRate: statsB
-      ? (oddsInformedWinRateB !== 0.5 ? oddsInformedWinRateB * 0.4 + statsB.winRate * 0.6 : statsB.winRate)
-      : (oddsInformedWinRateB !== 0.5 ? oddsInformedWinRateB * 0.6 + teamBRankNorm * 0.4 : teamBRankNorm * 0.8 + 0.1),
+    // Blended (not fully replaced) with the trained baseline — the model was
+    // trained on the baseline's distribution, so a real-form signal that's
+    // wildly out of that range would destabilize predictions rather than
+    // improve them. Momentum leans harder on real form since "momentum" is
+    // conceptually what recent form IS.
+    teamARecentWinRate: formA ? baseRecentWinRateA * 0.45 + formA.score * 0.55 : baseRecentWinRateA,
+    teamBRecentWinRate: formB ? baseRecentWinRateB * 0.45 + formB.score * 0.55 : baseRecentWinRateB,
     h2hTeamAWinRate: trainedH2H,
     isHome,
     pitchType: venueConditions.pitchType,
     formatFactor: 1, // T20
-    teamAMomentum: statsA ? statsA.momentum : teamARankNorm * 0.7 + (teamAIsHost ? 0.2 : 0.1),
-    teamBMomentum: statsB ? statsB.momentum : teamBRankNorm * 0.7 + (teamBIsHost ? 0.2 : 0.1),
+    teamAMomentum: formA ? baseMomentumA * 0.4 + formA.score * 0.6 : baseMomentumA,
+    teamBMomentum: formB ? baseMomentumB * 0.4 + formB.score * 0.6 : baseMomentumB,
     teamABattingStrength: statsA ? statsA.batStrength : teamARankNorm * 0.9 + 0.05,
     teamBBattingStrength: statsB ? statsB.batStrength : teamBRankNorm * 0.9 + 0.05,
     teamABowlingStrength: statsA ? statsA.bowlStrength : teamARankNorm * 0.85 + (1 - venueConditions.pitchType) * 0.15,
@@ -937,20 +1022,19 @@ export async function analyzeMatch(matchKey: string, seed?: MatchSeed): Promise<
 
   const playersToWatch = await selectPlayersToWatch(players, teamA, teamB, venueConditions)
 
-  const teamAWins = Math.round(3 + teamARankNorm * 4)
-  const teamBWins = Math.round(3 + teamBRankNorm * 4)
+  // Real record when we could fetch it; falls back to the old rank-derived
+  // approximation only when SportMonks has no recent fixtures for a team
+  // (very new team, obscure format) — never silently fabricated otherwise.
+  const trendFor = (score: number) =>
+    score > 0.6 ? 'Strong form — consistently performing' : score > 0.3 ? 'Mixed results — inconsistent' : 'Struggling — looking for a turnaround'
 
   const recentForm = {
-    teamA: {
-      wins: teamAWins,
-      losses: 7 - teamAWins,
-      trend: teamARankNorm > 0.6 ? 'Strong form — consistently performing' : teamARankNorm > 0.3 ? 'Mixed results — inconsistent' : 'Struggling — looking for a turnaround',
-    },
-    teamB: {
-      wins: teamBWins,
-      losses: 7 - teamBWins,
-      trend: teamBRankNorm > 0.6 ? 'Strong form — consistently performing' : teamBRankNorm > 0.3 ? 'Mixed results — inconsistent' : 'Struggling — looking for a turnaround',
-    },
+    teamA: formA
+      ? { wins: formA.wins, losses: formA.losses, trend: trendFor(formA.score) }
+      : { wins: Math.round(3 + teamARankNorm * 4), losses: 7 - Math.round(3 + teamARankNorm * 4), trend: trendFor(teamARankNorm) },
+    teamB: formB
+      ? { wins: formB.wins, losses: formB.losses, trend: trendFor(formB.score) }
+      : { wins: Math.round(3 + teamBRankNorm * 4), losses: 7 - Math.round(3 + teamBRankNorm * 4), trend: trendFor(teamBRankNorm) },
   }
 
   const venueDisplay = venueName ? `${venueName}${venueCity ? ', ' + venueCity : ''}` : venueCountry || 'Venue TBD'

@@ -672,10 +672,6 @@ Return ONLY this JSON (no extra text):
     "currentStreak": "which team is in better form currently",
     "keyRivalryFact": "interesting real historical fact about ${teamA} vs ${teamB}"
   },
-  "recentForm": {
-    "teamA": { "last5": "W W L W W", "trend": "Strong | Inconsistent | Poor", "avgScore": 0 },
-    "teamB": { "last5": "L W W L W", "trend": "Strong | Inconsistent | Poor", "avgScore": 0 }
-  },
   "prediction": {
     "winner": "${teamA} or ${teamB} (choose one)",
     "confidence": "HIGH | MEDIUM | LOW",
