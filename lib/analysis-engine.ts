@@ -106,6 +106,63 @@ export async function getRealRecentForm(teamName: string): Promise<RecentFormRes
   }
 }
 
+// ── Real head-to-head ────────────────────────────────────────────────────────
+// getTrainedH2H() has the exact same staleness problem as getTeamStats() —
+// it's read from public/model/h2h-records.json, frozen at training time.
+// For two teams playing a bilateral series right now, this is the single
+// most relevant signal to get right: a team's real recent record specifically
+// against THIS opponent, not history frozen months ago.
+export interface RealH2HResult {
+  teamAWinRate: number // 0..1
+  teamAWins: number
+  teamBWins: number
+  sample: number
+}
+
+export async function getRealHeadToHead(teamA: string, teamB: string): Promise<RealH2HResult | null> {
+  try {
+    const data = await getRecentFixturesWithLineup(365) // wider window — two specific teams meet far less often than either plays overall
+    const fixtures: any[] = data?.data || []
+    const keyA = normalizeForMatch(teamA)
+    const keyB = normalizeForMatch(teamB)
+    if (!keyA || !keyB) return null
+
+    const meetings = fixtures
+      .filter(f => {
+        const status = f.status || ''
+        return (status === 'Finished' || status === 'Completed') && !f.draw_noresult
+      })
+      .filter(f => {
+        const local = normalizeForMatch(f.localteam?.name || f.localteam?.data?.name)
+        const visitor = normalizeForMatch(f.visitorteam?.name || f.visitorteam?.data?.name)
+        return (local === keyA && visitor === keyB) || (local === keyB && visitor === keyA)
+      })
+      .sort((a, b) => new Date(b.starting_at).getTime() - new Date(a.starting_at).getTime())
+      .slice(0, 10)
+
+    if (meetings.length === 0) return null
+
+    let teamAWins = 0
+    meetings.forEach(f => {
+      const local = f.localteam?.data || f.localteam || {}
+      const visitor = f.visitorteam?.data || f.visitorteam || {}
+      const isLocalA = normalizeForMatch(local.name) === keyA
+      const teamAId = isLocalA ? local.id : visitor.id
+      if (!!teamAId && f.winner_team_id === teamAId) teamAWins++
+    })
+
+    return {
+      teamAWinRate: teamAWins / meetings.length,
+      teamAWins,
+      teamBWins: meetings.length - teamAWins,
+      sample: meetings.length,
+    }
+  } catch (err) {
+    console.warn('[analysis-engine] Could not fetch real head-to-head:', err)
+    return null
+  }
+}
+
 // ICC Rankings approximation (updated periodically)
 const TEAM_RANKINGS: Record<string, Record<string, number>> = {
   T20I: {
@@ -995,10 +1052,15 @@ export async function analyzeMatch(matchKey: string, seed?: MatchSeed): Promise<
   const statsB = getTeamStats(teamB)
   const trainedH2H = getTrainedH2H(teamA, teamB)
 
-  // Real last-5-finished-matches form — fetched fresh per prediction, not the
-  // frozen training-time snapshot in statsA/statsB. See getRealRecentForm's
-  // comment for why this was the actual gap.
-  const [formA, formB] = await Promise.all([getRealRecentForm(teamA), getRealRecentForm(teamB)])
+  // Real last-5-finished-matches form + real head-to-head — fetched fresh per
+  // prediction, not the frozen training-time snapshots in statsA/statsB and
+  // trainedH2H. See getRealRecentForm's and getRealHeadToHead's comments for
+  // why these were the actual gap.
+  const [formA, formB, realH2H] = await Promise.all([
+    getRealRecentForm(teamA),
+    getRealRecentForm(teamB),
+    getRealHeadToHead(teamA, teamB),
+  ])
 
   const baseRecentWinRateA = statsA
     ? (oddsInformedWinRateA !== 0.5 ? oddsInformedWinRateA * 0.4 + statsA.winRate * 0.6 : statsA.winRate)
@@ -1019,7 +1081,11 @@ export async function analyzeMatch(matchKey: string, seed?: MatchSeed): Promise<
     // conceptually what recent form IS.
     teamARecentWinRate: formA ? baseRecentWinRateA * 0.45 + formA.score * 0.55 : baseRecentWinRateA,
     teamBRecentWinRate: formB ? baseRecentWinRateB * 0.45 + formB.score * 0.55 : baseRecentWinRateB,
-    h2hTeamAWinRate: trainedH2H,
+    // Leans hard on the real number (0.7) — a team's actual recent record
+    // against THIS specific opponent is about as directly relevant as a
+    // signal gets, more so than momentum/recentWinRate (which are about form
+    // against all opponents, not this one).
+    h2hTeamAWinRate: realH2H ? trainedH2H * 0.3 + realH2H.teamAWinRate * 0.7 : trainedH2H,
     isHome,
     pitchType: venueConditions.pitchType,
     formatFactor: 1, // T20
