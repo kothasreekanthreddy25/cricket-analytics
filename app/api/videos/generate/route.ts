@@ -1,17 +1,23 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { runDailyVideoGeneration, isVideoPipelineConfigured } from '@/lib/match-video'
+import { runLongFormVideoGeneration, isLongFormVideoConfigured } from '@/lib/match-video-long'
 
 export const dynamic = 'force-dynamic'
 
 /**
- * POST /api/videos/generate — manually run the daily match-preview video
- * pipeline (script generation + optional render handoff). Same secret gating
- * as /api/blog/generate: only enforced in production when the secret is set.
+ * POST /api/videos/generate — manually run the match-preview video pipeline
+ * (script generation + optional render handoff). Same secret gating as
+ * /api/blog/generate: only enforced in production when the secret is set.
+ *
+ * Body: { secret?, kind?: 'short' | 'long' } — defaults to 'short' (the
+ * existing 60-90s vertical Shorts pipeline). 'long' runs the ~5min 16:9
+ * broadcast-style pipeline instead.
  */
 export async function POST(req: Request) {
   const body = await req.json().catch(() => ({}))
   const secret = body.secret || req.headers.get('x-api-secret')
+  const kind = body.kind === 'long' ? 'long' : 'short'
 
   if (
     process.env.NODE_ENV === 'production' &&
@@ -21,7 +27,8 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  if (!isVideoPipelineConfigured()) {
+  const configured = kind === 'long' ? isLongFormVideoConfigured() : isVideoPipelineConfigured()
+  if (!configured) {
     return NextResponse.json(
       { error: 'OPENAI_API_KEY not configured — video pipeline is inactive' },
       { status: 503 }
@@ -29,9 +36,10 @@ export async function POST(req: Request) {
   }
 
   try {
-    const result = await runDailyVideoGeneration()
+    const result = kind === 'long' ? await runLongFormVideoGeneration() : await runDailyVideoGeneration()
     return NextResponse.json({
       message: `${result.created} script(s) created, ${result.skipped} skipped, ${result.failed} failed`,
+      kind,
       ...result,
     })
   } catch (err: any) {
