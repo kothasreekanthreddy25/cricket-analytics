@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { getFeaturedMatches, normalizeSportMonksMatch } from '@/lib/sportmonks'
 import { isDummy, openaiPreview, getCommentatorIntro, getPredictedXIs, enrichPlayersWithRealStats, buildFantasyXI } from '@/lib/ai-match-preview'
+import { getRealRecentForm } from '@/lib/analysis-engine'
 
 export const dynamic = 'force-dynamic'
 
@@ -129,9 +130,11 @@ export async function GET() {
       // has happened" confirmed lineup available yet — always tier 2.)
       const knownXIs = await getPredictedXIs(m.teamAId, m.teamBId)
 
-      const [structured, commentator] = await Promise.all([
+      const [structured, commentator, formA, formB] = await Promise.all([
         openaiPreview(m.teamA, m.teamB, m.tournament, m.venue, m.format, winContext, m.startAt, knownXIs),
         getCommentatorIntro(m.teamA, m.teamB, m.tournament, m.venue, m.format, m.startAt),
+        getRealRecentForm(m.teamA),
+        getRealRecentForm(m.teamB),
       ])
 
       const playersToWatch = await enrichPlayersWithRealStats(structured.playersToWatch || [], knownXIs, m.format)
@@ -162,7 +165,19 @@ export async function GET() {
         pitchReport: structured.pitchReport || {},
         playersToWatch,
         teamHistory: structured.teamHistory || {},
-        recentForm: structured.recentForm || {},
+        // Real last-5-finished-matches data (see lib/analysis-engine.ts's
+        // getRealRecentForm) — this used to come from the AI prompt, which
+        // had a hardcoded fabricated example ("W W L W W") that GPT would
+        // just copy/vary. "Data unavailable" when SportMonks has no recent
+        // fixtures for a team, never a fabricated number in its place.
+        recentForm: {
+          teamA: formA
+            ? { last5: formA.sequence, trend: formA.trend, avgScore: formA.winRate }
+            : { last5: '', trend: 'Data unavailable', avgScore: 0 },
+          teamB: formB
+            ? { last5: formB.sequence, trend: formB.trend, avgScore: formB.winRate }
+            : { last5: '', trend: 'Data unavailable', avgScore: 0 },
+        },
         prediction: {
           ...structured.prediction,
           winnerProbPct: structured.prediction?.winner === m.teamA ? probA : probB,

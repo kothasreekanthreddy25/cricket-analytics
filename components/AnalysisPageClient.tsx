@@ -649,8 +649,8 @@ function AnalysisContent() {
                       {[{ team: analysis.teamA, data: form.teamA }, { team: analysis.teamB, data: form.teamB }].map(({ team, data }) => (
                         <div key={team} className="flex items-center gap-3">
                           <span className="text-sm text-gray-400 w-28 truncate">{team}</span>
-                          <div className="flex gap-1.5">{data.last5.split(' ').map((r, i) => <FormBadge key={i} result={r} />)}</div>
-                          <span className={`text-xs font-bold ml-1 ${data.trend === 'Strong' ? 'text-emerald-400' : data.trend === 'Poor' ? 'text-red-400' : 'text-amber-400'}`}>{data.trend}</span>
+                          <div className="flex gap-1.5">{(data.last5 ? data.last5.split(' ') : []).map((r, i) => <FormBadge key={i} result={r} />)}</div>
+                          <span className={`text-xs font-bold ml-1 ${data.trend.startsWith('Strong') ? 'text-emerald-400' : data.trend.startsWith('Struggling') ? 'text-red-400' : 'text-amber-400'}`}>{data.trend}</span>
                         </div>
                       ))}
                     </div>

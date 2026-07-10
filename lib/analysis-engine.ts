@@ -21,18 +21,30 @@ const T20_WC_KEY = 'a-rz--cricket--icc--iccwct20--2026-YaNA'
 // signal that was missing: fetched fresh per prediction, recency-weighted
 // (most recent match counts most), normalized to roughly the 0..1 range the
 // trained model's other features use.
-interface RecentFormResult {
+export interface RecentFormResult {
   score: number // ~0..1, recency-weighted win rate over the sample
   wins: number
   losses: number
   sample: number
+  // Real match-by-match outcomes, most recent first (e.g. "W L W W L") — the
+  // actual sequence, not a fabricated one. Used for the last-5 form badges in
+  // the UI, which previously came from an AI prompt that literally had
+  // "W W L W W" as a hardcoded example (see git history on this file and
+  // lib/ai-match-preview.ts) — that was never real data.
+  sequence: string
+  winRate: number // 0..100, real wins/sample — replaces the old fabricated "avgScore" for the form-comparison chart
+  trend: string
 }
 
 function normalizeForMatch(name: string): string {
   return (name || '').toLowerCase().replace(/[^a-z]/g, '')
 }
 
-async function getRealRecentForm(teamName: string): Promise<RecentFormResult | null> {
+function trendForScore(score: number): string {
+  return score > 0.6 ? 'Strong form — consistently performing' : score > 0.3 ? 'Mixed results — inconsistent' : 'Struggling — looking for a turnaround'
+}
+
+export async function getRealRecentForm(teamName: string): Promise<RecentFormResult | null> {
   try {
     const data = await getRecentFixturesWithLineup(200)
     const fixtures: any[] = data?.data || []
@@ -58,6 +70,7 @@ async function getRealRecentForm(teamName: string): Promise<RecentFormResult | n
     let weightedWins = 0
     let totalWeight = 0
     let wins = 0
+    const results: string[] = []
     finished.forEach((f, idx) => {
       const local = f.localteam?.data || f.localteam || {}
       const visitor = f.visitorteam?.data || f.visitorteam || {}
@@ -66,16 +79,21 @@ async function getRealRecentForm(teamName: string): Promise<RecentFormResult | n
       const teamId = isLocal ? local.id : visitor.id
       const won = !!teamId && f.winner_team_id === teamId
       if (won) wins++
+      results.push(won ? 'W' : 'L')
       const weight = 1 - idx * 0.15 // most recent match weighted highest, 5th match weighted 0.4x
       weightedWins += (won ? 1 : 0) * weight
       totalWeight += weight
     })
 
+    const score = totalWeight > 0 ? weightedWins / totalWeight : 0.5
     return {
-      score: totalWeight > 0 ? weightedWins / totalWeight : 0.5,
+      score,
       wins,
       losses: finished.length - wins,
       sample: finished.length,
+      sequence: results.join(' '),
+      winRate: Math.round((wins / finished.length) * 100),
+      trend: trendForScore(score),
     }
   } catch (err) {
     console.warn('[analysis-engine] Could not fetch real recent form:', err)
@@ -233,8 +251,8 @@ export interface AnalysisResult {
     tossAdvice: string
   }
   recentForm: {
-    teamA: { wins: number; losses: number; trend: string }
-    teamB: { wins: number; losses: number; trend: string }
+    teamA: { wins: number; losses: number; trend: string; last5: string; avgScore: number }
+    teamB: { wins: number; losses: number; trend: string; last5: string; avgScore: number }
   }
   reasoning: string
 }
@@ -1025,16 +1043,16 @@ export async function analyzeMatch(matchKey: string, seed?: MatchSeed): Promise<
   // Real record when we could fetch it; falls back to the old rank-derived
   // approximation only when SportMonks has no recent fixtures for a team
   // (very new team, obscure format) — never silently fabricated otherwise.
-  const trendFor = (score: number) =>
-    score > 0.6 ? 'Strong form — consistently performing' : score > 0.3 ? 'Mixed results — inconsistent' : 'Struggling — looking for a turnaround'
-
+  // last5/avgScore: empty-string/rank-based fallback when there's no real
+  // sequence to show — never a fabricated W/L sequence (that's exactly the
+  // bug this replaced; see lib/ai-match-preview.ts's prompt history).
   const recentForm = {
     teamA: formA
-      ? { wins: formA.wins, losses: formA.losses, trend: trendFor(formA.score) }
-      : { wins: Math.round(3 + teamARankNorm * 4), losses: 7 - Math.round(3 + teamARankNorm * 4), trend: trendFor(teamARankNorm) },
+      ? { wins: formA.wins, losses: formA.losses, trend: formA.trend, last5: formA.sequence, avgScore: formA.winRate }
+      : { wins: Math.round(3 + teamARankNorm * 4), losses: 7 - Math.round(3 + teamARankNorm * 4), trend: trendForScore(teamARankNorm), last5: '', avgScore: Math.round(teamARankNorm * 100) },
     teamB: formB
-      ? { wins: formB.wins, losses: formB.losses, trend: trendFor(formB.score) }
-      : { wins: Math.round(3 + teamBRankNorm * 4), losses: 7 - Math.round(3 + teamBRankNorm * 4), trend: trendFor(teamBRankNorm) },
+      ? { wins: formB.wins, losses: formB.losses, trend: formB.trend, last5: formB.sequence, avgScore: formB.winRate }
+      : { wins: Math.round(3 + teamBRankNorm * 4), losses: 7 - Math.round(3 + teamBRankNorm * 4), trend: trendForScore(teamBRankNorm), last5: '', avgScore: Math.round(teamBRankNorm * 100) },
   }
 
   const venueDisplay = venueName ? `${venueName}${venueCity ? ', ' + venueCity : ''}` : venueCountry || 'Venue TBD'
@@ -1216,12 +1234,16 @@ export async function analyzeTournament(tournamentKey: string, tournamentData?: 
     teamA: {
       wins: teamAWins,
       losses: 7 - teamAWins,
-      trend: teamARankNorm > 0.6 ? 'Strong form — consistently performing' : teamARankNorm > 0.3 ? 'Mixed results — inconsistent' : 'Struggling — looking for a turnaround',
+      trend: trendForScore(teamARankNorm),
+      last5: '',
+      avgScore: Math.round(teamARankNorm * 100),
     },
     teamB: {
       wins: teamBWins,
       losses: 7 - teamBWins,
-      trend: teamBRankNorm > 0.6 ? 'Strong form — consistently performing' : teamBRankNorm > 0.3 ? 'Mixed results — inconsistent' : 'Struggling — looking for a turnaround',
+      trend: trendForScore(teamBRankNorm),
+      last5: '',
+      avgScore: Math.round(teamBRankNorm * 100),
     },
   }
 
