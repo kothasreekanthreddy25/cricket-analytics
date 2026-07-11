@@ -386,7 +386,7 @@ export async function runDailyVideoGeneration(): Promise<VideoRunResult> {
 
       const [prediction, xis] = await Promise.all([
         getStoredPrediction(candidate.matchKey, info.teamA, info.teamB),
-        getPredictedXIs(info.teamAId, info.teamBId, info.ownLineup),
+        getPredictedXIs(info.teamAId, info.teamBId, info.ownLineup, info.format),
       ])
       // Fantasy is best-effort — buildFantasyXI returns null without real
       // lineups for both sides, and the script simply omits that scene.

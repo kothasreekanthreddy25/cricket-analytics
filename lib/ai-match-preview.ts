@@ -140,17 +140,33 @@ function lineupToPlayers(lineup: any[], teamId: number): KnownPlayer[] {
     .filter((p: KnownPlayer) => p.name)
 }
 
+// T20 and T20I are the same format under different SportMonks/site naming —
+// every other format (ODI, Test) is genuinely distinct, no fallback family.
+function formatsMatch(fixtureType: string | undefined, targetFormat: string): boolean {
+  const a = (fixtureType || '').toUpperCase()
+  const b = targetFormat.toUpperCase()
+  if (a === b) return true
+  const t20Family = new Set(['T20', 'T20I'])
+  return t20Family.has(a) && t20Family.has(b)
+}
+
 // Ground "players to watch" in a real submitted XI instead of asking an AI
 // model to recall the current squad from memory (which goes stale — see the
 // prompt comments below). Two tiers of ground truth, in priority order:
 //   1. ownLineup — THIS match's own SportMonks lineup. Empty until the toss,
 //      but once populated it's the actual confirmed XI, not a guess.
-//   2. Each team's most recent finished match (from getRecentFixturesWithLineup)
-//      as a stand-in "likely XI", clearly labeled as predicted, not confirmed.
+//   2. Each team's most recent finished match IN THE SAME FORMAT (from
+//      getRecentFixturesWithLineup) as a stand-in "likely XI", clearly
+//      labeled as predicted, not confirmed. Without the format filter, a
+//      team's most recent match of ANY format wins — e.g. an ODI series
+//      opener would pull "predicted XI" from that team's last T20I instead,
+//      since T20I and ODI squads routinely differ (specialists on one side,
+//      not the other).
 export async function getPredictedXIs(
   teamAId: number | null | undefined,
   teamBId: number | null | undefined,
-  ownLineup?: any[] | null
+  ownLineup?: any[] | null,
+  format?: string
 ): Promise<KnownXIs> {
   const empty: KnownXIs = { teamA: [], teamB: [], teamASource: null, teamBSource: null, teamAConfirmed: false, teamBConfirmed: false }
   if (!teamAId && !teamBId) return empty
@@ -170,12 +186,13 @@ export async function getPredictedXIs(
     }
   }
 
-  // Tier 2 — most recent finished match per team, as a predicted stand-in
+  // Tier 2 — most recent finished match per team IN THE SAME FORMAT, as a predicted stand-in
   let fixtures: any[] = []
   try {
     const data = await getRecentFixturesWithLineup(120)
     fixtures = (data?.data || [])
       .filter((f: any) => Array.isArray(f.lineup) && f.lineup.length > 0)
+      .filter((f: any) => !format || formatsMatch(f.type, format))
       .sort((a: any, b: any) => new Date(b.starting_at).getTime() - new Date(a.starting_at).getTime())
   } catch {
     return empty

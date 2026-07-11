@@ -71,7 +71,7 @@ export async function GET(request: NextRequest) {
       // of asking the model to recall the current squad from memory — this
       // match's own confirmed lineup if the toss has happened, else each
       // team's most recent finished match as a labeled "likely XI".
-      const knownXIs = await getPredictedXIs(info.teamAId, info.teamBId, info.ownLineup)
+      const knownXIs = await getPredictedXIs(info.teamAId, info.teamBId, info.ownLineup, info.format)
 
       const [structured, commentator] = await Promise.all([
         openaiPreview(info.teamA, info.teamB, info.tournament, info.venue, info.format, winContext, info.startAt, knownXIs),

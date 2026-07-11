@@ -128,7 +128,7 @@ export async function GET() {
       // instead of asking the model to recall the current squad from memory.
       // (These are all genuinely upcoming matches, so there's never a "toss
       // has happened" confirmed lineup available yet — always tier 2.)
-      const knownXIs = await getPredictedXIs(m.teamAId, m.teamBId)
+      const knownXIs = await getPredictedXIs(m.teamAId, m.teamBId, null, m.format)
 
       const [structured, commentator, formA, formB] = await Promise.all([
         openaiPreview(m.teamA, m.teamB, m.tournament, m.venue, m.format, winContext, m.startAt, knownXIs),
