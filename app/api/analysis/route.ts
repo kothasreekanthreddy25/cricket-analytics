@@ -43,6 +43,8 @@ export async function GET(request: NextRequest) {
     const base = await analyzeMatch(matchKey, {
       teamA: info.teamA,
       teamB: info.teamB,
+      teamAId: info.teamAId,
+      teamBId: info.teamBId,
       venueName: info.venue,
       format: info.format,
     })

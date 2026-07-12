@@ -133,8 +133,8 @@ export async function GET() {
       const [structured, commentator, formA, formB] = await Promise.all([
         openaiPreview(m.teamA, m.teamB, m.tournament, m.venue, m.format, winContext, m.startAt, knownXIs),
         getCommentatorIntro(m.teamA, m.teamB, m.tournament, m.venue, m.format, m.startAt),
-        getRealRecentForm(m.teamA),
-        getRealRecentForm(m.teamB),
+        getRealRecentForm(m.teamAId, m.teamA, m.format),
+        getRealRecentForm(m.teamBId, m.teamB, m.format),
       ])
 
       const playersToWatch = await enrichPlayersWithRealStats(structured.playersToWatch || [], knownXIs, m.format)

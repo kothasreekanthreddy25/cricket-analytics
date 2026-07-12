@@ -182,6 +182,26 @@ export async function getRecentFixturesWithLineup(daysBack = 120) {
   })
 }
 
+/**
+ * A specific team's own actual match history — up to 100 most recent
+ * results, correctly scoped to that team from the API side (no client-side
+ * filtering against a global fixture dump needed, and no risk of a busy
+ * cricket calendar crowding a team's real matches out of a single capped
+ * page — see getRecentFixturesWithLineup's comment for that failure mode).
+ * Does NOT include lineup data — for a specific match's real XI, follow up
+ * with getMatchDetails(fixtureId) once you've picked the fixture you want
+ * from this list (see getRealRecentForm/getPredictedXIs in
+ * lib/analysis-engine.ts / lib/ai-match-preview.ts for the pattern).
+ */
+export async function getTeamResults(teamId: number) {
+  return sportmonksGet(`teams/${teamId}`, { include: 'results' })
+}
+
+/** Lineup for one specific fixture — the targeted follow-up once getTeamResults has identified which match to pull an XI from. */
+export async function getFixtureLineup(fixtureId: number | string) {
+  return sportmonksGet(`fixtures/${fixtureId}`, { include: 'lineup,localteam,visitorteam' })
+}
+
 /** Ball-by-ball commentary */
 export async function getMatchBallByBall(matchId: string) {
   return sportmonksGet(`fixtures/${matchId}`, { include: 'balls' })

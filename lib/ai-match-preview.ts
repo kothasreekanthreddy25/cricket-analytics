@@ -10,7 +10,7 @@
 import OpenAI from 'openai'
 import { GoogleGenerativeAI } from '@google/generative-ai'
 import { prisma } from './prisma'
-import { getMatchDetails, normalizeSportMonksMatch, getRecentFixturesWithLineup, getPlayerCareer } from './sportmonks'
+import { getMatchDetails, normalizeSportMonksMatch, getRecentFixturesWithLineup, getPlayerCareer, getTeamResults, getFixtureLineup } from './sportmonks'
 import { roanuzGet } from './roanuz'
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
@@ -186,21 +186,63 @@ export async function getPredictedXIs(
     }
   }
 
-  // Tier 2 — most recent finished match per team IN THE SAME FORMAT, as a predicted stand-in
-  let fixtures: any[] = []
-  try {
-    const data = await getRecentFixturesWithLineup(120)
-    fixtures = (data?.data || [])
-      .filter((f: any) => Array.isArray(f.lineup) && f.lineup.length > 0)
-      .filter((f: any) => !format || formatsMatch(f.type, format))
-      .sort((a: any, b: any) => new Date(b.starting_at).getTime() - new Date(a.starting_at).getTime())
-  } catch {
-    return empty
+  // Tier 2a — this team's own most recent same-format result (via
+  // getTeamResults, scoped server-side to the team), then a targeted
+  // single-fixture lineup fetch. Preferred over 2b below because it can't
+  // be crowded out by a busy global fixture list — see
+  // getRecentFixturesWithLineup's comment for that failure mode, which
+  // affected exactly this case (England/India's most recent same-format
+  // match sat outside the ~12-day window the old global search could
+  // actually reach).
+  async function xiForViaTeamResults(teamId: number | null | undefined): Promise<{ players: KnownPlayer[]; source: string | null } | null> {
+    if (!teamId) return null
+    try {
+      const data = await getTeamResults(teamId)
+      const results: any[] = data?.data?.results || []
+      const match = results
+        .filter((f: any) => (f.status === 'Finished' || f.status === 'Completed') && !f.draw_noresult)
+        .filter((f: any) => !format || formatsMatch(f.type, format))
+        .sort((a: any, b: any) => new Date(b.starting_at).getTime() - new Date(a.starting_at).getTime())[0]
+      if (!match) return null
+
+      const lineupData = await getFixtureLineup(match.id)
+      const fixture = lineupData?.data
+      const lineup = fixture?.lineup
+      if (!Array.isArray(lineup) || lineup.length === 0) return null
+
+      const players = lineupToPlayers(lineup, teamId)
+      if (players.length === 0) return null
+
+      const opponentName = match.localteam_id === teamId
+        ? (fixture?.visitorteam?.name || 'their opponent')
+        : (fixture?.localteam?.name || 'their opponent')
+      return { players, source: `vs ${opponentName}, ${new Date(match.starting_at).toDateString()}` }
+    } catch {
+      return null
+    }
   }
 
-  function xiFor(teamId: number | null | undefined): { players: KnownPlayer[]; source: string | null } {
+  const [viaResultsA, viaResultsB] = await Promise.all([xiForViaTeamResults(teamAId), xiForViaTeamResults(teamBId)])
+
+  // Tier 2b — global recent-fixtures search, only for whichever team(s)
+  // tier 2a didn't resolve (kept as a fallback rather than removed, since
+  // getTeamResults itself could fail or a smaller team's real match might
+  // not carry lineup data at all).
+  let fixtures: any[] | null = null
+  async function xiForGlobalFallback(teamId: number | null | undefined): Promise<{ players: KnownPlayer[]; source: string | null }> {
     if (!teamId) return { players: [], source: null }
-    const match = fixtures.find((f: any) => f.localteam_id === teamId || f.visitorteam_id === teamId)
+    if (fixtures === null) {
+      try {
+        const data = await getRecentFixturesWithLineup(120)
+        fixtures = (data?.data || [])
+          .filter((f: any) => Array.isArray(f.lineup) && f.lineup.length > 0)
+          .filter((f: any) => !format || formatsMatch(f.type, format))
+          .sort((a: any, b: any) => new Date(b.starting_at).getTime() - new Date(a.starting_at).getTime())
+      } catch {
+        fixtures = []
+      }
+    }
+    const match = (fixtures || []).find((f: any) => f.localteam_id === teamId || f.visitorteam_id === teamId)
     if (!match) return { players: [], source: null }
 
     const players = lineupToPlayers(match.lineup, teamId)
@@ -213,8 +255,8 @@ export async function getPredictedXIs(
     return { players, source }
   }
 
-  const a = xiFor(teamAId)
-  const b = xiFor(teamBId)
+  const a = viaResultsA || await xiForGlobalFallback(teamAId)
+  const b = viaResultsB || await xiForGlobalFallback(teamBId)
   return { teamA: a.players, teamB: b.players, teamASource: a.source, teamBSource: b.source, teamAConfirmed: false, teamBConfirmed: false }
 }
 

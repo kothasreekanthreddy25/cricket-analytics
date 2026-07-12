@@ -10,7 +10,7 @@ import {
   roanuzGet,
 } from './roanuz'
 import { getKeyPlayersForTeam } from './player-database'
-import { getRecentFixturesWithLineup } from './sportmonks'
+import { getRecentFixturesWithLineup, getTeamResults } from './sportmonks'
 
 const T20_WC_KEY = 'a-rz--cricket--icc--iccwct20--2026-YaNA'
 
@@ -44,7 +44,52 @@ function trendForScore(score: number): string {
   return score > 0.6 ? 'Strong form — consistently performing' : score > 0.3 ? 'Mixed results — inconsistent' : 'Struggling — looking for a turnaround'
 }
 
-export async function getRealRecentForm(teamName: string): Promise<RecentFormResult | null> {
+// T20 and T20I are the same format under different labels everywhere else
+// in this codebase (see getAggregatedCareerStats) — every other format is
+// distinct. Without this, "recent form" or "predicted XI" for an ODI match
+// could silently pull from the team's last T20I instead (exactly what
+// happened for England vs India: their last finished match was a T20I,
+// four days before the first ODI of the very next series).
+function formatsMatch(a?: string | null, b?: string | null): boolean {
+  const na = (a || '').toUpperCase()
+  const nb = (b || '').toUpperCase()
+  if (!na || !nb) return true // unknown format — don't over-filter, matches the existing permissive default
+  if (na === nb) return true
+  const t20Family = new Set(['T20', 'T20I'])
+  return t20Family.has(na) && t20Family.has(nb)
+}
+
+function isFinishedResult(f: any): boolean {
+  const status = f.status || ''
+  return (status === 'Finished' || status === 'Completed') && !f.draw_noresult
+}
+
+export async function getRealRecentForm(teamId: number | null | undefined, teamName: string, format?: string): Promise<RecentFormResult | null> {
+  // Preferred path: team.results is scoped server-side to this exact team —
+  // no name matching needed, no risk of a busy global fixture list crowding
+  // out this team's actual recent matches (see getRecentFixturesWithLineup's
+  // comment for that failure mode, which this sidesteps entirely).
+  if (teamId) {
+    try {
+      const data = await getTeamResults(teamId)
+      const results: any[] = data?.data?.results || []
+      const finished = results
+        .filter(isFinishedResult)
+        .filter((f: any) => formatsMatch(f.type, format))
+        .sort((a: any, b: any) => new Date(b.starting_at).getTime() - new Date(a.starting_at).getTime())
+        .slice(0, 5)
+
+      if (finished.length > 0) {
+        return buildFormResult(finished, (f: any) => f.winner_team_id === teamId)
+      }
+      // No same-format results found for this team via the ID-scoped path —
+      // fall through to the name-based search below rather than returning
+      // null immediately, since that search uses a much wider date window.
+    } catch (err) {
+      console.warn('[analysis-engine] getTeamResults failed, falling back to name search:', err)
+    }
+  }
+
   try {
     const data = await getRecentFixturesWithLineup(200)
     const fixtures: any[] = data?.data || []
@@ -58,10 +103,8 @@ export async function getRealRecentForm(teamName: string): Promise<RecentFormRes
     // form" and vice versa. Team names in SportMonks fixtures are
     // consistent enough that exact match after normalization is correct.
     const finished = fixtures
-      .filter(f => {
-        const status = f.status || ''
-        return (status === 'Finished' || status === 'Completed') && !f.draw_noresult
-      })
+      .filter(isFinishedResult)
+      .filter(f => formatsMatch(f.type, format))
       .filter(f => {
         const local = normalizeForMatch(f.localteam?.name || f.localteam?.data?.name)
         const visitor = normalizeForMatch(f.visitorteam?.name || f.visitorteam?.data?.name)
@@ -72,37 +115,42 @@ export async function getRealRecentForm(teamName: string): Promise<RecentFormRes
 
     if (finished.length === 0) return null
 
-    let weightedWins = 0
-    let totalWeight = 0
-    let wins = 0
-    const results: string[] = []
-    finished.forEach((f, idx) => {
+    return buildFormResult(finished, (f: any) => {
       const local = f.localteam?.data || f.localteam || {}
       const visitor = f.visitorteam?.data || f.visitorteam || {}
-      const localName = normalizeForMatch(local.name)
-      const isLocal = localName === key
-      const teamId = isLocal ? local.id : visitor.id
-      const won = !!teamId && f.winner_team_id === teamId
-      if (won) wins++
-      results.push(won ? 'W' : 'L')
-      const weight = 1 - idx * 0.15 // most recent match weighted highest, 5th match weighted 0.4x
-      weightedWins += (won ? 1 : 0) * weight
-      totalWeight += weight
+      const isLocal = normalizeForMatch(local.name) === key
+      const id = isLocal ? local.id : visitor.id
+      return !!id && f.winner_team_id === id
     })
-
-    const score = totalWeight > 0 ? weightedWins / totalWeight : 0.5
-    return {
-      score,
-      wins,
-      losses: finished.length - wins,
-      sample: finished.length,
-      sequence: results.join(' '),
-      winRate: Math.round((wins / finished.length) * 100),
-      trend: trendForScore(score),
-    }
   } catch (err) {
     console.warn('[analysis-engine] Could not fetch real recent form:', err)
     return null
+  }
+}
+
+function buildFormResult(finished: any[], wonFn: (f: any) => boolean): RecentFormResult {
+  let weightedWins = 0
+  let totalWeight = 0
+  let wins = 0
+  const sequence: string[] = []
+  finished.forEach((f, idx) => {
+    const won = wonFn(f)
+    if (won) wins++
+    sequence.push(won ? 'W' : 'L')
+    const weight = 1 - idx * 0.15 // most recent match weighted highest, 5th match weighted 0.4x
+    weightedWins += (won ? 1 : 0) * weight
+    totalWeight += weight
+  })
+
+  const score = totalWeight > 0 ? weightedWins / totalWeight : 0.5
+  return {
+    score,
+    wins,
+    losses: finished.length - wins,
+    sample: finished.length,
+    sequence: sequence.join(' '),
+    winRate: Math.round((wins / finished.length) * 100),
+    trend: trendForScore(score),
   }
 }
 
@@ -119,7 +167,40 @@ export interface RealH2HResult {
   sample: number
 }
 
-export async function getRealHeadToHead(teamA: string, teamB: string): Promise<RealH2HResult | null> {
+export async function getRealHeadToHead(
+  teamAId: number | null | undefined,
+  teamA: string,
+  teamBId: number | null | undefined,
+  teamB: string,
+  format?: string
+): Promise<RealH2HResult | null> {
+  // Preferred path: teamA's own results, scoped server-side, filtered to
+  // meetings against teamB specifically — same reasoning as getRealRecentForm.
+  if (teamAId && teamBId) {
+    try {
+      const data = await getTeamResults(teamAId)
+      const results: any[] = data?.data?.results || []
+      const meetings = results
+        .filter(isFinishedResult)
+        .filter((f: any) => formatsMatch(f.type, format))
+        .filter((f: any) => f.localteam_id === teamBId || f.visitorteam_id === teamBId)
+        .sort((a: any, b: any) => new Date(b.starting_at).getTime() - new Date(a.starting_at).getTime())
+        .slice(0, 10)
+
+      if (meetings.length > 0) {
+        const teamAWins = meetings.filter((f: any) => f.winner_team_id === teamAId).length
+        return {
+          teamAWinRate: teamAWins / meetings.length,
+          teamAWins,
+          teamBWins: meetings.length - teamAWins,
+          sample: meetings.length,
+        }
+      }
+    } catch (err) {
+      console.warn('[analysis-engine] getTeamResults failed for h2h, falling back to name search:', err)
+    }
+  }
+
   try {
     const data = await getRecentFixturesWithLineup(365) // wider window — two specific teams meet far less often than either plays overall
     const fixtures: any[] = data?.data || []
@@ -128,10 +209,8 @@ export async function getRealHeadToHead(teamA: string, teamB: string): Promise<R
     if (!keyA || !keyB) return null
 
     const meetings = fixtures
-      .filter(f => {
-        const status = f.status || ''
-        return (status === 'Finished' || status === 'Completed') && !f.draw_noresult
-      })
+      .filter(isFinishedResult)
+      .filter(f => formatsMatch(f.type, format))
       .filter(f => {
         const local = normalizeForMatch(f.localteam?.name || f.localteam?.data?.name)
         const visitor = normalizeForMatch(f.visitorteam?.name || f.visitorteam?.data?.name)
@@ -147,8 +226,8 @@ export async function getRealHeadToHead(teamA: string, teamB: string): Promise<R
       const local = f.localteam?.data || f.localteam || {}
       const visitor = f.visitorteam?.data || f.visitorteam || {}
       const isLocalA = normalizeForMatch(local.name) === keyA
-      const teamAId = isLocalA ? local.id : visitor.id
-      if (!!teamAId && f.winner_team_id === teamAId) teamAWins++
+      const id = isLocalA ? local.id : visitor.id
+      if (!!id && f.winner_team_id === id) teamAWins++
     })
 
     return {
@@ -959,6 +1038,8 @@ function generateReasoning(
 export interface MatchSeed {
   teamA?: string
   teamB?: string
+  teamAId?: number | null
+  teamBId?: number | null
   venueName?: string
   venueCountry?: string
   format?: string
@@ -989,6 +1070,14 @@ export async function analyzeMatch(matchKey: string, seed?: MatchSeed): Promise<
 
   const teamA = seed?.teamA || matchData?.teams?.a?.name || extractTeams(matchDetails)?.teamA || 'Team A'
   const teamB = seed?.teamB || matchData?.teams?.b?.name || extractTeams(matchDetails)?.teamB || 'Team B'
+  const teamAId = seed?.teamAId
+  const teamBId = seed?.teamBId
+  // Real, unnormalized format (e.g. "ODI", "T20I") for SportMonks `type`
+  // filtering — distinct from `format` below, which collapses every T20
+  // variant to the single string "T20" for the venue/pitch-tuning logic
+  // elsewhere in this function and isn't precise enough to filter recent
+  // results by format without conflating T20 franchise cricket with ODIs.
+  const realFormat = seed?.format
   const format = seed?.format?.toUpperCase().startsWith('T20') ? 'T20' : (seed?.format ? seed.format.toUpperCase() : 'T20')
 
   const venueName = seed?.venueName || matchData?.venue?.name || matchDetails?.data?.venue?.name || ''
@@ -1057,9 +1146,9 @@ export async function analyzeMatch(matchKey: string, seed?: MatchSeed): Promise<
   // trainedH2H. See getRealRecentForm's and getRealHeadToHead's comments for
   // why these were the actual gap.
   const [formA, formB, realH2H] = await Promise.all([
-    getRealRecentForm(teamA),
-    getRealRecentForm(teamB),
-    getRealHeadToHead(teamA, teamB),
+    getRealRecentForm(teamAId, teamA, realFormat),
+    getRealRecentForm(teamBId, teamB, realFormat),
+    getRealHeadToHead(teamAId, teamA, teamBId, teamB, realFormat),
   ])
 
   const baseRecentWinRateA = statsA
