@@ -49,6 +49,39 @@ export async function generateMetadata(
   }
 }
 
-export default function AnalysisPage() {
-  return <AnalysisPageClient />
+export default async function AnalysisPage(
+  { searchParams }: { searchParams: { match?: string } }
+) {
+  const matchKey = searchParams?.match
+  const info = matchKey ? await resolveMatchInfo(matchKey) : null
+
+  const jsonLd = info
+    ? {
+        '@context': 'https://schema.org',
+        '@type': 'SportsEvent',
+        name: `${info.teamA} vs ${info.teamB}`,
+        sport: 'Cricket',
+        startDate: info.startAt || undefined,
+        location: info.venue
+          ? { '@type': 'Place', name: info.venue }
+          : undefined,
+        competitor: [
+          { '@type': 'SportsTeam', name: info.teamA },
+          { '@type': 'SportsTeam', name: info.teamB },
+        ],
+        url: `${BASE_URL}/analysis?match=${encodeURIComponent(matchKey!)}`,
+      }
+    : null
+
+  return (
+    <>
+      {jsonLd && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+      )}
+      <AnalysisPageClient />
+    </>
+  )
 }

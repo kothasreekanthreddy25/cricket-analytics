@@ -39,6 +39,7 @@ import { isTelegramConfigured, getTelegramUpdates, sendTelegramMessage } from '.
 import { isResendConfigured } from './resend'
 import { sendWeeklyDigest } from './weekly-digest'
 import { isVideoPipelineConfigured, runDailyVideoGeneration } from './match-video'
+import { isIndexNowConfigured, submitUrls } from './indexnow'
 
 // ──────────────────────────────────────────────
 // Job 1: Update prediction results
@@ -409,6 +410,59 @@ async function runVideoGeneration() {
 }
 
 // ──────────────────────────────────────────────
+// Job 8: Daily IndexNow submission (Bing/Yandex/Seznam)
+// ──────────────────────────────────────────────
+// No Google Indexing API here — it's contractually restricted to
+// JobPosting/BroadcastEvent content, and prediction/blog pages don't
+// qualify. Google finds new pages via the sitemap (app/sitemap.ts) on its
+// own crawl schedule instead. IndexNow is the one push-based mechanism that
+// doesn't require special content types or account verification.
+
+const BASE_URL = 'https://crickettips.ai'
+const STATIC_DAILY_PAGES = ['/', '/predictions', '/analysis', '/matches', '/blog', '/odds']
+
+async function submitDailyIndexNowUrls() {
+  if (!isIndexNowConfigured()) return
+  try {
+    const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000)
+
+    const recentMatches = await prisma.matchAnalysis.findMany({
+      where: { createdAt: { gte: oneDayAgo } },
+      distinct: ['matchKey'],
+      select: { matchKey: true },
+    })
+    const matchUrls = recentMatches.map(
+      (m) => `${BASE_URL}/analysis?match=${encodeURIComponent(m.matchKey)}`
+    )
+
+    let blogUrls: string[] = []
+    if (process.env.NEXT_PUBLIC_SANITY_PROJECT_ID) {
+      try {
+        const { client } = await import('../sanity/lib/client')
+        const { POSTS_QUERY } = await import('../sanity/lib/queries')
+        const posts = await client.fetch<{ slug: { current: string }; publishedAt: string }[]>(
+          POSTS_QUERY,
+          { limit: 20 }
+        )
+        blogUrls = (posts || [])
+          .filter((p) => p.publishedAt && new Date(p.publishedAt) >= oneDayAgo)
+          .map((p) => `${BASE_URL}/blog/${p.slug.current}`)
+      } catch {
+        // Sanity unreachable — skip blog URLs, still submit matches + static pages
+      }
+    }
+
+    const staticUrls = STATIC_DAILY_PAGES.map((p) => `${BASE_URL}${p}`)
+    const urls = [...staticUrls, ...matchUrls, ...blogUrls]
+
+    const { submitted, ok } = await submitUrls(urls)
+    console.log(`[Scheduler] IndexNow submission: ${submitted} URL(s), ${ok ? 'accepted' : 'failed'}`)
+  } catch (err: any) {
+    console.error('[Scheduler] IndexNow submission failed:', err.message)
+  }
+}
+
+// ──────────────────────────────────────────────
 // Scheduler Engine
 // ──────────────────────────────────────────────
 
@@ -509,6 +563,25 @@ export function startScheduler() {
     }, ONE_HOUR)
   }
 
+  // ── Job 8: IndexNow submission — check hourly, run once per day ~8-9 AM IST ──
+  // After blog gen (6-7 AM), predictions, and video scripts (7-8 AM), so
+  // the day's fresh content already exists before submission.
+  if (isIndexNowConfigured()) {
+    let lastIndexNowRunDate = ''
+
+    setInterval(() => {
+      const now = new Date()
+      const istDate = new Date(now.getTime() + (5 * 60 + 30) * 60 * 1000)
+      const istHour = istDate.getUTCHours()
+      const todayStr = now.toISOString().slice(0, 10)
+
+      if (istHour >= 8 && istHour < 9 && lastIndexNowRunDate !== todayStr) {
+        lastIndexNowRunDate = todayStr
+        submitDailyIndexNowUrls()
+      }
+    }, ONE_HOUR)
+  }
+
   console.log('[Scheduler] Jobs registered:')
   console.log('  - Prediction results: every 6 hours (+ on startup)')
   console.log('  - New predictions: every 6 hours (+ on startup)')
@@ -527,5 +600,10 @@ export function startScheduler() {
     isVideoPipelineConfigured()
       ? '  - Match-preview videos: daily ~7 AM IST'
       : '  - Match-preview videos: skipped (OPENAI_API_KEY not set)'
+  )
+  console.log(
+    isIndexNowConfigured()
+      ? '  - IndexNow submission: daily ~8 AM IST'
+      : '  - IndexNow submission: skipped (INDEXNOW_KEY not set)'
   )
 }

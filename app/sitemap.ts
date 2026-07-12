@@ -1,6 +1,7 @@
 import { MetadataRoute } from 'next'
 import { client } from '@/sanity/lib/client'
 import { POSTS_QUERY } from '@/sanity/lib/queries'
+import { prisma } from '@/lib/prisma'
 
 const BASE_URL = 'https://crickettips.ai'
 
@@ -94,5 +95,30 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     // Sanity not configured or unreachable — skip blog routes
   }
 
-  return [...staticRoutes, ...blogRoutes]
+  // ── Per-match prediction/analysis pages ──
+  // Distinct matchKeys from recent MatchAnalysis rows — this is the
+  // canonical prediction URL (/analysis?match=X), not /live/{matchKey}
+  // (excluded: that page is real-time ball-by-ball, too ephemeral to be
+  // worth indexing) or the orphaned /match, /matches/[id] routes (unlinked
+  // from anywhere in the app).
+  let matchRoutes: MetadataRoute.Sitemap = []
+  try {
+    const recent = await prisma.matchAnalysis.findMany({
+      where: { createdAt: { gte: new Date(Date.now() - 180 * 24 * 60 * 60 * 1000) } },
+      distinct: ['matchKey'],
+      orderBy: { createdAt: 'desc' },
+      take: 1000,
+      select: { matchKey: true, createdAt: true },
+    })
+    matchRoutes = recent.map((m) => ({
+      url: `${BASE_URL}/analysis?match=${encodeURIComponent(m.matchKey)}`,
+      lastModified: m.createdAt,
+      changeFrequency: 'daily' as const,
+      priority: 0.75,
+    }))
+  } catch {
+    // DB unreachable — skip match routes rather than fail the whole sitemap
+  }
+
+  return [...staticRoutes, ...blogRoutes, ...matchRoutes]
 }
