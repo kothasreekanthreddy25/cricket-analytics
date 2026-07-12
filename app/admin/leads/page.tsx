@@ -56,6 +56,12 @@ export default async function AdminLeadsPage() {
               Subscriptions
             </a>
             <a
+              href="/admin/squads"
+              className="flex items-center gap-1.5 text-xs text-emerald-400 hover:text-emerald-300 border border-emerald-500/30 hover:border-emerald-500/60 px-3 py-2 rounded-xl transition-colors"
+            >
+              Squads
+            </a>
+            <a
               href="/api/leads/export"
               className="flex items-center gap-1.5 text-xs text-emerald-400 hover:text-emerald-300 border border-emerald-500/30 hover:border-emerald-500/60 px-3 py-2 rounded-xl transition-colors"
             >

@@ -12,6 +12,7 @@ import { GoogleGenerativeAI } from '@google/generative-ai'
 import { prisma } from './prisma'
 import { getMatchDetails, normalizeSportMonksMatch, getRecentFixturesWithLineup, getPlayerCareer, getTeamResults, getFixtureLineup } from './sportmonks'
 import { roanuzGet } from './roanuz'
+import { getManualSquad } from './manual-squads'
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
 
@@ -142,7 +143,7 @@ function lineupToPlayers(lineup: any[], teamId: number): KnownPlayer[] {
 
 // T20 and T20I are the same format under different SportMonks/site naming —
 // every other format (ODI, Test) is genuinely distinct, no fallback family.
-function formatsMatch(fixtureType: string | undefined, targetFormat: string): boolean {
+export function formatsMatch(fixtureType: string | undefined, targetFormat: string): boolean {
   const a = (fixtureType || '').toUpperCase()
   const b = targetFormat.toUpperCase()
   if (a === b) return true
@@ -166,7 +167,11 @@ export async function getPredictedXIs(
   teamAId: number | null | undefined,
   teamBId: number | null | undefined,
   ownLineup?: any[] | null,
-  format?: string
+  format?: string,
+  // Admin-curated squads (see lib/manual-squads.ts) key off team name + date,
+  // not the numeric SportMonks IDs everything else here uses — so callers
+  // pass those along separately, only when they have them.
+  matchContext?: { teamAName: string; teamBName: string; matchDate: string | null }
 ): Promise<KnownXIs> {
   const empty: KnownXIs = { teamA: [], teamB: [], teamASource: null, teamBSource: null, teamAConfirmed: false, teamBConfirmed: false }
   if (!teamAId && !teamBId) return empty
@@ -186,6 +191,20 @@ export async function getPredictedXIs(
     }
   }
 
+  // Tier 1.5 — admin-curated squad for whichever team(s) weren't resolved by
+  // a confirmed lineup above. Preferred over the SportMonks "most recent
+  // match" guess below since it reflects the actual squad announced for this
+  // series, not a stand-in from a past (possibly different-format) match.
+  let manualA: KnownPlayer[] | null = null
+  let manualB: KnownPlayer[] | null = null
+  if (matchContext && format) {
+    const [ma, mb] = await Promise.all([
+      getManualSquad(matchContext.teamAName, format, matchContext.matchDate),
+      getManualSquad(matchContext.teamBName, format, matchContext.matchDate),
+    ])
+    manualA = ma
+    manualB = mb
+  }
   // Tier 2a — this team's own most recent same-format result (via
   // getTeamResults, scoped server-side to the team), then a targeted
   // single-fixture lineup fetch. Preferred over 2b below because it can't
@@ -222,7 +241,10 @@ export async function getPredictedXIs(
     }
   }
 
-  const [viaResultsA, viaResultsB] = await Promise.all([xiForViaTeamResults(teamAId), xiForViaTeamResults(teamBId)])
+  const [viaResultsA, viaResultsB] = await Promise.all([
+    manualA ? null : xiForViaTeamResults(teamAId),
+    manualB ? null : xiForViaTeamResults(teamBId),
+  ])
 
   // Tier 2b — global recent-fixtures search, only for whichever team(s)
   // tier 2a didn't resolve (kept as a fallback rather than removed, since
@@ -255,8 +277,8 @@ export async function getPredictedXIs(
     return { players, source }
   }
 
-  const a = viaResultsA || await xiForGlobalFallback(teamAId)
-  const b = viaResultsB || await xiForGlobalFallback(teamBId)
+  const a = manualA ? { players: manualA, source: 'Admin-curated squad' } : (viaResultsA || await xiForGlobalFallback(teamAId))
+  const b = manualB ? { players: manualB, source: 'Admin-curated squad' } : (viaResultsB || await xiForGlobalFallback(teamBId))
   return { teamA: a.players, teamB: b.players, teamASource: a.source, teamBSource: b.source, teamAConfirmed: false, teamBConfirmed: false }
 }
 

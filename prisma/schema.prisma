@@ -280,3 +280,47 @@ model Subscription {
   @@index([status])
   @@index([createdAt])
 }
+
+// Manually-curated tournament/series/squad data — admin-entered, takes
+// priority over the SportMonks "most recent match" heuristic in
+// getPredictedXIs (see lib/manual-squads.ts), since SportMonks lineup data
+// only reflects matches already played and can lag real squad announcements.
+model Tournament {
+  id        String   @id @default(cuid())
+  name      String   // e.g. "India tour of England 2026"
+  country   String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  series    Series[]
+}
+
+model Series {
+  id           String   @id @default(cuid())
+  tournamentId String
+  tournament   Tournament @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
+  name         String   // e.g. "ODI Series"
+  format       String   // "T20" | "T20I" | "ODI" | "TEST" — same convention as formatsMatch()
+  startDate    DateTime
+  endDate      DateTime
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  squads       SeriesSquad[]
+
+  @@index([format])
+  @@index([startDate, endDate])
+}
+
+// One row per team per series — players stored as KnownPlayer[]-shaped JSON
+// ({id, name, role, isCaptain, isWicketkeeper}), matching the shape
+// lib/ai-match-preview.ts's getPredictedXIs already returns everywhere else.
+model SeriesSquad {
+  id        String   @id @default(cuid())
+  seriesId  String
+  series    Series   @relation(fields: [seriesId], references: [id], onDelete: Cascade)
+  teamName  String   // free text, matched by normalized-exact-match against match teamA/teamB
+  players   Json
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([seriesId, teamName])
+}

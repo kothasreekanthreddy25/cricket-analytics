@@ -47,6 +47,12 @@ export default async function AdminSubscriptionsPage() {
             >
               Leads
             </a>
+            <a
+              href="/admin/squads"
+              className="text-xs text-emerald-400 hover:text-emerald-300 border border-emerald-500/30 hover:border-emerald-500/60 px-3 py-2 rounded-xl transition-colors"
+            >
+              Squads
+            </a>
             <AdminLogout />
           </div>
         </div>

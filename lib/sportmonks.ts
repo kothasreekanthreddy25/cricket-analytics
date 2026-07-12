@@ -276,6 +276,17 @@ export async function getPlayerCareer(playerId: string) {
   return sportmonksGet(`players/${playerId}`, { include: 'career' })
 }
 
+/** Search players by (partial) full name — used by the admin squad-builder
+ * type-ahead so manually-entered players still carry a real SportMonks ID
+ * (needed for enrichPlayersWithRealStats downstream). SportMonks only allows
+ * filtering players by `lastname` (not fullname/firstname — confirmed via a
+ * live 400 response listing allowed filters), so this filters server-side on
+ * the last word of the query and lets the caller do any further narrowing. */
+export async function searchPlayers(query: string) {
+  const lastWord = query.trim().split(/\s+/).pop() || query.trim()
+  return sportmonksGet('players', { 'filter[lastname]': lastWord })
+}
+
 export async function getLeagueRecentFixtures(leagueId: string) {
   return sportmonksGet('fixtures', {
     'filter[league_id]': leagueId,

@@ -322,7 +322,11 @@ export async function runLongFormVideoGeneration(): Promise<LongFormRunResult> {
 
       const [prediction, xis] = await Promise.all([
         getStoredPrediction(candidate.matchKey, info.teamA, info.teamB),
-        getPredictedXIs(info.teamAId, info.teamBId, info.ownLineup, info.format),
+        getPredictedXIs(info.teamAId, info.teamBId, info.ownLineup, info.format, {
+          teamAName: info.teamA,
+          teamBName: info.teamB,
+          matchDate: info.startAt,
+        }),
       ])
       const fantasy = await buildFantasyXI(xis, info.teamA, info.teamB, info.format).catch(() => null)
       const battles = deriveKeyBattles(fantasy, info.teamA, info.teamB)
