@@ -92,20 +92,33 @@ model Match {
   tips        Tip[]
 }
 
+// Populated by lib/entity-crawler.ts (daily job, see lib/scheduler.ts Job #9)
+// from real SportMonks data — powers the indexable /teams/[slug] pages.
 model Team {
-  id        String   @id @default(cuid())
-  teamId    String   @unique
-  name      String
-  country   String
-  flag      String?
-  stats     Json?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id         String    @id @default(cuid())
+  teamId     String    @unique
+  slug       String    @unique
+  name       String
+  country    String
+  flag       String?
+  stats      Json?
+  // Current roster, KnownPlayer[]-shaped ({id, name, role, isCaptain, isWicketkeeper})
+  squad      Json?
+  // Last time this team appeared in a currently-live/upcoming match — lets the
+  // crawler distinguish "actively touring" teams from ones just sitting in the cache.
+  lastSeenAt DateTime?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
 }
 
+// Populated by lib/entity-crawler.ts — powers the indexable /players/[slug]
+// pages. stats is real SportMonks career data (same AggregatedCareerStats
+// shape lib/ai-match-preview.ts already computes for Fantasy XI), never
+// AI-generated.
 model Player {
   id           String   @id @default(cuid())
   playerId     String   @unique
+  slug         String   @unique
   name         String
   country      String
   role         String
@@ -113,8 +126,25 @@ model Player {
   bowlingStyle String?
   stats        Json?
   image        String?
+  // SportMonks team IDs this player currently represents — for linking back
+  // to /teams/[slug] from the player page.
+  teamIds      String[]
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
+}
+
+// Populated by lib/entity-crawler.ts — powers the indexable /venues/[slug]
+// pages. stats is aggregated from every historical MatchAnalysis row at this
+// venue (pitch tendency, avg first-innings score), not a fresh API call.
+model Venue {
+  id        String   @id @default(cuid())
+  slug      String   @unique
+  name      String
+  city      String?
+  country   String?
+  stats     Json?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Favorite {

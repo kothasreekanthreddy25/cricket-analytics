@@ -128,7 +128,7 @@ export interface KnownXIs {
   teamBConfirmed: boolean
 }
 
-function lineupToPlayers(lineup: any[], teamId: number): KnownPlayer[] {
+export function lineupToPlayers(lineup: any[], teamId: number): KnownPlayer[] {
   return lineup
     .filter((p: any) => p.lineup?.team_id === teamId)
     .map((p: any) => ({

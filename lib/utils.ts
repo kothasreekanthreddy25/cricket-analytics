@@ -25,6 +25,17 @@ export function formatDateTime(date: string | Date): string {
   })
 }
 
+/** Create a URL-friendly slug — e.g. "Virat Kohli" -> "virat-kohli" */
+export function slugify(text: string): string {
+  return text
+    .toLowerCase()
+    .replace(/[^a-z0-9\s-]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')
+    .slice(0, 96)
+    .replace(/^-|-$/g, '')
+}
+
 export function getMatchStatus(status: string): {
   label: string
   color: string

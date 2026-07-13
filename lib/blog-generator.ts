@@ -6,6 +6,7 @@
 
 import OpenAI from 'openai'
 import type { ScrapedArticle } from './news-scraper'
+import { slugify } from './utils'
 
 /** Lazy-init OpenAI client — ensures env var is loaded before use */
 let _openai: OpenAI | null = null
@@ -62,17 +63,6 @@ function textToPortableText(sections: { style: string; text: string }[]): Sanity
       },
     ],
   }))
-}
-
-/** Create a URL-friendly slug */
-function slugify(text: string): string {
-  return text
-    .toLowerCase()
-    .replace(/[^a-z0-9\s-]/g, '')
-    .replace(/\s+/g, '-')
-    .replace(/-+/g, '-')
-    .slice(0, 96)
-    .replace(/^-|-$/g, '')
 }
 
 /**

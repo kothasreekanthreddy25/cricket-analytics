@@ -40,6 +40,7 @@ import { isResendConfigured } from './resend'
 import { sendWeeklyDigest } from './weekly-digest'
 import { isVideoPipelineConfigured, runDailyVideoGeneration } from './match-video'
 import { isIndexNowConfigured, submitUrls } from './indexnow'
+import { runEntityCrawl } from './entity-crawler'
 
 // ──────────────────────────────────────────────
 // Job 1: Update prediction results
@@ -463,6 +464,21 @@ async function submitDailyIndexNowUrls() {
 }
 
 // ──────────────────────────────────────────────
+// Job 9: Daily entity crawl (Team/Player/Venue tables)
+// ──────────────────────────────────────────────
+// Populates the indexable /teams/[slug], /players/[slug], /venues/[slug]
+// pages with real SportMonks data — see lib/entity-crawler.ts for why this
+// replaced the old Roanuz-based /teams and AI-hallucinated /players pages.
+
+async function runDailyEntityCrawl() {
+  try {
+    await runEntityCrawl()
+  } catch (err: any) {
+    console.error('[Scheduler] Entity crawl failed:', err.message)
+  }
+}
+
+// ──────────────────────────────────────────────
 // Scheduler Engine
 // ──────────────────────────────────────────────
 
@@ -582,6 +598,23 @@ export function startScheduler() {
     }, ONE_HOUR)
   }
 
+  // ── Job 9: Entity crawl — check hourly, run once per day ~9-10 AM IST ──
+  // After blog gen, predictions, video scripts, and IndexNow, so this
+  // week's matches/teams already exist before the crawl runs.
+  let lastEntityCrawlRunDate = ''
+
+  setInterval(() => {
+    const now = new Date()
+    const istDate = new Date(now.getTime() + (5 * 60 + 30) * 60 * 1000)
+    const istHour = istDate.getUTCHours()
+    const todayStr = now.toISOString().slice(0, 10)
+
+    if (istHour >= 9 && istHour < 10 && lastEntityCrawlRunDate !== todayStr) {
+      lastEntityCrawlRunDate = todayStr
+      runDailyEntityCrawl()
+    }
+  }, ONE_HOUR)
+
   console.log('[Scheduler] Jobs registered:')
   console.log('  - Prediction results: every 6 hours (+ on startup)')
   console.log('  - New predictions: every 6 hours (+ on startup)')
@@ -606,4 +639,5 @@ export function startScheduler() {
       ? '  - IndexNow submission: daily ~8 AM IST'
       : '  - IndexNow submission: skipped (INDEXNOW_KEY not set)'
   )
+  console.log('  - Entity crawl (teams/players/venues): daily ~9 AM IST')
 }

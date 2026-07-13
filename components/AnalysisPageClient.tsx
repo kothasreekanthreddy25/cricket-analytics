@@ -39,6 +39,10 @@ interface Analysis {
   matchKey: string
   teamA: string
   teamB: string
+  // Populated only once the daily entity crawler has cached that team —
+  // null means /teams/[slug] doesn't exist yet for this name.
+  teamALink?: string | null
+  teamBLink?: string | null
   tournament: string
   format: string
   venue: string
@@ -434,7 +438,13 @@ function AnalysisContent() {
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
                 <div className="text-center">
-                  <p className="text-2xl font-bold text-blue-400">{analysis.teamA}</p>
+                  {analysis.teamALink ? (
+                    <Link href={analysis.teamALink} className="text-2xl font-bold text-blue-400 hover:underline">
+                      {analysis.teamA}
+                    </Link>
+                  ) : (
+                    <p className="text-2xl font-bold text-blue-400">{analysis.teamA}</p>
+                  )}
                   <p className="text-4xl font-black mt-2">{analysis.winProbabilityA}%</p>
                 </div>
                 <div className="text-center">
@@ -451,7 +461,13 @@ function AnalysisContent() {
                   <p className="text-gray-500 text-sm mt-2">VS</p>
                 </div>
                 <div className="text-center">
-                  <p className="text-2xl font-bold text-red-400">{analysis.teamB}</p>
+                  {analysis.teamBLink ? (
+                    <Link href={analysis.teamBLink} className="text-2xl font-bold text-red-400 hover:underline">
+                      {analysis.teamB}
+                    </Link>
+                  ) : (
+                    <p className="text-2xl font-bold text-red-400">{analysis.teamB}</p>
+                  )}
                   <p className="text-4xl font-black mt-2">{analysis.winProbabilityB}%</p>
                 </div>
               </div>

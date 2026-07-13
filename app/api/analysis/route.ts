@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { analyzeMatch, getAvailableMatches } from '@/lib/analysis-engine'
 import { prisma } from '@/lib/prisma'
 import { resolveMatchInfo, openaiPreview, getCommentatorIntro, getPredictedXIs, enrichPlayersWithRealStats, buildFantasyXI } from '@/lib/ai-match-preview'
+import { slugify } from '@/lib/utils'
 
 export const dynamic = 'force-dynamic'
 
@@ -143,11 +144,21 @@ export async function GET(request: NextRequest) {
       console.warn('Could not cache analysis:', dbError)
     }
 
+    // Cheap existence check so the UI only links team names to /teams/[slug]
+    // once the daily entity crawler has actually cached that team — avoids
+    // linking to a page that 404s before the first crawl run.
+    const [teamALinked, teamBLinked] = await Promise.all([
+      prisma.team.findUnique({ where: { slug: slugify(info.teamA) }, select: { slug: true } }),
+      prisma.team.findUnique({ where: { slug: slugify(info.teamB) }, select: { slug: true } }),
+    ])
+
     return NextResponse.json({
       analysis: {
         matchKey,
         teamA: info.teamA,
         teamB: info.teamB,
+        teamALink: teamALinked ? `/teams/${teamALinked.slug}` : null,
+        teamBLink: teamBLinked ? `/teams/${teamBLinked.slug}` : null,
         tournament: info.tournament,
         format: info.format,
         venue: info.venue,

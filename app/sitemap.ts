@@ -68,6 +68,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.7,
     },
     {
+      url: `${BASE_URL}/schedule`,
+      lastModified: new Date(),
+      changeFrequency: 'hourly',
+      priority: 0.8,
+    },
+    {
       url: `${BASE_URL}/uk`,
       lastModified: new Date(),
       changeFrequency: 'daily',
@@ -120,5 +126,40 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     // DB unreachable — skip match routes rather than fail the whole sitemap
   }
 
-  return [...staticRoutes, ...blogRoutes, ...matchRoutes]
+  // ── Team / player / venue detail pages ──
+  // Populated by lib/entity-crawler.ts (daily job) — real SportMonks data,
+  // never AI-hallucinated, never dependent on the dead Roanuz endpoints the
+  // old /teams and /players pages used.
+  let entityRoutes: MetadataRoute.Sitemap = []
+  try {
+    const [teams, players, venues] = await Promise.all([
+      prisma.team.findMany({ select: { slug: true, updatedAt: true } }),
+      prisma.player.findMany({ select: { slug: true, updatedAt: true } }),
+      prisma.venue.findMany({ select: { slug: true, updatedAt: true } }),
+    ])
+    entityRoutes = [
+      ...teams.map((t) => ({
+        url: `${BASE_URL}/teams/${t.slug}`,
+        lastModified: t.updatedAt,
+        changeFrequency: 'weekly' as const,
+        priority: 0.65,
+      })),
+      ...players.map((p) => ({
+        url: `${BASE_URL}/players/${p.slug}`,
+        lastModified: p.updatedAt,
+        changeFrequency: 'weekly' as const,
+        priority: 0.6,
+      })),
+      ...venues.map((v) => ({
+        url: `${BASE_URL}/venues/${v.slug}`,
+        lastModified: v.updatedAt,
+        changeFrequency: 'monthly' as const,
+        priority: 0.55,
+      })),
+    ]
+  } catch {
+    // DB unreachable — skip entity routes rather than fail the whole sitemap
+  }
+
+  return [...staticRoutes, ...blogRoutes, ...matchRoutes, ...entityRoutes]
 }
