@@ -13,6 +13,7 @@
  */
 require('dotenv').config()
 const express = require('express')
+const axios = require('axios')
 const {
   getBallByBall, getScoreText, getMatchData, getTournamentTopStats,
   getPlayerCareerStats, getPlayerRecentForm,
@@ -28,8 +29,11 @@ const {
   updateScore, updateInningsContext, updateCommentary, updateEvent,
   updateCurrentPlayers, updatePlayerExtras, updateTournamentStats, updateChat,
   updatePitchReport, clearPitchReport, updateAnnouncement, clearAnnouncement,
+  updateWinProbability, clearWinProbability, updatePlayerTicker, clearPlayerTicker,
   startFFmpeg, playAudioFile, stopFFmpeg, isStreaming,
 } = require('./ffmpeg-stream')
+
+const CRICKETTIPS_API_URL = process.env.CRICKETTIPS_API_URL || 'https://crickettips.ai'
 
 const app = express()
 app.use(express.json())
@@ -39,6 +43,10 @@ app.use(express.json())
 let currentMatchKey = null
 let pollInterval = null
 let tournamentInterval = null
+let predictionInterval = null   // setInterval that polls the main app's overlay-data endpoint every 60s
+let tickerRotationTimer = null  // setInterval that cycles the player-impact ticker every 7s
+let tickerPlayers = []          // most recent topPlayers[] fetched from overlay-data
+let tickerIndex = 0
 let lastBallKey = null
 let ballCount = 0
 let streamStartTime = null
@@ -191,6 +199,12 @@ async function pollForNewBalls(matchKey, teamA, teamB) {
         () => fetchAndUpdateTournamentStats(scoreData.tournamentKey),
         5 * 60 * 1000 // every 5 minutes
       )
+    }
+
+    // First poll: kick off AI prediction + player-impact ticker overlays
+    if (!predictionInterval) {
+      fetchAndUpdatePrediction(matchKey)
+      predictionInterval = setInterval(() => fetchAndUpdatePrediction(matchKey), 60 * 1000)
     }
 
     // ── Ball-by-ball commentary (primary) ─────────────────────────────────
@@ -479,6 +493,61 @@ async function fetchAndUpdateTournamentStats(tournamentKey) {
 }
 
 /**
+ * Pull the AI win-probability + Fantasy XI impact scores from the main app's
+ * cache-only overlay-data endpoint (never triggers a fresh GPT generation —
+ * see app/api/stream/overlay-data/route.ts) and write the win-probability
+ * banner immediately. The player-impact ticker rotates through topPlayers on
+ * its own timer (startPlayerTickerRotation), separate from this 60s poll, so
+ * a slow prediction refresh doesn't stall the on-screen rotation.
+ */
+async function fetchAndUpdatePrediction(matchKey) {
+  try {
+    const res = await axios.get(`${CRICKETTIPS_API_URL}/api/stream/overlay-data`, {
+      params: { match: matchKey },
+      timeout: 8000,
+    })
+    const data = res.data
+    if (!data?.available) {
+      clearWinProbability()
+      return
+    }
+
+    updateWinProbability(
+      `AI PREDICTION: ${data.teamA} ${data.winProbA}%  -  ${data.teamB} ${data.winProbB}%  (${data.confidence} confidence)`
+    )
+
+    tickerPlayers = Array.isArray(data.topPlayers) ? data.topPlayers : []
+    if (tickerPlayers.length === 0) {
+      if (tickerRotationTimer) { clearInterval(tickerRotationTimer); tickerRotationTimer = null }
+      clearPlayerTicker()
+    } else {
+      startPlayerTickerRotation()
+    }
+
+    console.log(`[Prediction] Overlay updated — ${data.teamA} ${data.winProbA}% / ${data.teamB} ${data.winProbB}%, ${tickerPlayers.length} players on ticker`)
+  } catch (err) {
+    console.warn('[Prediction] Overlay-data fetch failed:', err.message)
+  }
+}
+
+function startPlayerTickerRotation() {
+  if (tickerRotationTimer || tickerPlayers.length === 0) return
+  tickerIndex = 0
+  writeCurrentTickerPlayer()
+  tickerRotationTimer = setInterval(() => {
+    tickerIndex = (tickerIndex + 1) % tickerPlayers.length
+    writeCurrentTickerPlayer()
+  }, 7000)
+}
+
+function writeCurrentTickerPlayer() {
+  const p = tickerPlayers[tickerIndex]
+  if (!p) return
+  const stat = p.statLine ? ` - ${p.statLine}` : ''
+  updatePlayerTicker(`IMPACT PICK: ${p.name} (${p.team}) - ${p.value}/100${stat}`)
+}
+
+/**
  * Build and write the per-player tournament + career stat lines to overlays.
  * Cached to avoid hammering the API on every 8-second poll.
  */
@@ -526,8 +595,12 @@ async function buildPlayerExtra(player) {
 }
 
 async function stopStream() {
-  if (pollInterval)      { clearInterval(pollInterval);      pollInterval      = null }
-  if (tournamentInterval){ clearInterval(tournamentInterval); tournamentInterval = null }
+  if (pollInterval)        { clearInterval(pollInterval);        pollInterval        = null }
+  if (tournamentInterval)  { clearInterval(tournamentInterval);  tournamentInterval  = null }
+  if (predictionInterval)  { clearInterval(predictionInterval);  predictionInterval  = null }
+  if (tickerRotationTimer) { clearInterval(tickerRotationTimer); tickerRotationTimer = null }
+  tickerPlayers = []
+  tickerIndex = 0
   if (goLiveTimer)       { clearTimeout(goLiveTimer);         goLiveTimer        = null }
   if (countdownTimer)    { clearInterval(countdownTimer);     countdownTimer     = null }
   if (checkMatchTimer)   { clearInterval(checkMatchTimer);    checkMatchTimer    = null }

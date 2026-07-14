@@ -45,6 +45,8 @@ const TOURN_RUNS_FILE     = '/tmp/crickettips-tourn-runs.txt'
 const TOURN_WKTS_FILE     = '/tmp/crickettips-tourn-wkts.txt'
 const PITCH_REPORT_FILE   = '/tmp/crickettips-pitch.txt'      // pitch conditions overlay
 const ANNOUNCE_FILE       = '/tmp/crickettips-announce.txt'   // custom announcement overlay
+const WIN_PROB_FILE       = '/tmp/crickettips-winprob.txt'    // AI win-probability banner
+const PLAYER_TICKER_FILE  = '/tmp/crickettips-ticker.txt'     // rotating player-impact ticker
 
 // Chat message slots (4 slots, 2 files each: username + message)
 const CHAT1U = '/tmp/crickettips-c1u.txt'
@@ -103,6 +105,8 @@ function initFiles(teamA, teamB) {
   fs.writeFileSync(TOURN_WKTS_FILE,     ' ')
   fs.writeFileSync(PITCH_REPORT_FILE,   ' ')
   fs.writeFileSync(ANNOUNCE_FILE,       ' ')
+  fs.writeFileSync(WIN_PROB_FILE,       ' ')
+  fs.writeFileSync(PLAYER_TICKER_FILE,  ' ')
   for (const f of [...CHAT_USER_FILES, ...CHAT_MSG_FILES]) fs.writeFileSync(f, ' ')
 }
 
@@ -141,6 +145,33 @@ function updatePitchReport(text) {
 
 function clearPitchReport() {
   fs.writeFileSync(PITCH_REPORT_FILE, ' ')
+}
+
+/**
+ * Show the AI win-probability banner on the stream.
+ * Stays on screen until cleared or replaced.
+ * @param {string} text  e.g. "AI PREDICTION: India 66% - England 34%"
+ */
+function updateWinProbability(text) {
+  fs.writeFileSync(WIN_PROB_FILE, cap(sanitizeText(text), 90))
+}
+
+function clearWinProbability() {
+  fs.writeFileSync(WIN_PROB_FILE, ' ')
+}
+
+/**
+ * Show one player's impact-score line on the rotating ticker.
+ * Caller (index.js) is responsible for rotating through players on a timer —
+ * this just writes whatever single line it's given.
+ * @param {string} text  e.g. "Virat Kohli (India) - Impact 100"
+ */
+function updatePlayerTicker(text) {
+  fs.writeFileSync(PLAYER_TICKER_FILE, cap(sanitizeText(text), 90))
+}
+
+function clearPlayerTicker() {
+  fs.writeFileSync(PLAYER_TICKER_FILE, ' ')
 }
 
 /**
@@ -443,6 +474,16 @@ function buildVideoFilter() {
   f.push(`drawtext=fontfile=${FONT_BOLD}:textfile=${EVENT_FILE}:fontsize=44:fontcolor=0xfbbf24:x=220:y=350:reload=1`)
   f.push(`drawtext=fontfile=${FONT_REG}:textfile=${FIELD_FILE}:fontsize=13:fontcolor=0x6ee7b7:x=220:y=398:reload=1`)
 
+  // AI WIN-PROBABILITY banner  y=410-432  (hidden when text is blank)
+  f.push(`drawbox=x=5:y=410:w=844:h=22:color=0x581c87:t=fill`)
+  f.push(`drawbox=x=5:y=410:w=3:h=22:color=0xa78bfa:t=fill`)
+  f.push(`drawtext=fontfile=${FONT_BOLD}:textfile=${WIN_PROB_FILE}:fontsize=12:fontcolor=0xd8b4fe:x=14:y=417:reload=1`)
+
+  // PLAYER IMPACT ticker  y=432-454  (hidden when text is blank)
+  f.push(`drawbox=x=5:y=432:w=844:h=22:color=0x064e3b:t=fill`)
+  f.push(`drawbox=x=5:y=432:w=3:h=22:color=0x10b981:t=fill`)
+  f.push(`drawtext=fontfile=${FONT_BOLD}:textfile=${PLAYER_TICKER_FILE}:fontsize=12:fontcolor=0x6ee7b7:x=14:y=439:reload=1`)
+
   // BOTTOM BAR  y=454-480
   f.push(`drawbox=x=0:y=454:w=854:h=26:color=0x0f172a:t=fill`)
   f.push(`drawbox=x=0:y=454:w=854:h=2:color=0x10b981:t=fill`)
@@ -488,5 +529,6 @@ module.exports = {
   updateScore, updateInningsContext, updateCommentary, updateEvent,
   updateCurrentPlayers, updatePlayerExtras, updateTournamentStats, updateChat,
   updatePitchReport, clearPitchReport, updateAnnouncement, clearAnnouncement,
+  updateWinProbability, clearWinProbability, updatePlayerTicker, clearPlayerTicker,
   startFFmpeg, playAudioFile, stopFFmpeg, isStreaming,
 }
