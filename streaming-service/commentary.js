@@ -1,9 +1,18 @@
 /**
- * AI Commentary Generator — GPT-4o powered
+ * AI Commentary Generator — GPT-4o powered.
+ * Fully optional: without OPENAI_API_KEY, generateCommentary falls back to a
+ * plain deterministic line instead of failing (the OpenAI client also throws
+ * at construction time if no key is resolvable, so it's built lazily here to
+ * avoid crashing the whole service on boot when the key isn't set).
  */
 const OpenAI = require('openai').default
 
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
+let openai = null
+function getClient() {
+  if (!process.env.OPENAI_API_KEY) return null
+  if (!openai) openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
+  return openai
+}
 
 async function generateCommentary(ball, matchContext) {
   const { over, ballNum, batsman, bowler, runs, isWicket, isSix, isFour, wicketType, teamA, teamB, scoreText } = ball
@@ -18,6 +27,9 @@ async function generateCommentary(ball, matchContext) {
     ? `Dot ball. ${bowler} beats ${batsman}`
     : `${runs} run${runs > 1 ? 's' : ''}. ${batsman} hits ${bowler}`
 
+  const client = getClient()
+  if (!client) return `${eventDesc}. ${scoreText}`
+
   const prompt = `You are an energetic cricket commentator for CricketTips.ai's YouTube live stream.
 Current match: ${teamA} vs ${teamB}
 Score: ${scoreText}
@@ -27,7 +39,7 @@ Generate EXACTLY 2 short, exciting commentary sentences (max 30 words total).
 Be enthusiastic, use cricket terminology. No hashtags, no emojis.`
 
   try {
-    const res = await openai.chat.completions.create({
+    const res = await client.chat.completions.create({
       model: 'gpt-4o-mini',
       messages: [{ role: 'user', content: prompt }],
       max_tokens: 80,

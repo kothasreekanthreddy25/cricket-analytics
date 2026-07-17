@@ -17,7 +17,7 @@ const axios = require('axios')
 const {
   getBallByBall, getScoreText, getMatchData, getTournamentTopStats,
   getPlayerCareerStats, getPlayerRecentForm,
-} = require('./roanuz')
+} = require('./cricketData')
 const { generateCommentary } = require('./commentary')
 const { textToSpeech, cleanupOldAudio, preCacheEventSounds } = require('./tts')
 const { createNewsVideo, createHighlightVideo } = require('./news-video')
@@ -208,11 +208,13 @@ async function pollForNewBalls(matchKey, teamA, teamB) {
     }
 
     // ── Ball-by-ball commentary (primary) ─────────────────────────────────
-    let bbbData = null
-    try { bbbData = await getBallByBall(matchKey) } catch (bbbErr) {
+    // cricketData.getBallByBall already returns normalised, newest-first
+    // balls — no extractBalls() parsing step needed (that parser is Roanuz's
+    // raw-shape format, kept below but unused now).
+    let balls = []
+    try { balls = await getBallByBall(matchKey) } catch (bbbErr) {
       console.warn('[Poll] Ball-by-ball unavailable:', bbbErr.message)
     }
-    const balls = extractBalls(bbbData)
 
     if (balls.length > 0) {
       const latestBall = balls[0]
@@ -838,9 +840,9 @@ app.delete('/stream/pitch-report', (req, res) => {
 //  POST /stream/auto-mode  { enabled: false }  — stop watching
 //  GET  /stream/auto-mode                      — current auto-mode status
 //
-//  When enabled, the service polls Roanuz every 60 seconds.
-//  As soon as a match status = 'started' it auto-creates a YouTube broadcast
-//  and starts streaming — no manual action needed.
+//  When enabled, the service polls crickettips.ai's ticker every 60 seconds.
+//  As soon as a match is live it auto-creates a YouTube broadcast and starts
+//  streaming — no manual action needed.
 
 app.post('/stream/auto-mode', (req, res) => {
   const { enabled } = req.body

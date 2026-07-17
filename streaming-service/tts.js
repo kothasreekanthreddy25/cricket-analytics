@@ -12,7 +12,12 @@ const path = require('path')
 const axios = require('axios')
 const OpenAI = require('openai').default
 
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
+let openai = null
+function getClient() {
+  if (!process.env.OPENAI_API_KEY) return null
+  if (!openai) openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
+  return openai
+}
 const TMP_DIR = '/tmp/crickettips-audio'
 
 if (!fs.existsSync(TMP_DIR)) fs.mkdirSync(TMP_DIR, { recursive: true })
@@ -59,8 +64,10 @@ async function googleTTS(text, filePath) {
  * OpenAI TTS — fallback if Google TTS not configured
  */
 async function openaiTTS(text, filePath) {
+  const client = getClient()
+  if (!client) return false
   try {
-    const res = await openai.audio.speech.create({
+    const res = await client.audio.speech.create({
       model: 'tts-1',
       voice: 'onyx',
       input: text,

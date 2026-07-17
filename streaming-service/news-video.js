@@ -26,7 +26,17 @@ const { textToSpeech } = require('./tts')
 const { uploadToYouTube } = require('./youtube-upload')
 const { generateHeyGenVideo } = require('./heygen')
 
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
+// Lazy construction — the OpenAI client throws at construction time if no
+// key is resolvable, which would otherwise crash the whole service on boot
+// (this module is required unconditionally by index.js) whenever
+// OPENAI_API_KEY isn't set. News-video generation is optional; live score
+// streaming doesn't depend on it.
+let openai = null
+function getClient() {
+  if (!process.env.OPENAI_API_KEY) return null
+  if (!openai) openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
+  return openai
+}
 const TMP_DIR = '/tmp/crickettips-videos'
 const FONT_BOLD = '/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf'
 const FONT_REG  = '/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf'
@@ -48,7 +58,7 @@ async function ensurePresenterImage() {
 
   try {
     console.log('[Presenter] Generating AI anchor image (one-time setup)...')
-    const response = await openai.images.generate({
+    const response = await getClient().images.generate({
       model: 'dall-e-3',
       prompt: `Professional Indian female cricket news anchor, aged 28-32, wearing a formal blazer in dark navy blue with a white collared shirt, sitting at a news desk. She has long dark hair, natural makeup, warm confident smile, looking directly at camera. Studio lighting, clean professional TV news broadcast background (blurred dark blue/teal). Ultra realistic, photographic quality, suitable for a cricket sports news channel. No text, no logos. Full upper body shot, centered in frame.`,
       n: 1,
@@ -151,7 +161,7 @@ function pickTheme(title, keywords) {
 // ─── Script generation ────────────────────────────────────────────────────────
 
 async function generateScript(title, excerpt) {
-  const res = await openai.chat.completions.create({
+  const res = await getClient().chat.completions.create({
     model: 'gpt-4o-mini',
     messages: [{
       role: 'user',
@@ -556,7 +566,7 @@ async function generateHighlightScript(topic, stats, type = 'highlight') {
     .replace('{{topic}}', topic)
     .replace('{{stats}}', stats || 'No additional context provided')
 
-  const res = await openai.chat.completions.create({
+  const res = await getClient().chat.completions.create({
     model: 'gpt-4o-mini',
     messages: [{ role: 'user', content: prompt }],
     response_format: { type: 'json_object' },

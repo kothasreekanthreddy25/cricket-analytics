@@ -1,7 +1,9 @@
 /**
  * Auto-Stream Mode
  *
- * Polls CricAPI every 60 seconds for live matches.
+ * Polls crickettips.ai's own ticker endpoint every 60 seconds for live
+ * matches (the same SportMonks-backed data the main site uses — no separate
+ * API key needed here).
  * When a match starts:  → auto-creates YouTube broadcast + starts FFmpeg
  * When match ends:      → stops stream, ends YouTube broadcast
  *
@@ -15,8 +17,7 @@
 
 const axios = require('axios')
 
-const CRICAPI_KEY = process.env.CRICKET_API_KEY || process.env.CRICAPI_KEY || ''
-const CRICAPI_URL = process.env.CRICKET_API_URL || 'https://api.cricapi.com/v1'
+const CRICKETTIPS_API_URL = process.env.CRICKETTIPS_API_URL || 'https://crickettips.ai'
 
 // Interval between polls (ms). Set AUTO_STREAM_POLL_SECONDS env var to override.
 const POLL_MS = (parseInt(process.env.AUTO_STREAM_POLL_SECONDS || '60') * 1000)
@@ -35,39 +36,35 @@ let goLiveFn       = null  // injected: async (broadcastId)
 let endLiveFn      = null  // injected: async (broadcastId)
 let activeBroadcastId = null
 
-// ─── CricAPI helpers ──────────────────────────────────────────────────────────
+// ─── Ticker helper ──────────────────────────────────────────────────────────────
 
-async function cricapiGet(endpoint, params = {}) {
-  const res = await axios.get(`${CRICAPI_URL}/${endpoint}`, {
-    params: { apikey: CRICAPI_KEY, ...params },
-    timeout: 8000,
-  })
-  if (res.data?.status !== 'success') throw new Error(res.data?.reason || 'CricAPI error')
+async function getTicker() {
+  const res = await axios.get(`${CRICKETTIPS_API_URL}/api/cricket/ticker`, { timeout: 10000 })
   return res.data
 }
 
 // ─── Detect live matches ───────────────────────────────────────────────────────
 
 async function detectLiveMatch() {
-  const data = await cricapiGet('currentMatches', { offset: 0 })
-  const matches = data?.data || []
+  const data = await getTicker()
+  const live = data?.live || []
+  const upcoming = data?.upcoming || []
 
   const skipKeys = new Set(
     (process.env.SKIP_MATCH_KEYS || '').split(',').map(k => k.trim()).filter(Boolean)
   )
 
-  // Priority 1: Find first live/in-progress match
-  for (const m of matches) {
-    if (!m.matchStarted || m.matchEnded) continue
-    if (skipKeys.has(m.id)) continue
-    if (stoppedKeys.has(m.id)) continue
+  // Priority 1: Find first live match
+  for (const m of live) {
+    if (!m.key) continue
+    if (skipKeys.has(m.key)) continue
+    if (stoppedKeys.has(m.key)) continue
 
-    const teams = m.teams || []
     return {
-      key:          m.id,
-      teamA:        teams[0] || 'Team A',
-      teamB:        teams[1] || 'Team B',
-      name:         m.name || `${teams[0]} vs ${teams[1]}`,
+      key:          m.key,
+      teamA:        m.teamA || 'Team A',
+      teamB:        m.teamB || 'Team B',
+      name:         m.name || `${m.teamA} vs ${m.teamB}`,
       isUpcoming:   false,
       scheduledTime: null,
     }
@@ -79,13 +76,12 @@ async function detectLiveMatch() {
   let soonest      = null
   let soonestDiff  = Infinity
 
-  for (const m of matches) {
-    if (skipKeys.has(m.id)) continue
-    if (stoppedKeys.has(m.id)) continue
-    if (m.matchStarted) continue  // already started
-    const rawTime = m.dateTimeGMT || m.date || null
-    if (!rawTime) continue
-    const matchMs = new Date(rawTime).getTime()
+  for (const m of upcoming) {
+    if (!m.key) continue
+    if (skipKeys.has(m.key)) continue
+    if (stoppedKeys.has(m.key)) continue
+    if (!m.dateTimeGMT) continue
+    const matchMs = new Date(m.dateTimeGMT).getTime()
     const diff    = matchMs - now
     if (diff > 0 && diff < maxAheadMs && diff < soonestDiff) {
       soonestDiff = diff
@@ -94,14 +90,13 @@ async function detectLiveMatch() {
   }
 
   if (soonest) {
-    const teams = soonest.teams || []
     return {
-      key:           soonest.id,
-      teamA:         teams[0] || 'Team A',
-      teamB:         teams[1] || 'Team B',
+      key:           soonest.key,
+      teamA:         soonest.teamA || 'Team A',
+      teamB:         soonest.teamB || 'Team B',
       name:          soonest.name || 'Upcoming Match',
       isUpcoming:    true,
-      scheduledTime: soonest.dateTimeGMT || soonest.date,
+      scheduledTime: soonest.dateTimeGMT,
     }
   }
 
@@ -110,10 +105,9 @@ async function detectLiveMatch() {
 
 async function isMatchStillLive(matchKey) {
   try {
-    const data = await cricapiGet('match_info', { id: matchKey })
-    const m = data?.data
-    if (!m) return true
-    return m.matchStarted && !m.matchEnded
+    const data = await getTicker()
+    const live = data?.live || []
+    return live.some(m => m.key === matchKey)
   } catch {
     return true  // assume live if we can't check (avoid stopping prematurely)
   }
