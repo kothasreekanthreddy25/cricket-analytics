@@ -38,7 +38,8 @@ export default function AdminStreamPage() {
     setLoading(true)
     try {
       const r = await fetch('/api/stream/auto-detect')
-      setResult(await r.json())
+      const data = await r.json()
+      setResult({ live: [], upcomingSoon: [], checkedAt: '', ...data })
     } catch (e: any) {
       setResult({ success: false, live: [], upcomingSoon: [], checkedAt: '', error: e.message })
     } finally {

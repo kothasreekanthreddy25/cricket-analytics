@@ -19,8 +19,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createMatchBroadcast, buildBroadcastTitle, buildBroadcastDescription } from '@/lib/youtube'
 
-const BASE = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
-
 interface TickerMatch {
   key?: string
   id?: string
@@ -50,7 +48,8 @@ export interface MatchStreamStatus {
 // Simple in-process set to avoid creating duplicate broadcasts per restart
 const broadcastedKeys = new Set<string>()
 
-export async function GET() {
+export async function GET(req: NextRequest) {
+  const BASE = req.nextUrl.origin
   try {
     const res = await fetch(`${BASE}/api/cricket/ticker`, { cache: 'no-store' })
     const json = await res.json()
@@ -122,11 +121,12 @@ export async function GET() {
       checkedAt: new Date().toISOString(),
     })
   } catch (err: any) {
-    return NextResponse.json({ success: false, error: err.message }, { status: 500 })
+    return NextResponse.json({ success: false, live: [], upcomingSoon: [], error: err.message }, { status: 500 })
   }
 }
 
 export async function POST(req: NextRequest) {
+  const BASE = req.nextUrl.origin
   try {
     const body = await req.json()
     const { matchKey, teamA, teamB, matchType = 'T20', venue = 'TBD' } = body
