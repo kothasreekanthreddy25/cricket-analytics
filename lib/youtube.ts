@@ -99,11 +99,13 @@ export async function createMatchBroadcast(opts: {
         enableAutoStart: true,
         enableAutoStop: true,
         enableDvr: true,
-        enableEmbed: true,
+        // YouTube rejects enableEmbed:true with "invalidEmbedSetting" for
+        // channels below its Embed Live Streams eligibility bar (1,000+
+        // subscribers and Partner Program approval) — leaving it off lets
+        // broadcast creation succeed; viewers watch via the YouTube link
+        // instead of the on-site embed until the channel clears that bar.
+        enableEmbed: false,
         recordFromStart: true,
-        // Ultra-low latency broadcasts can't be embedded on external sites —
-        // 'low' keeps latency down while staying compatible with enableEmbed,
-        // which the on-site YouTubePlayer relies on.
         latencyPreference: 'low',
       },
     },

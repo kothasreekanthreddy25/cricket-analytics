@@ -49,8 +49,17 @@ export interface MatchStreamStatus {
 // Simple in-process set to avoid creating duplicate broadcasts per restart
 const broadcastedKeys = new Set<string>()
 
+// req.nextUrl.origin reflects the container's internal bind address (e.g.
+// 0.0.0.0:8080) behind Railway's proxy — prefer the forwarded headers, which
+// carry the actual public host.
+function getOrigin(req: NextRequest): string {
+  const forwardedHost = req.headers.get('x-forwarded-host')
+  const forwardedProto = req.headers.get('x-forwarded-proto') || 'https'
+  return forwardedHost ? `${forwardedProto}://${forwardedHost}` : req.nextUrl.origin
+}
+
 export async function GET(req: NextRequest) {
-  const BASE = req.nextUrl.origin
+  const BASE = getOrigin(req)
   try {
     const json = await getTickerData()
 
@@ -126,7 +135,7 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  const BASE = req.nextUrl.origin
+  const BASE = getOrigin(req)
   try {
     const body = await req.json()
     const { matchKey, teamA, teamB, matchType = 'T20', venue = 'TBD' } = body
