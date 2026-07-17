@@ -101,7 +101,10 @@ export async function createMatchBroadcast(opts: {
         enableDvr: true,
         enableEmbed: true,
         recordFromStart: true,
-        latencyPreference: 'ultraLow',
+        // Ultra-low latency broadcasts can't be embedded on external sites —
+        // 'low' keeps latency down while staying compatible with enableEmbed,
+        // which the on-site YouTubePlayer relies on.
+        latencyPreference: 'low',
       },
     },
   })

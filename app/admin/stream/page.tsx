@@ -107,6 +107,13 @@ export default function AdminStreamPage() {
         {result && (
           <div className="space-y-6">
 
+            {!result.success && result.error && (
+              <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-4 flex items-center gap-2 text-sm text-red-400">
+                <AlertCircle className="w-4 h-4 flex-shrink-0" />
+                Check failed: {result.error}
+              </div>
+            )}
+
             {/* Live matches */}
             <section>
               <h2 className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-3 flex items-center gap-2">

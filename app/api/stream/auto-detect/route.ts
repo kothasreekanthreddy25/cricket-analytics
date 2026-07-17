@@ -18,6 +18,7 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { createMatchBroadcast, buildBroadcastTitle, buildBroadcastDescription } from '@/lib/youtube'
+import { getTickerData } from '@/lib/ticker'
 
 interface TickerMatch {
   key?: string
@@ -51,8 +52,7 @@ const broadcastedKeys = new Set<string>()
 export async function GET(req: NextRequest) {
   const BASE = req.nextUrl.origin
   try {
-    const res = await fetch(`${BASE}/api/cricket/ticker`, { cache: 'no-store' })
-    const json = await res.json()
+    const json = await getTickerData()
 
     const liveMatches: TickerMatch[] = json?.live || []
     const upcomingMatches: TickerMatch[] = (json?.upcoming || []).filter((m: any) => {
