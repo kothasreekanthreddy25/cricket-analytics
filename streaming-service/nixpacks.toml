@@ -1,8 +1,20 @@
 # Railway / Nixpacks build config for CricketTips.ai streaming service
-# Installs FFmpeg + DejaVu fonts (required for FFmpeg drawtext overlays)
+#
+# A custom [phases.setup] REPLACES Nixpacks' default Node.js detection
+# rather than adding to it, so nodejs/npm must be listed explicitly here
+# alongside ffmpeg + DejaVu fonts (required for FFmpeg drawtext overlays) —
+# otherwise `npm ci` fails with "npm: command not found". install/build/start
+# are also spelled out explicitly so nothing depends on auto-detection
+# (this service has no build step, unlike the main Next.js app).
 
 [phases.setup]
-nixPkgs = ["ffmpeg", "dejavu_fonts", "fontconfig"]
+nixPkgs = ["nodejs_20", "ffmpeg", "dejavu_fonts", "fontconfig"]
+
+[phases.install]
+cmds = ["npm ci"]
+
+[phases.build]
+cmds = []
 
 [start]
 cmd = "node index.js"
